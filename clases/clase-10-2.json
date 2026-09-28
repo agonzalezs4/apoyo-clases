@@ -1,0 +1,47 @@
+{
+  "nombre": "clase-10-2",
+  "p": [
+    {
+      "id": "0dgp4t",
+      "tipo": "alt",
+      "texto": "Una empresa sigue a 200 trabajadores durante un año. Al inicio, 20 ya tienen dermatitis de contacto. Durante el año, 18 de los demás desarrollan dermatitis. ¿Cuál es la incidencia acumulada?",
+      "opciones": [
+        "18/180",
+        "18/200",
+        "38/200",
+        "38/180"
+      ],
+      "multi": false
+    },
+    {
+      "id": "4n0gm2",
+      "tipo": "alt",
+      "texto": "En esa misma cohorte, 10 trabajadores sin dermatitis renuncian en junio y no se sabe qué les pasó después. ¿Qué problema genera esto?",
+      "opciones": [
+        "Ninguno, porque renunciaron estando sanos",
+        "Hay que contarlos como casos nuevos",
+        "La incidencia deja de ser una proporción",
+        "No sabemos si habrían enfermado después"
+      ],
+      "multi": false
+    },
+    {
+      "id": "b3ha6o",
+      "tipo": "alt",
+      "texto": "En un país, la incidencia de VIH se mantiene estable, pero cada año aumenta el número de personas que viven con VIH. ¿Cómo se explica?",
+      "opciones": [
+        "Cada año hay más casos nuevos de VIH",
+        "Las personas viven más años con la infección",
+        "Se diagnostican menos casos que antes",
+        "Más personas se curan de la infección cada año"
+      ],
+      "multi": false
+    },
+    {
+      "id": "map1c3",
+      "tipo": "num",
+      "texto": "En una comuna se registran 50 casos nuevos de tuberculosis al año y cada caso dura, en promedio, 6 meses. Si la situación se mantiene estable, ¿cuántas personas con tuberculosis hay en la comuna en un día cualquiera?",
+      "unidad": ""
+    }
+  ]
+}
