@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abriendo…</title>
+</head>
+<body style="font-family: system-ui, sans-serif; padding: 24px; font-size: 18px;">
+<p id="m">Abriendo la pregunta…</p>
+<script>
+(async () => {
+  const partes = location.pathname.split("/").filter(Boolean);
+  const codigo = decodeURIComponent(partes.pop() || "").toLowerCase().trim();
+  const base = "/" + partes.join("/") + (partes.length ? "/" : "");
+  const existe = async n => (await fetch(`${base}clases/${encodeURIComponent(n)}.json`, { cache: "no-store" })).ok;
+  let clase = codigo, p = 1;
+  const m = codigo.match(/^(.+)-(\d+)$/);
+  if (m && !(await existe(codigo))) { clase = m[1]; p = Number(m[2]); }
+  if (await existe(clase)) location.replace(`${base}votar.html?clase=${encodeURIComponent(clase)}&p=${p}`);
+  else document.getElementById("m").textContent = `No encontré «${codigo}». Revisa la dirección que aparece en pantalla.`;
+})();
+</script>
+</body>
+</html>
