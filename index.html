@@ -131,6 +131,10 @@ const HASH_CLAVE = "dce922f7f585c5f70384a3a2bd86428b5856a064b2e43e0ae3b3bf542d9b
       el("qrDescargar").disabled = el("qrGrande").disabled = false;
       nombre = "qr-" + t.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").slice(0, 60);
     }
+    el("qrEnlace").addEventListener("focus", e => {
+      const n = e.target.value.length;
+      setTimeout(() => e.target.setSelectionRange(n, n), 0);
+    });
     el("qrCrear").onclick = crear;
     el("qrEnlace").addEventListener("keydown", e => { if (e.key === "Enter") crear(); });
     el("qrDescargar").onclick = () => {
