@@ -75,6 +75,7 @@
   </header>
   <main>
     <section>
+      <div id="pagina"></div>
       <div id="zona" aria-live="polite"></div>
       <p id="resumen"></p>
     </section>
@@ -151,7 +152,7 @@ function mostrar() {
   $("zona").innerHTML = "";
   $("zona").dataset.clave = "";
   $("resumen").textContent = "";
-  $("btnVista").hidden = p.tipo !== "abi";
+  $("pagina").innerHTML = p.pagina ? `<iframe src="${p.pagina}" style="width:100%;height:60vh;border:0"></iframe>` : "";
   actualizar(true);
 }
 
