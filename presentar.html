@@ -78,7 +78,7 @@
       <div id="zona" aria-live="polite"></div>
       <p id="resumen"></p>
     </section>
-    <aside id="qrpanel"><div id="qr"></div><p>Escanea para responder</p></aside>
+    <aside id="qrpanel"><div id="qr"></div><p id="corto">Escanea para responder</p></aside>
   </main>
   <footer>
     <button id="btnAnterior" title="Flecha izquierda">Anterior</button>
@@ -134,6 +134,9 @@ function mostrar() {
     const c = encodeURIComponent(nombreClase);
     history.replaceState(null, "", `?clase=${c}&p=${i + 1}`);
     url = new URL(`votar.html?clase=${c}&q=${encodeURIComponent(p.id)}`, location.href).href;
+    const corto = new URL(`${nombreClase}-${i + 1}`, location.href).href.replace(/^https?:\/\//, "");
+    $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b>";
+    $("corto").querySelector("b").textContent = corto;
   } else {
     history.replaceState(null, "", `?i=${i}#${datosClase}`);
     url = new URL("votar.html#" + empaquetar(paraVotar(p)), location.href).href;
