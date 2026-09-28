@@ -37,6 +37,11 @@
   .enviar:disabled { opacity: .5; cursor: default; }
   .cuenta { text-align: right; color: var(--suave); font-size: 14px; margin-top: 4px; }
   #mensaje { font-size: 18px; color: var(--suave); margin-top: 20px; }
+  html, body { overscroll-behavior-x: none; }
+  body { overflow-x: hidden; }
+  #nav { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 28px; padding: 10px 0; background: var(--papel); }
+  #nav button { width: auto; margin: 0; padding: 12px 18px; min-width: 56px; touch-action: manipulation; }
+  #pos { color: var(--suave); font-size: 16px; }
 </style>
 </head>
 <body>
@@ -50,17 +55,21 @@
 <script>
 let p = null;
 let ronda = null;
-let clase = null, idx = 0;
-let xIni = 0, yIni = 0, sinSwipe = false;
+let clase = null, claseNombre = "", idx = 0, tEstado = 0;
+const enCurso = new Set();  // preguntas con un envío en marcha
+const fallidas = new Set(); // preguntas cuyo envío se agotó estando el niño en otra
+const mem = {};             // respaldo si el navegador no deja usar localStorage
 const LISTO = "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
-const claveVoto = r => `voto-${p.id}-${r}`;
-const claveRonda = id => `ronda-${id}`;
+const pref = () => claseNombre ? claseNombre + "/" : "";
+const claveVoto = r => `voto-${pref()}${p.id}-${r}`;
+const claveRonda = id => `ronda-${pref()}${id}`;
 const espera = ms => new Promise(res => setTimeout(res, ms));
-const leer = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const leer = k => { try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {} return k in mem ? mem[k] : null; };
+const guardar = (k, v) => { mem[k] = String(v); try { localStorage.setItem(k, v); } catch (e) {} };
+const olvidar = k => { delete mem[k]; try { localStorage.removeItem(k); } catch (e) {} };
 
 // Igual que api(), pero con tiempo máximo: si el servidor no responde, se reintenta en vez de quedar colgado
-async function llamar(params, ms = 12000) {
+async function llamar(params, ms = 15000) {
   const ac = new AbortController();
   const t = setTimeout(() => ac.abort(), ms);
   try {
@@ -71,52 +80,82 @@ async function llamar(params, ms = 12000) {
   } finally { clearTimeout(t); }
 }
 
+// Un corte breve de la red del aula no debe mostrar "enlace no válido"
+async function cargarConReintento(nombre) {
+  let ultimo;
+  for (let k = 0; k < 4; k++) {
+    try { return await cargarClase(nombre); }
+    catch (e) {
+      ultimo = e;
+      if (k < 3) { $("pregunta").textContent = "Cargando… la conexión está lenta"; await espera(600 * (k + 1) + Math.random() * 600); }
+    }
+  }
+  throw ultimo;
+}
+
 iniciar();
 
 async function iniciar() {
   const qs = new URLSearchParams(location.search);
+  let fallaRed = false;
   try {
     if (qs.get("clase")) {
-      clase = await cargarClase(qs.get("clase"));
+      claseNombre = qs.get("clase");
+      clase = await cargarConReintento(claseNombre);
       const k = clase.p.findIndex(x => x.id === qs.get("q"));
-      idx = k >= 0 ? k : (Number(qs.get("p")) || 1) - 1;
+      idx = k >= 0 ? k : Math.min(Math.max(0, (Number(qs.get("p")) || 1) - 1), clase.p.length - 1);
       p = clase.p[idx] || null;
     } else {
       p = desempaquetar(location.hash.slice(1));
     }
-  } catch (e) { p = null; }
+  } catch (e) { p = null; fallaRed = e instanceof TypeError; }
   if (!p) {
-    $("pregunta").textContent = "Este enlace no es válido. Vuelve a escanear el QR.";
+    $("pregunta").textContent = fallaRed
+      ? "No se pudo cargar la pregunta. Revisa tu conexión y vuelve a abrir el enlace."
+      : "Este enlace no es válido. Vuelve a escanear el QR.";
     return;
   }
   if (clase && clase.p.length > 1) armarNavegacion();
   mostrarPregunta(0);
   programarEstado();
+  const alVolver = () => { if (!document.hidden && quiereEstado()) setTimeout(estado, Math.random() * 2000); };
+  document.addEventListener("visibilitychange", alVolver);
+  addEventListener("online", alVolver);
 }
 
 function armarNavegacion() {
   $("error").insertAdjacentHTML("afterend",
-    `<div id="nav" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:28px">
-       <button id="ant" class="enviar" style="width:auto;margin:0;padding:12px 18px" aria-label="Pregunta anterior">‹</button>
-       <span id="pos" style="color:var(--suave);font-size:16px"></span>
-       <button id="sig" class="enviar" style="width:auto;margin:0;padding:12px 18px" aria-label="Pregunta siguiente">›</button>
+    `<div id="nav">
+       <button id="ant" class="enviar" aria-label="Pregunta anterior">‹</button>
+       <span id="pos" aria-live="polite"></span>
+       <button id="sig" class="enviar" aria-label="Pregunta siguiente">›</button>
      </div>`);
   $("ant").onclick = () => ir(-1);
   $("sig").onclick = () => ir(1);
-  document.addEventListener("touchstart", e => {
-    sinSwipe = !!e.target.closest("input, textarea");
-    xIni = e.touches[0].clientX; yIni = e.touches[0].clientY;
-  }, { passive: true });
-  document.addEventListener("touchend", e => {
-    if (sinSwipe) return;
-    const dx = e.changedTouches[0].clientX - xIni, dy = e.changedTouches[0].clientY - yIni;
-    if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) ir(dx < 0 ? 1 : -1);
-  }, { passive: true });
+  engancharSwipe(document);
   document.addEventListener("keydown", e => {
     if (e.target.closest("input, textarea")) return;
     if (e.key === "ArrowRight") ir(1);
     if (e.key === "ArrowLeft") ir(-1);
   });
+}
+
+// Deslizar a la izquierda = siguiente, a la derecha = anterior. También se engancha dentro del iframe.
+function engancharSwipe(doc) {
+  let x0 = 0, y0 = 0, anula = false;
+  doc.addEventListener("touchstart", e => {
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    const w = doc.defaultView.innerWidth;
+    // dos dedos (zoom), campos de texto y los bordes (gesto "atrás" del navegador) no cuentan
+    anula = e.touches.length > 1 || !!(e.target.closest && e.target.closest("input, textarea")) || x0 < 24 || x0 > w - 24;
+  }, { passive: true });
+  doc.addEventListener("touchcancel", () => { anula = true; }, { passive: true });
+  doc.addEventListener("touchend", e => {
+    if (anula) return;
+    if (window.visualViewport && window.visualViewport.scale > 1.02) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) ir(dx < 0 ? 1 : -1);
+  }, { passive: true });
 }
 
 function actualizarNav() {
@@ -128,64 +167,90 @@ function actualizarNav() {
 
 function mostrarPregunta(dir) {
   $("pregunta").textContent = p.texto;
-  const vieja = document.getElementById("pagina");
-  if (vieja) vieja.remove();
-  if (p.pagina) $("pregunta").insertAdjacentHTML("afterend", `<iframe id="pagina" src="${p.pagina}" style="width:100%;height:55vh;border:0;margin-bottom:16px"></iframe>`);
-  const guardada = leer(claveRonda(p.id));
-  ronda = guardada;
+  const actual = document.getElementById("pagina");
+  if (!p.pagina) { if (actual) actual.remove(); }
+  else if (!actual || actual.getAttribute("src") !== p.pagina) {
+    if (actual) actual.remove();
+    const f = document.createElement("iframe");
+    f.id = "pagina";
+    f.style.cssText = "width:100%;height:min(45vh,340px);border:0;margin-bottom:16px";
+    f.onload = () => { try { engancharSwipe(f.contentDocument); } catch (e) {} };
+    f.src = p.pagina;
+    $("pregunta").after(f);
+  }
+  ronda = leer(claveRonda(p.id));
   $("error").textContent = "";
   pintar(); // las opciones aparecen ya, sin esperar al servidor
   actualizarNav();
-  if (dir && document.querySelector("main").animate)
-    document.querySelector("main").animate([{ transform: `translateX(${dir * 36}px)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 180 });
-  setTimeout(estado, Math.random() * 1500); // los niños no consultan todos en el mismo instante
+  const main = document.querySelector("main");
+  if (dir && main.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+    main.animate([{ transform: `translateX(${dir * 36}px)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 180 });
+  clearTimeout(tEstado);
+  // Solo hace falta preguntar por la ronda si el niño ya votó (espera una nueva); si no, al enviar el servidor la devuelve
+  if (quiereEstado()) tEstado = setTimeout(estado, Math.random() * 4000);
 }
 
 function ir(d) {
   if (!clase) return;
   const n = idx + d;
   if (n < 0 || n >= clase.p.length) return; // en los extremos no pasa nada
-  const ta = document.querySelector("textarea");
-  if (ta && ta.value.trim() && !confirm("Tienes texto sin enviar. ¿Cambiar de pregunta igual?")) return;
+  const ta = document.querySelector("textarea"), env = document.querySelector("#zona .enviar");
+  if (ta && ta.value.trim() && !(env && env.disabled) && !confirm("Tienes texto sin enviar. ¿Cambiar de pregunta igual?")) return;
   idx = n;
   p = clase.p[n];
   const u = new URL(location.href);
   u.searchParams.set("p", n + 1);
   u.searchParams.delete("q");
   history.replaceState(null, "", u);
+  window.scrollTo(0, 0);
   mostrarPregunta(d);
 }
 
+const quiereEstado = () => p && p.tipo !== "abi" && leer(claveVoto(ronda)) !== null;
+
 // Consulta periódica (detecta si se abre una nueva ronda). Espaciada y con azar para no saturar al servidor.
 function programarEstado() {
-  setTimeout(() => { if (!document.hidden) estado(); programarEstado(); }, 20000 + Math.random() * 10000);
+  setTimeout(() => { if (!document.hidden && quiereEstado()) estado(); programarEstado(); }, 20000 + Math.random() * 10000);
 }
 
-async function estado() {
+async function estado(intento = 0) {
   const q = p;
   try {
-    const d = await llamar({ accion: "estado", q: q.id }, 15000);
-    if (q !== p) return; // el niño ya cambió de pregunta
+    const d = await llamar({ accion: "estado", q: q.id });
+    if (q !== p || d.ronda == null) return; // el niño ya cambió de pregunta / respuesta sin ronda
+    if (ronda != null && Number(d.ronda) < Number(ronda)) return; // respuesta vieja llegada tarde
     guardar(claveRonda(q.id), d.ronda);
-    if (String(d.ronda) !== String(ronda)) { ronda = d.ronda; pintar(); }
-  } catch (e) { /* la consulta es de fondo: si falla no se avisa, se intenta de nuevo */ }
+    if (String(d.ronda) !== String(ronda)) {
+      const antes = leer(claveVoto(ronda));
+      ronda = d.ronda;
+      // solo se repinta si cambia lo que el niño ve, y nunca en medio de un envío
+      if (!enCurso.has(q.id) && antes !== leer(claveVoto(ronda))) pintar();
+    }
+  } catch (e) {
+    // consulta de fondo: si falla no se avisa; se reintenta unas veces
+    if (intento < 3) setTimeout(() => { if (q === p) estado(intento + 1); }, 3000 + Math.random() * 3000);
+  }
 }
 
-async function enviar(r) {
-  const q = p;
-  const v = Math.random().toString(36).slice(2, 10); // mismo código en los reintentos (por si el servidor quiere evitar duplicados)
+async function enviar(r, q) {
+  // mismo código en los reintentos, y también si el niño repite el toque (por si el servidor evita duplicados)
+  const kv = `v-${pref()}${q.id}`;
+  let v = null;
+  try { const o = JSON.parse(leer(kv)); if (o && o.r === r) v = o.v; } catch (e) {}
+  if (!v) { v = Math.random().toString(36).slice(2, 10); guardar(kv, JSON.stringify({ r, v })); }
   const mostrar = (m, e) => { if (q === p) { $("mensaje").textContent = m; $("error").textContent = e || ""; } };
   mostrar("Enviando…");
-  const pausas = [800, 1600, 3000, 5000, 8000];
+  const pausas = [1000, 2500, 5000, 8000];
   for (let k = 0; k <= pausas.length; k++) {
     try {
-      const d = await llamar({ accion: "enviar", q: q.id, r, t: q.texto, v });
+      const d = await llamar({ accion: "enviar", q: q.id, r, t: q.texto, v }, 25000);
+      olvidar(kv);
       mostrar("");
       return d;
     } catch (e) {
       if (k < pausas.length) {
         if (k >= 1) mostrar("Enviando… (la conexión está lenta, sigue esperando)");
-        await espera(pausas[k] + Math.random() * 1000);
+        await espera(pausas[k] * (0.5 + Math.random()));
       }
     }
   }
@@ -196,15 +261,22 @@ async function enviar(r) {
 // Para alternativas, escala y número: una respuesta por ronda
 async function responderUnaVez(r) {
   const q = p;
+  if (enCurso.has(q.id)) return;
+  enCurso.add(q.id);
+  fallidas.delete(q.id);
   const controles = $("zona").querySelectorAll("button, input");
   controles.forEach(c => c.disabled = true);
-  const d = await enviar(r);
+  let d = null;
+  try { d = await enviar(r, q); } finally { enCurso.delete(q.id); }
   if (d) {
-    guardar(`voto-${q.id}-${d.ronda}`, r);
-    guardar(claveRonda(q.id), d.ronda);
-    if (q === p) { ronda = d.ronda; pintar(); }
+    const rr = d.ronda != null ? d.ronda : (q === p ? ronda : leer(claveRonda(q.id)));
+    guardar(`voto-${pref()}${q.id}-${rr}`, r);
+    if (d.ronda != null) guardar(claveRonda(q.id), d.ronda);
+    if (q === p) { ronda = rr; pintar(); }
   } else if (q === p) {
-    controles.forEach(c => c.disabled = false);
+    controles.forEach(c => { c.disabled = false; c.classList.remove("elegida"); });
+  } else {
+    fallidas.add(q.id);
   }
 }
 
@@ -220,6 +292,8 @@ function pintar() {
   zona.innerHTML = "";
   const ya = p.tipo === "abi" ? null : leer(claveVoto(ronda));
   $("mensaje").textContent = ya ? LISTO : "";
+  if (fallidas.has(p.id)) $("error").textContent = "No se pudo enviar tu respuesta. Inténtalo de nuevo.";
+  if (enCurso.has(p.id)) $("mensaje").textContent = "Enviando…";
 
   if (p.tipo === "alt") {
     const cont = document.createElement("div");
@@ -303,6 +377,8 @@ function pintar() {
     };
     zona.append(ta, cuenta, env);
   }
+
+  if (enCurso.has(p.id)) zona.querySelectorAll("button, input").forEach(c => c.disabled = true);
 }
 </script>
 </body>
