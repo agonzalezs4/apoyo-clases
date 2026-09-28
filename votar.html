@@ -70,6 +70,7 @@ async function iniciar() {
     $("pregunta").textContent = "Este enlace no es válido. Vuelve a escanear el QR.";
     return;
   }
+    $("pregunta").textContent = p.texto;
     if (p.pagina) $("pregunta").insertAdjacentHTML("afterend", `<iframe src="${p.pagina}" style="width:100%;height:55vh;border:0;margin-bottom:16px"></iframe>`);
   estado();
   setInterval(estado, 8000); // detecta si se abre una nueva ronda
