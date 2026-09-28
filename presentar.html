@@ -135,9 +135,8 @@ function mostrar() {
     history.replaceState(null, "", `?clase=${c}&p=${i + 1}`);
     url = new URL(`votar.html?clase=${c}&q=${encodeURIComponent(p.id)}`, location.href).href;
     const cod = nombreClase.replace(/^clase-/, "") + (i > 0 ? "-" + (i + 1) : "");
-    const corto = new URL(cod, location.href).href.replace(/^https?:\/\//, "");
     $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b>";
-    $("corto").querySelector("b").textContent = corto;
+    $("corto").querySelector("b").textContent = "tinyurl.com/epi-uss/" + cod;
   } else {
     history.replaceState(null, "", `?i=${i}#${datosClase}`);
     url = new URL("votar.html#" + empaquetar(paraVotar(p)), location.href).href;
