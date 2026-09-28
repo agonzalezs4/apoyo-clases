@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policonsumo y abandono: personas vs tiempo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f2937; --muted:#9ca3af; --line:#d1d5db;
+    --case:#c2410c; --casebg:#ffedd5;
+    --risk:#1d4ed8; --riskbg:#dbeafe;
+    --panel:#f3f4f6; --hi:#fef9c3;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#111827; --fg:#f3f4f6; --muted:#6b7280; --line:#374151;
+      --case:#fb923c; --casebg:#431407;
+      --risk:#60a5fa; --riskbg:#1e3a8a;
+      --panel:#1f2937; --hi:#422006;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:12px;background:var(--bg);color:var(--fg);
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:1.15rem;margin:0 0 2px}
+  .sub{margin:0 0 10px;font-size:.9rem;opacity:.85}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .tabs button{flex:1 1 0;min-width:140px;padding:9px 10px;border:1.5px solid var(--line);
+       background:transparent;color:var(--fg);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+  .tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+  .tabs button:focus-visible,#tcut:focus-visible{outline:3px solid var(--risk);outline-offset:2px}
+  .sliderrow{display:flex;align-items:center;gap:10px;margin:2px 0 4px}
+  .sliderrow label{white-space:nowrap;font-size:.95rem}
+  .sliderrow input{flex:1;min-width:0}
+  svg{width:100%;height:auto;display:block;touch-action:pan-y}
+  .tick text{fill:var(--fg);font-size:12px}
+  .domain,.tick line{stroke:var(--muted)}
+  .axlab,.gname,.leg{fill:var(--fg);font-size:12px}
+  .gname{font-weight:700;font-size:13px}
+  .grab{cursor:ew-resize}
+  .cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .card{flex:1 1 300px;background:var(--panel);border-radius:10px;padding:10px 12px}
+  .card h2{font-size:.95rem;margin:0 0 6px}
+  .m{padding:3px 6px;border-radius:6px;font-size:.92rem}
+  .m.on{background:var(--hi);font-weight:700}
+  .nb{white-space:nowrap}
+  .den{font-weight:400;font-size:.85rem;margin-top:4px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--risk);margin:2px 2px 0 0}
+  .dot.c{background:var(--case)}
+  .nota{font-size:.85rem;margin:8px 2px 0;opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="titulo"></h1>
+  <p class="sub" id="subtitulo"></p>
+
+  <div class="tabs" role="group" aria-label="Denominador">
+    <button data-m="prev" aria-pressed="true">Contar personas (prevalencia de período)</button>
+    <button data-m="tasa" aria-pressed="false">Contar tiempo (tasa)</button>
+  </div>
+
+  <div class="sliderrow">
+    <label for="tcut">Corte t = <b id="tval"></b></label>
+    <input type="range" id="tcut" step="1">
+  </div>
+
+  <svg id="chart" role="img" aria-label="Seguimiento de cada persona por grupo, con línea de corte t que se puede mover"></svg>
+
+  <div class="cards" id="cards"></div>
+  <p class="nota">Prevalencia de período: personas que abandonaron entre el ingreso y t, sobre el total de personas del grupo. No es la prevalencia puntual (una foto en un solo instante).</p>
+
+</div>
+
+<script>
+/* =====================================================================
+   EDITA AQUÍ (solo esta sección)
+   Cada persona se escribe como [meses observados, abandonó]
+     abandonó = 1  → dejó el tratamiento a los "meses" indicados
+     abandonó = 0  → seguía en tratamiento cuando terminó su observación
+   Atajo: rep(6, 6, 0) = 6 personas observadas 6 meses que NO abandonaron
+   ===================================================================== */
+const rep = (n, t, e) => Array.from({length:n}, () => [t, e]);
+
+const TITULO     = "Policonsumo y abandono de tratamiento";
+const SUBTITULO  = "Los mismos datos con dos denominadores. Mueva la línea t y compare.";
+const UNIDAD     = "meses";   // unidad de tiempo
+const POR        = 1000;      // la tasa se muestra "por 1.000 persona-meses"
+const T_INICIAL  = 6;         // dónde parte la línea t
+
+const GRUPOS = [
+  { nombre: "Una sustancia",
+    personas: [ [2,1],[3,1],[3,1],[5,1],          // 4 abandonos (el de los 5 meses ocurre después de t = 4)
+                ...rep(6, 6, 0) ] },              // 6 siguen en tratamiento
+  { nombre: "Policonsumo (2 o más sustancias)",
+    personas: [ [1,1],[1,1],[2,1],[3,1],          // 4 abandonos tempranos
+                ...rep(3,1,0), ...rep(4,2,0), ...rep(3,3,0), ...rep(2,4,0) ] } // ingresaron hace poco
+];
+
+/* ===================== FIN DE LO EDITABLE ===================== */
+
+/* ---------- Cálculos (solo con lo ocurrido hasta t) ---------- */
+const fmt = (v,d=1) => v.toFixed(d).replace(".",",");
+const calc = T => GRUPOS.map(g=>{
+  const n  = g.personas.length;
+  const ev = g.personas.filter(([t,e]) => e===1 && t<=T).length;
+  const pt = g.personas.reduce((s,[t]) => s + Math.min(t,T), 0);
+  return {n, ev, pt, prev: ev/n, tasa: pt>0 ? POR*ev/pt : 0};
+});
+const maxT = d3.max(GRUPOS, g=>d3.max(g.personas,p=>p[0]));
+const TMIN = 1;
+let tcut = Math.min(Math.max(T_INICIAL,TMIN),maxT), mode = "prev";
+
+/* ---------- Dibujo ---------- */
+const W=720, M={l:26,r:16,t:32,b:34}, rowH=12, headH=24, gap=12;
+let H = M.t + M.b;
+GRUPOS.forEach(g=>{ H += headH + g.personas.length*rowH + gap; });
+const svg = d3.select("#chart").attr("viewBox",`0 0 ${W} ${H}`);
+const x = d3.scaleLinear().domain([0,maxT]).range([M.l+6, W-M.r]);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function render(){
+  svg.selectAll("*").remove();
+  const S = calc(tcut);
+  const cCase=css("--case"), cCaseBg=css("--casebg"), cRisk=css("--risk"), cMut=css("--muted"), cFg=css("--fg");
+  let yOff = M.t;
+  const yTop = M.t - 8;
+  let legY = null;
+
+  GRUPOS.forEach((g,gi)=>{
+    const s = S[gi];
+    svg.append("text").attr("class","gname").attr("x",M.l).attr("y",yOff+15)
+       .text(`${g.nombre}  ·  n = ${s.n}  ·  abandonaron: ${s.ev}`);
+    if(gi===0) legY = yOff+15;
+    yOff += headH;
+
+    g.personas.forEach(([t,e],i)=>{
+      const y  = yOff + i*rowH + rowH/2;
+      const te = Math.min(t,tcut);          // tiempo que cuenta
+      const ev = e===1 && t<=tcut;          // abandono que cuenta
+
+      if(mode==="prev"){
+        if(ev) svg.append("rect").attr("x",M.l-10).attr("width",Math.max(x(tcut)-M.l+10,0))
+                 .attr("y",y-rowH/2+1).attr("height",rowH-2).attr("rx",3)
+                 .attr("fill",cCaseBg).attr("opacity",.75);
+        svg.append("circle").attr("cx",M.l-4).attr("cy",y).attr("r",4)
+           .attr("fill", ev?cCase:cRisk);
+        svg.append("line").attr("x1",x(0)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
+           .attr("stroke",cMut).attr("stroke-width",1);
+      } else {
+        svg.append("line").attr("x1",x(0)).attr("x2",x(te)).attr("y1",y).attr("y2",y)
+           .attr("stroke",cRisk).attr("stroke-width",5).attr("stroke-linecap","round");
+        if(t>tcut)
+          svg.append("line").attr("x1",x(tcut)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
+             .attr("stroke",cMut).attr("stroke-width",1);
+      }
+
+      if(e===1){
+        const s4=4;
+        svg.append("path").attr("d",`M${x(t)-s4},${y-s4}L${x(t)+s4},${y+s4}M${x(t)+s4},${y-s4}L${x(t)-s4},${y+s4}`)
+           .attr("stroke",cCase).attr("stroke-width",2.2).attr("fill","none");
+      } else {
+        svg.append("circle").attr("cx",x(t)).attr("cy",y).attr("r",3.6)
+           .attr("fill","var(--bg)").attr("stroke",cFg).attr("stroke-width",1.5);
+      }
+    });
+    yOff += g.personas.length*rowH + gap;
+  });
+  const yBottom = yOff - gap;
+
+  // Lo posterior a t queda atenuado (no cuenta)
+  if(tcut < maxT){
+    svg.append("rect").attr("x",x(tcut)).attr("width",x(maxT)-x(tcut)+8)
+       .attr("y",yTop).attr("height",yBottom-yTop+2).attr("fill","var(--bg)").attr("opacity",.7);
+  }
+
+  // Línea t + asa
+  svg.append("line").attr("class","grab").attr("x1",x(tcut)).attr("x2",x(tcut)).attr("y1",yTop).attr("y2",yBottom+2)
+     .attr("stroke",cFg).attr("stroke-width",2);
+  svg.append("circle").attr("class","grab").attr("cx",x(tcut)).attr("cy",yTop).attr("r",6.5)
+     .attr("fill",cFg).attr("stroke","var(--bg)").attr("stroke-width",2);
+  svg.append("text").attr("class","axlab").attr("x",Math.min(Math.max(x(tcut),40),W-40)).attr("y",yTop-12)
+     .attr("text-anchor","middle").attr("font-weight",700).text(`t = ${tcut} ${UNIDAD}`);
+
+  // Leyenda dentro del gráfico (esquina superior derecha)
+  const leg = svg.append("g");
+  const lt = leg.append("text").attr("class","leg").attr("x",W-M.r-4).attr("y",legY).attr("text-anchor","end");
+  lt.append("tspan").attr("fill",cCase).attr("font-weight",700).text("✕");
+  lt.append("tspan").text(" abandonó     ");
+  lt.append("tspan").attr("font-weight",700).text("○");
+  lt.append("tspan").text(" sigue en tratamiento");
+  const bb = lt.node().getBBox();
+  leg.insert("rect","text").attr("x",bb.x-5).attr("y",bb.y-2).attr("width",bb.width+10).attr("height",bb.height+4)
+     .attr("rx",4).attr("fill","var(--bg)").attr("stroke",cMut).attr("stroke-width",.8);
+
+  svg.append("g").attr("transform",`translate(0,${yBottom+4})`)
+     .call(d3.axisBottom(x).ticks(Math.min(maxT,12)).tickFormat(d=>d));
+  svg.append("text").attr("class","axlab").attr("x",(M.l+W-M.r)/2).attr("y",H-4)
+     .attr("text-anchor","middle").text(`${UNIDAD[0].toUpperCase()+UNIDAD.slice(1)} desde el ingreso al tratamiento`);
+
+  renderCards(S);
+}
+
+function renderCards(S){
+  const box = document.getElementById("cards"); box.innerHTML = "";
+  GRUPOS.forEach((g,gi)=>{
+    const s = S[gi];
+
+    // De qué está hecho cada denominador
+    const casos = g.personas.filter(([t,e]) => e===1 && t<=tcut).length;
+    const puntos = '<span class="dot c"></span>'.repeat(casos) + '<span class="dot"></span>'.repeat(s.n-casos);
+    const cuenta = {};
+    g.personas.forEach(([t]) => { const m = Math.min(t,tcut); cuenta[m] = (cuenta[m]||0)+1; });
+    const suma = Object.keys(cuenta).map(Number).sort((a,b)=>a-b)
+                   .map(m => cuenta[m]>1 ? `${m}×${cuenta[m]}` : `${m}`).join(" + ");
+
+    const c = document.createElement("div"); c.className="card";
+    c.innerHTML = `<h2>${g.nombre}</h2>
+      <div class="m ${mode==="prev"?"on":""}">Prevalencia de período de abandono = <span class="nb">${s.ev}/${s.n}</span> = <span class="nb">${fmt(100*s.prev)} %</span>
+        ${mode==="prev" ? `<div class="den">Denominador: ${s.n} personas, cada una cuenta 1<br>${puntos}</div>` : ""}</div>
+      <div class="m ${mode==="tasa"?"on":""}">Tasa de incidencia de abandono = <span class="nb">${s.ev}/${s.pt} persona-${UNIDAD}</span> = <span class="nb">${fmt(s.tasa)} por ${POR.toLocaleString("es-CL")}</span>
+        ${mode==="tasa" ? `<div class="den">Denominador: ${UNIDAD} que aportó cada persona hasta t<br>${suma} = ${s.pt} persona-${UNIDAD}</div>` : ""}</div>`;
+    box.appendChild(c);
+  });
+}
+
+/* ---------- Control de t: arrastrar la línea o usar el deslizador ---------- */
+const slider = document.getElementById("tcut");
+slider.min = TMIN; slider.max = maxT; slider.value = tcut;
+function setT(v){
+  v = Math.min(Math.max(Math.round(v),TMIN),maxT);
+  if(v===tcut) return;
+  tcut = v; slider.value = v;
+  document.getElementById("tval").textContent = `${v} ${UNIDAD}`;
+  render();
+}
+slider.addEventListener("input", e=>setT(+e.target.value));
+document.getElementById("tval").textContent = `${tcut} ${UNIDAD}`;
+
+const drag = d3.drag()
+  .container(() => svg.node())
+  .filter(ev => {                                   // solo se arrastra si se toca cerca de la línea
+    if(ev.button) return false;
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const [px] = d3.pointer(pt, svg.node());
+    return Math.abs(px - x(tcut)) < 20;
+  })
+  .on("start drag", ev => setT(x.invert(ev.x)));
+svg.call(drag).style("touch-action","pan-y");
+
+document.getElementById("titulo").textContent = TITULO;
+document.getElementById("subtitulo").textContent = SUBTITULO;
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+  mode = b.dataset.m;
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  render();
+}));
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
