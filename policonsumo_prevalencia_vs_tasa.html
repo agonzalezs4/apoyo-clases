@@ -3,48 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Policonsumo y abandono: personas vs tiempo</title>
+<title>Abandono de tratamiento: personas vs tiempo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
+  /* Paleta tomada de las diapositivas USS: azul marino, azules de las tarjetas, dorado del pie */
   :root{
-    --bg:#ffffff; --fg:#1f2937; --muted:#9ca3af; --line:#d1d5db;
-    --case:#c2410c; --casebg:#ffedd5;
-    --risk:#1d4ed8; --riskbg:#dbeafe;
-    --panel:#f3f4f6; --hi:#fef9c3;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg:#111827; --fg:#f3f4f6; --muted:#6b7280; --line:#374151;
-      --case:#fb923c; --casebg:#431407;
-      --risk:#60a5fa; --riskbg:#1e3a8a;
-      --panel:#1f2937; --hi:#422006;
-    }
+    --bg:#ffffff; --fg:#1f2937; --muted:#9aa5b8; --line:#c5cee0;
+    --navy:#17375e; --blue:#2d6fc4; --gold:#c9a961;
+    --case:#d62828; --casebg:#fde4e4;      /* abandono (la "x" roja de las diapos) */
+    --risk:#2d6fc4;                         /* personas / tiempo en tratamiento */
+    --panel:#e6ebf3; --hi:#fbf1d5;
   }
   *{box-sizing:border-box}
   body{margin:0;padding:12px;background:var(--bg);color:var(--fg);
-       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+       font-family:Calibri,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;line-height:1.4}
   .wrap{max-width:760px;margin:0 auto}
-  h1{font-size:1.15rem;margin:0 0 2px}
-  .sub{margin:0 0 10px;font-size:.9rem;opacity:.85}
+  h1{font-size:1.3rem;margin:0 0 4px;color:var(--navy);font-weight:700}
+  .bar{height:3px;width:64px;background:var(--gold);border-radius:2px;margin:0 0 8px}
+  .sub{margin:0 0 10px;font-size:.95rem}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-  .tabs button{flex:1 1 0;min-width:140px;padding:9px 10px;border:1.5px solid var(--line);
-       background:transparent;color:var(--fg);border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
-  .tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-  .tabs button:focus-visible,#tcut:focus-visible{outline:3px solid var(--risk);outline-offset:2px}
+  .tabs button{flex:1 1 0;min-width:150px;padding:9px 10px;border:1.5px solid var(--navy);
+       background:transparent;color:var(--navy);border-radius:8px;font:inherit;font-weight:700;cursor:pointer}
+  .tabs button[aria-pressed="true"]{background:var(--navy);color:#fff}
+  .tabs button:focus-visible,#tcut:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   .sliderrow{display:flex;align-items:center;gap:10px;margin:2px 0 4px}
-  .sliderrow label{white-space:nowrap;font-size:.95rem}
-  .sliderrow input{flex:1;min-width:0}
+  .sliderrow label{white-space:nowrap;font-size:.95rem;color:var(--navy)}
+  .sliderrow input{flex:1;min-width:0;accent-color:var(--navy)}
   svg{width:100%;height:auto;display:block;touch-action:pan-y}
   .tick text{fill:var(--fg);font-size:12px}
   .domain,.tick line{stroke:var(--muted)}
   .axlab,.gname,.leg{fill:var(--fg);font-size:12px}
-  .gname{font-weight:700;font-size:13px}
+  .gname{font-weight:700;font-size:13px;fill:var(--navy)}
   .grab{cursor:ew-resize}
-  .cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
   .card{flex:1 1 300px;background:var(--panel);border-radius:10px;padding:10px 12px}
-  .card h2{font-size:.95rem;margin:0 0 6px}
+  .card h2{font-size:1rem;margin:0 0 6px;color:var(--navy)}
   .m{padding:3px 6px;border-radius:6px;font-size:.92rem}
-  .m.on{background:var(--hi);font-weight:700}
+  .m.on{background:var(--hi);font-weight:700;box-shadow:inset 3px 0 0 var(--gold)}
   .nb{white-space:nowrap}
   .den{font-weight:400;font-size:.85rem;margin-top:4px}
   .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--risk);margin:2px 2px 0 0}
@@ -55,11 +50,12 @@
 <body>
 <div class="wrap">
   <h1 id="titulo"></h1>
+  <div class="bar"></div>
   <p class="sub" id="subtitulo"></p>
 
   <div class="tabs" role="group" aria-label="Denominador">
-    <button data-m="prev" aria-pressed="true">Contar personas (prevalencia de período)</button>
-    <button data-m="tasa" aria-pressed="false">Contar tiempo (tasa)</button>
+    <button data-m="prev" aria-pressed="true">Contar personas (incidencia acumulada)</button>
+    <button data-m="tasa" aria-pressed="false">Contar tiempo (tasa de incidencia)</button>
   </div>
 
   <div class="sliderrow">
@@ -70,7 +66,8 @@
   <svg id="chart" role="img" aria-label="Seguimiento de cada persona por grupo, con línea de corte t que se puede mover"></svg>
 
   <div class="cards" id="cards"></div>
-  <p class="nota">Prevalencia de período: personas que abandonaron entre el ingreso y t, sobre el total de personas del grupo. No es la prevalencia puntual (una foto en un solo instante).</p>
+  <p class="nota"><b>Incidencia acumulada:</b> abandonos hasta t sobre todas las personas que ingresaron, sin importar cuánto tiempo lleva cada una.
+     <b>Tasa de incidencia:</b> los mismos abandonos sobre el tiempo que cada persona estuvo en tratamiento y observada (persona-meses).</p>
 
 </div>
 
@@ -103,6 +100,7 @@ const GRUPOS = [
 
 /* ---------- Cálculos (solo con lo ocurrido hasta t) ---------- */
 const fmt = (v,d=1) => v.toFixed(d).replace(".",",");
+const POR_TXT = String(POR).replace(/\B(?=(\d{3})+(?!\d))/g,".");   // 1000 → "1.000"
 const calc = T => GRUPOS.map(g=>{
   const n  = g.personas.length;
   const ev = g.personas.filter(([t,e]) => e===1 && t<=T).length;
@@ -124,7 +122,7 @@ const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).
 function render(){
   svg.selectAll("*").remove();
   const S = calc(tcut);
-  const cCase=css("--case"), cCaseBg=css("--casebg"), cRisk=css("--risk"), cMut=css("--muted"), cFg=css("--fg");
+  const cCase=css("--case"), cCaseBg=css("--casebg"), cRisk=css("--risk"), cMut=css("--muted"), cFg=css("--navy");
   let yOff = M.t;
   const yTop = M.t - 8;
   let legY = null;
@@ -144,7 +142,7 @@ function render(){
       if(mode==="prev"){
         if(ev) svg.append("rect").attr("x",M.l-10).attr("width",Math.max(x(tcut)-M.l+10,0))
                  .attr("y",y-rowH/2+1).attr("height",rowH-2).attr("rx",3)
-                 .attr("fill",cCaseBg).attr("opacity",.75);
+                 .attr("fill",cCaseBg).attr("opacity",.85);
         svg.append("circle").attr("cx",M.l-4).attr("cy",y).attr("r",4)
            .attr("fill", ev?cCase:cRisk);
         svg.append("line").attr("x1",x(0)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
@@ -201,6 +199,7 @@ function render(){
      .attr("text-anchor","middle").text(`${UNIDAD[0].toUpperCase()+UNIDAD.slice(1)} desde el ingreso al tratamiento`);
 
   renderCards(S);
+  avisarAlto();
 }
 
 function renderCards(S){
@@ -218,9 +217,9 @@ function renderCards(S){
 
     const c = document.createElement("div"); c.className="card";
     c.innerHTML = `<h2>${g.nombre}</h2>
-      <div class="m ${mode==="prev"?"on":""}">Prevalencia de período de abandono = <span class="nb">${s.ev}/${s.n}</span> = <span class="nb">${fmt(100*s.prev)} %</span>
+      <div class="m ${mode==="prev"?"on":""}">Incidencia acumulada de abandono = <span class="nb">${s.ev}/${s.n}</span> = <span class="nb">${fmt(100*s.prev)} %</span>
         ${mode==="prev" ? `<div class="den">Denominador: ${s.n} personas, cada una cuenta 1<br>${puntos}</div>` : ""}</div>
-      <div class="m ${mode==="tasa"?"on":""}">Tasa de incidencia de abandono = <span class="nb">${s.ev}/${s.pt} persona-${UNIDAD}</span> = <span class="nb">${fmt(s.tasa)} por ${POR.toLocaleString("es-CL")}</span>
+      <div class="m ${mode==="tasa"?"on":""}">Tasa de incidencia de abandono = <span class="nb">${s.ev}/${s.pt} persona-${UNIDAD}</span> = <span class="nb">${fmt(s.tasa)} por ${POR_TXT}</span>
         ${mode==="tasa" ? `<div class="den">Denominador: ${UNIDAD} que aportó cada persona hasta t<br>${suma} = ${s.pt} persona-${UNIDAD}</div>` : ""}</div>`;
     box.appendChild(c);
   });
@@ -257,7 +256,11 @@ document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",
   document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed", x===b));
   render();
 }));
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
+
+/* Si va dentro de un iframe, avisa su alto a la página que lo contiene (opcional) */
+function avisarAlto(){
+  try{ parent.postMessage({tipo:"alto-widget", alto:document.documentElement.scrollHeight},"*"); }catch(e){}
+}
 render();
 </script>
 </body>
