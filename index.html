@@ -87,7 +87,65 @@ const HASH_CLAVE = "dce922f7f585c5f70384a3a2bd86428b5856a064b2e43e0ae3b3bf542d9b
     <h2>Clases publicadas</h2>
     <div id="clases">Cargando…</div>
   </section>
-
+  <!-- ===== Generador de QR ===== -->
+  <section class="panel" id="panelQR">
+    <h2>Generar un QR</h2>
+    <label>Enlace
+      <input id="qrEnlace" placeholder="tinyurl.com/epi-uss/10-1" autocomplete="off">
+    </label>
+    <div class="qr-botones">
+      <button id="qrCrear" class="principal">Crear QR</button>
+      <button id="qrDescargar" disabled>Descargar PNG</button>
+      <button id="qrGrande" disabled>Mostrar en grande</button>
+    </div>
+    <div id="qrZona" hidden>
+      <img id="qrImg" alt="Código QR">
+      <p id="qrTexto"></p>
+    </div>
+  </section>
+  <style>
+    #panelQR .qr-botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    #qrZona { text-align: center; margin-top: 18px; }
+    #qrImg { width: 260px; max-width: 100%; image-rendering: pixelated; }
+    #qrTexto { font-size: 18px; overflow-wrap: anywhere; margin: 8px 0 0; }
+    #qrZona:fullscreen { background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    #qrZona:fullscreen #qrImg { width: min(75vh, 90vw); }
+    #qrZona:fullscreen #qrTexto { font-size: 4vh; color: var(--tinta); }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script>
+  (() => {
+    const el = id => document.getElementById(id);
+    let nombre = "qr";
+    function crear() {
+      let t = el("qrEnlace").value.trim();
+      if (!t) return;
+      if (!/^[a-z]+:\/\//i.test(t) && /^\S+\.\S+$/.test(t)) t = "https://" + t;
+      const qr = qrcode(0, "M");
+      qr.addData(unescape(encodeURIComponent(t)));
+      qr.make();
+      el("qrImg").src = qr.createDataURL(16, 4);
+      el("qrTexto").textContent = t.replace(/^https?:\/\//, "");
+      el("qrZona").hidden = false;
+      el("qrDescargar").disabled = el("qrGrande").disabled = false;
+      nombre = "qr-" + t.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").slice(0, 60);
+    }
+    el("qrCrear").onclick = crear;
+    el("qrEnlace").addEventListener("keydown", e => { if (e.key === "Enter") crear(); });
+    el("qrDescargar").onclick = () => {
+      const img = el("qrImg"), c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext("2d");
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0);
+      const a = document.createElement("a");
+      a.href = c.toDataURL("image/png");
+      a.download = nombre + ".png";
+      a.click();
+    };
+    el("qrGrande").onclick = () => el("qrZona").requestFullscreen?.();
+  })();
+  </script>
   <h2>Editor</h2>
   <label class="nombre-clase">Nombre de la clase (se usa en la dirección; por ejemplo clase-05)
     <input id="nombre" placeholder="clase-05" autocomplete="off"></label>
