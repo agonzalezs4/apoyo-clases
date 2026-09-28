@@ -61,7 +61,7 @@ async function iniciar() {
   try {
     if (qs.get("clase")) {
       const c = await cargarClase(qs.get("clase"));
-      p = c.p.find(x => x.id === qs.get("q")) || null;
+      p = c.p.find(x => x.id === qs.get("q")) || c.p[(Number(qs.get("p")) || 1) - 1] || null;
     } else {
       p = desempaquetar(location.hash.slice(1));
     }
