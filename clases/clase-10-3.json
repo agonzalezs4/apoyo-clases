@@ -6,36 +6,39 @@
       "tipo": "alt",
       "texto": "Con el corte en t = 4 meses, en el grupo de policonsumo abandonaron 4 de 16 personas (25 %). ¿Qué tipo de medida es ese 25 %?",
       "opciones": [
-        "\"Prevalencia puntual, porque es una foto a los 4 meses\",",
-        "\"Prevalencia de período, porque cuenta a todos los que abandonaron hasta los 4 meses\",",
-        "\"Incidencia acumulada, porque cuenta abandonos nuevos sobre las personas que ingresaron\",",
-        "\"Tasa de incidencia, porque considera el tiempo de cada persona\""
+        "Prevalencia puntual, porque es una foto a los 4 meses",
+        "Prevalencia de período, porque cuenta a todos los que abandonaron hasta los 4 meses",
+        "Incidencia acumulada, porque cuenta abandonos nuevos sobre las personas que ingresaron",
+        "Tasa de incidencia, porque considera el tiempo de cada persona"
       ],
-      "multi": false
+      "multi": false,
+      "pagina": "policonsumo_prevalencia_vs_tasa.html"
     },
     {
       "id": "4n0gm2",
       "tipo": "alt",
       "texto": "Con el corte a t = 4 meses, ¿qué afirmación es correcta?",
       "opciones": [
-        "\"Contando personas, abandona más el grupo de una sustancia; contando tiempo, abandona más el policonsumo\",",
-        "\"Con los dos denominadores abandona más el policonsumo\",",
-        "\"Con los dos denominadores abandona más el grupo de una sustancia\",",
-        "\"Contando personas, abandona más el policonsumo; contando tiempo, abandona más el grupo de una sustancia\""
+        "Contando personas, abandona más el grupo de una sustancia; contando tiempo, abandona más el policonsumo",
+        "Con los dos denominadores abandona más el policonsumo",
+        "Con los dos denominadores abandona más el grupo de una sustancia",
+        "Contando personas, abandona más el policonsumo; contando tiempo, abandona más el grupo de una sustancia"
       ],
-      "multi": false
+      "multi": false,
+      "pagina": "policonsumo_prevalencia_vs_tasa.html"
     },
     {
       "id": "b3ha6o",
       "tipo": "alt",
       "texto": "¿A los 4 meses desde el ingreso, qué grupo abandona el tratamiento más rápidamente?",
       "opciones": [
-        "\"El policonsumo abandona después, porque su incidencia acumulada de abandono es menor\",",
-        "\"El policonsumo abandona antes, porque su tasa de incidencia de abandono es mayor\",",
-        "\"El policonsumo abandona antes, porque su incidencia acumulada de abandono es mayor\",",
-        "\"El policonsumo abandona después, porque su tasa de incidencia de abandono es menor\""
+        "El policonsumo abandona después, porque su incidencia acumulada de abandono es menor",
+        "El policonsumo abandona antes, porque su tasa de incidencia de abandono es mayor",
+        "El policonsumo abandona antes, porque su incidencia acumulada de abandono es mayor",
+        "El policonsumo abandona después, porque su tasa de incidencia de abandono es menor"
       ],
-      "multi": false
+      "multi": false,
+      "pagina": "policonsumo_prevalencia_vs_tasa.html"
     }
   ]
 }
