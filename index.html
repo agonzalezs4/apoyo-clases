@@ -262,7 +262,7 @@ function tarjeta(p, idx) {
         <button data-acc="borrar">Eliminar</button>
       </span>
     </div>
-    <label>Pregunta<textarea data-campo="texto" rows="2" placeholder="Escribe la pregunta">${esc(p.texto)}</textarea></label>
+    <label>Página (opcional)<input data-campo="pagina" value="${esc(p.pagina)}" placeholder="policonsumo_prevalencia_vs_tasa.html"></label>
     ${extra}`;
 
   d.addEventListener("input", e => {
