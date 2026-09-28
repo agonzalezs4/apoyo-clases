@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preguntas de la clase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="config.js"></script>
+<script src="repo.js"></script>
+<style>
+  main { max-width: 820px; margin: 0 auto; padding: 36px 20px 80px; }
+  h1 { font-size: 34px; margin: 0 0 6px; }
+  h2 { font-size: 24px; margin: 0 0 12px; }
+  .ayuda { color: var(--suave); font-size: 18px; margin: 0 0 24px; line-height: 1.4; }
+  .panel { background: #fff; border: 1px solid var(--riel); border-radius: 6px; padding: 18px 20px; margin-bottom: 28px; }
+  .panel ol { padding-left: 1.3em; line-height: 1.5; font-size: 17px; }
+  .panel li { margin-bottom: 8px; overflow-wrap: anywhere; }
+  .clase { border-top: 1px solid var(--riel); padding: 10px 0; }
+  .clase:first-child { border-top: 0; }
+  .fila-clase { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 18px; }
+  .fila-clase .links { margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .enlaces { margin: 10px 0 0; }
+  .enlaces .txt { display: block; color: var(--suave); font-size: 15px; }
+  .tarjeta { background: #fff; border: 1px solid var(--riel); border-radius: 6px; padding: 18px 20px; margin-bottom: 16px; }
+  .cabeza { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .cabeza .num { font-weight: 700; font-size: 22px; }
+  .cabeza .tipo { color: var(--suave); }
+  .cabeza .botones { margin-left: auto; display: flex; gap: 6px; }
+  label { display: block; font-size: 15px; color: var(--suave); margin-top: 10px; }
+  label.check { display: flex; gap: 8px; align-items: center; color: var(--tinta); }
+  textarea, input:not([type=checkbox]) {
+    display: block; width: 100%; margin-top: 4px; font: inherit; font-size: 18px; color: var(--tinta);
+    padding: 8px 10px; border: 1px solid var(--riel); border-radius: 4px; background: var(--papel);
+  }
+  textarea:focus, input:focus { outline: 2px solid var(--barra); outline-offset: 0; }
+  .fila4 { display: grid; grid-template-columns: 90px 90px 1fr 1fr; gap: 12px; }
+  .nota { color: var(--suave); margin: 10px 0 0; }
+  button { font-size: 15px; padding: 7px 12px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  button:hover:not(:disabled) { border-color: var(--suave); }
+  button:disabled { opacity: .4; cursor: default; }
+  .nombre-clase { margin: 0 0 20px; }
+  .nombre-clase input { max-width: 320px; }
+  .agregar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 20px 0 32px; }
+  .agregar span { margin-right: 4px; }
+  .acciones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+  .principal { background: var(--barra); border-color: var(--barra); color: #fff; font-size: 18px; padding: 10px 20px; }
+  .principal:hover:not(:disabled) { border-color: var(--tinta); }
+  #aviso { color: var(--suave); font-size: 17px; }
+  #aviso:empty { display: none; }
+  @media (max-width: 620px) { .fila4 { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Preguntas de la clase</h1>
+  <p class="ayuda">Arma las preguntas aquí y publícalas en el repositorio. Cada clase publicada tiene su propia dirección,
+    y cada pregunta, su propio enlace para proyectarla. La hoja de cálculo solo recibe las respuestas.</p>
+
+  <section class="panel">
+    <h2>Clases publicadas</h2>
+    <div id="clases">Cargando…</div>
+  </section>
+
+  <h2>Editor</h2>
+  <label class="nombre-clase">Nombre de la clase (se usa en la dirección; por ejemplo clase-05)
+    <input id="nombre" placeholder="clase-05" autocomplete="off"></label>
+
+  <div id="lista"></div>
+
+  <div class="agregar">
+    <span>Agregar pregunta:</span>
+    <button data-tipo="alt">Alternativas</button>
+    <button data-tipo="abi">Abierta</button>
+    <button data-tipo="esc">Escala</button>
+    <button data-tipo="num">Número</button>
+  </div>
+
+  <div class="acciones">
+    <button id="btnPublicar" class="principal">Publicar en el repositorio</button>
+    <button id="btnPresentar">Probar sin publicar</button>
+    <button id="btnNueva">Empezar clase nueva</button>
+  </div>
+  <p id="aviso" aria-live="polite"></p>
+
+  <section id="panelPublicar" class="panel" hidden>
+    <h2>Publicar «<span id="pubNombre"></span>»</h2>
+    <ol id="conGithub">
+      <li><a id="lnkNuevo" target="_blank" rel="noopener">Abrir GitHub con el archivo listo</a>.
+        Revisa que el nombre del archivo diga <b>clases/<span class="pubN"></span>.json</b> y pulsa <b>Commit changes</b>.</li>
+      <li>Si esta clase ya estaba publicada y la cambiaste, GitHub no te dejará crearla de nuevo. En ese caso
+        <a id="lnkEditar" target="_blank" rel="noopener">abre el archivo existente</a>, borra su contenido,
+        pega el nuevo con el botón de abajo y pulsa <b>Commit changes</b>.</li>
+      <li>En uno o dos minutos queda disponible. Presentar desde la primera pregunta:
+        <a id="lnkPresentar" target="_blank" rel="noopener"></a></li>
+    </ol>
+    <p id="sinGithub" hidden>Abre este editor desde tu página de GitHub Pages para obtener los enlaces directos.
+      Mientras tanto, crea en GitHub el archivo <b>clases/<span class="pubN"></span>.json</b> y pega el contenido.</p>
+    <button id="btnCopiarJSON">Copiar contenido del archivo</button>
+    <button id="btnDescargar">Descargar archivo</button>
+  </section>
+</main>
+
+<script>
+const ALMACEN = "menti-clase";
+const qs = new URLSearchParams(location.search);
+const GH = repoGithub();
+let rama = "main";
+let clase = null;
+
+function aviso(t) { $("aviso").textContent = t; }
+function nuevaId() { return Math.random().toString(36).slice(2, 8); }
+
+function nueva(tipo) {
+  const p = { id: nuevaId(), tipo, texto: "" };
+  if (tipo === "alt") Object.assign(p, { opciones: [], multi: false });
+  if (tipo === "esc") Object.assign(p, { min: 1, max: 5, etqMin: "", etqMax: "" });
+  if (tipo === "num") p.unidad = "";
+  return p;
+}
+
+function ejemplo() {
+  const a = nueva("alt");
+  a.texto = "En un estudio de cohorte, ¿qué medida compara el riesgo entre expuestos y no expuestos?";
+  a.opciones = ["Odds ratio", "Riesgo relativo", "Prevalencia", "Tasa de mortalidad"];
+  const b = nueva("abi");
+  b.texto = "¿Qué palabra se te viene a la mente con «sesgo de selección»?";
+  const c = nueva("esc");
+  c.texto = "¿Qué tan seguro te sientes calculando un riesgo relativo?";
+  c.etqMin = "Nada"; c.etqMax = "Totalmente";
+  const d = nueva("num");
+  d.texto = "¿Qué porcentaje de adultos en Chile crees que fuma a diario?";
+  d.unidad = "%";
+  return { nombre: "prueba", p: [a, b, c, d] };
+}
+
+function guardar() {
+  localStorage.setItem(ALMACEN, JSON.stringify(clase));
+  history.replaceState(null, "", location.pathname + "#" + empaquetar(clase));
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+/* ---------- Tarjetas de preguntas ---------- */
+function tarjeta(p, idx) {
+  const d = document.createElement("section");
+  d.className = "tarjeta";
+  let extra = "";
+  if (p.tipo === "alt") extra = `
+    <label>Alternativas, una por línea
+      <textarea data-campo="opciones" rows="4" placeholder="Opción A&#10;Opción B">${esc(p.opciones.join("\n"))}</textarea></label>
+    <label class="check"><input type="checkbox" data-campo="multi" ${p.multi ? "checked" : ""}> Permitir marcar varias</label>`;
+  if (p.tipo === "esc") extra = `
+    <div class="fila4">
+      <label>Desde<input type="number" data-campo="min" value="${p.min}"></label>
+      <label>Hasta<input type="number" data-campo="max" value="${p.max}"></label>
+      <label>Texto del mínimo<input data-campo="etqMin" value="${esc(p.etqMin)}" placeholder="Nada"></label>
+      <label>Texto del máximo<input data-campo="etqMax" value="${esc(p.etqMax)}" placeholder="Totalmente"></label>
+    </div>`;
+  if (p.tipo === "num") extra = `
+    <label>Unidad (opcional)<input data-campo="unidad" value="${esc(p.unidad)}" placeholder="%, años, casos por 100.000…"></label>`;
+  if (p.tipo === "abi") extra = `
+    <p class="nota">Texto libre. Cada estudiante puede enviar más de una respuesta. Se muestra como nube o como lista.</p>`;
+
+  d.innerHTML = `
+    <div class="cabeza">
+      <span class="num">${idx + 1}</span><span class="tipo">${TIPOS[p.tipo]}</span>
+      <span class="botones">
+        <button data-acc="subir" ${idx === 0 ? "disabled" : ""} aria-label="Subir">↑</button>
+        <button data-acc="bajar" ${idx === clase.p.length - 1 ? "disabled" : ""} aria-label="Bajar">↓</button>
+        <button data-acc="borrar">Eliminar</button>
+      </span>
+    </div>
+    <label>Pregunta<textarea data-campo="texto" rows="2" placeholder="Escribe la pregunta">${esc(p.texto)}</textarea></label>
+    ${extra}`;
+
+  d.addEventListener("input", e => {
+    const c = e.target.dataset.campo;
+    if (!c) return;
+    if (c === "opciones") p.opciones = e.target.value.split("\n").map(s => s.trim()).filter(Boolean);
+    else if (c === "multi") p.multi = e.target.checked;
+    else if (c === "min" || c === "max") p[c] = parseInt(e.target.value, 10);
+    else p[c] = e.target.value;
+    $("panelPublicar").hidden = true;
+    guardar();
+  });
+  d.addEventListener("click", e => {
+    const a = e.target.dataset.acc;
+    if (!a) return;
+    if (a === "borrar" && !confirm("¿Eliminar esta pregunta?")) return;
+    if (a === "borrar") clase.p.splice(idx, 1);
+    if (a === "subir") [clase.p[idx - 1], clase.p[idx]] = [clase.p[idx], clase.p[idx - 1]];
+    if (a === "bajar") [clase.p[idx + 1], clase.p[idx]] = [clase.p[idx], clase.p[idx + 1]];
+    $("panelPublicar").hidden = true;
+    guardar(); pintar();
+  });
+  return d;
+}
+
+function pintar() {
+  const lista = $("lista");
+  lista.innerHTML = "";
+  clase.p.forEach((p, i) => lista.appendChild(tarjeta(p, i)));
+  $("btnPublicar").disabled = $("btnPresentar").disabled = !clase.p.length;
+}
+
+function revisar() {
+  for (const [i, p] of clase.p.entries()) {
+    const n = `La pregunta ${i + 1}`;
+    if (!p.texto.trim()) return `${n} no tiene texto.`;
+    if (p.tipo === "alt" && p.opciones.length < 2) return `${n} necesita al menos dos alternativas.`;
+    if (p.tipo === "alt" && p.opciones.some(o => o.includes("‖"))) return `${n} tiene el carácter ‖, que está reservado.`;
+    if (p.tipo === "esc" && !(p.max > p.min && p.max - p.min <= 10)) return `${n}: la escala debe ir de menor a mayor y tener como máximo 11 valores.`;
+  }
+  return "";
+}
+
+/* ---------- Publicar ---------- */
+function contenidoArchivo() {
+  return JSON.stringify({ nombre: clase.nombre, p: clase.p }, null, 2);
+}
+
+function publicar() {
+  const error = revisar() || (!clase.nombre ? "Ponle un nombre a la clase antes de publicarla." : "");
+  if (error) { aviso(error); return; }
+  aviso("");
+  const ruta = `clases/${clase.nombre}.json`;
+  $("pubNombre").textContent = clase.nombre;
+  document.querySelectorAll(".pubN").forEach(el => el.textContent = clase.nombre);
+  const pres = new URL("presentar.html?clase=" + encodeURIComponent(clase.nombre), location.href).href;
+  $("lnkPresentar").href = pres;
+  $("lnkPresentar").textContent = pres.replace(/^https?:\/\//, "");
+  if (GH) {
+    $("lnkNuevo").href = `https://github.com/${GH.usuario}/${GH.repo}/new/${rama}` +
+      `?filename=${encodeURIComponent(ruta)}&value=${encodeURIComponent(contenidoArchivo())}`;
+    $("lnkEditar").href = `https://github.com/${GH.usuario}/${GH.repo}/edit/${rama}/${ruta}`;
+  }
+  $("conGithub").hidden = !GH;
+  $("sinGithub").hidden = !!GH;
+  $("panelPublicar").hidden = false;
+  $("panelPublicar").scrollIntoView({ behavior: "smooth" });
+}
+
+/* ---------- Lista de clases del repositorio ---------- */
+async function listarClases() {
+  const cont = $("clases");
+  if (!GH) { cont.textContent = "La lista aparece cuando abres esta página desde GitHub Pages."; return; }
+  try {
+    const info = await fetch(`https://api.github.com/repos/${GH.usuario}/${GH.repo}`).then(r => r.ok ? r.json() : null);
+    if (info && info.default_branch) rama = info.default_branch;
+    const r = await fetch(`https://api.github.com/repos/${GH.usuario}/${GH.repo}/contents/clases?ref=${rama}`);
+    if (r.status === 404) { cont.textContent = "Todavía no hay clases publicadas."; return; }
+    if (!r.ok) throw new Error("GitHub respondió " + r.status);
+    const nombres = (await r.json())
+      .filter(a => a.type === "file" && a.name.endsWith(".json"))
+      .map(a => a.name.slice(0, -5))
+      .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
+    cont.innerHTML = "";
+    if (!nombres.length) { cont.textContent = "Todavía no hay clases publicadas."; return; }
+    nombres.forEach(n => cont.appendChild(filaClase(n)));
+  } catch (e) {
+    cont.textContent = "No pude leer la lista desde GitHub (" + e.message + "). Los enlaces directos siguen funcionando.";
+  }
+}
+
+function filaClase(n) {
+  const d = document.createElement("div");
+  d.className = "clase";
+  d.innerHTML = `
+    <div class="fila-clase"><strong></strong>
+      <span class="links"><a target="_blank" rel="noopener">Presentar</a><a>Editar aquí</a><button>Ver enlaces por pregunta</button></span>
+    </div>
+    <ol class="enlaces" hidden></ol>`;
+  d.querySelector("strong").textContent = n;
+  const [aPres, aEdit] = d.querySelectorAll("a");
+  aPres.href = "presentar.html?clase=" + encodeURIComponent(n);
+  aEdit.href = "index.html?clase=" + encodeURIComponent(n);
+  aEdit.onclick = e => {
+    if (clase.p.length && !confirm("Se reemplazarán las preguntas que tienes ahora en el editor. ¿Continuar?")) e.preventDefault();
+  };
+  const ol = d.querySelector("ol");
+  const btn = d.querySelector("button");
+  btn.onclick = async () => {
+    if (!ol.hidden) { ol.hidden = true; btn.textContent = "Ver enlaces por pregunta"; return; }
+    ol.hidden = false;
+    btn.textContent = "Ocultar enlaces";
+    ol.innerHTML = "<li>Cargando…</li>";
+    try {
+      const c = await cargarClase(n);
+      ol.innerHTML = "";
+      c.p.forEach((p, k) => {
+        const url = new URL(`presentar.html?clase=${encodeURIComponent(n)}&p=${k + 1}`, location.href).href;
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="txt"></span><a target="_blank" rel="noopener"></a> <button>Copiar</button>`;
+        li.querySelector(".txt").textContent = p.texto;
+        const a = li.querySelector("a");
+        a.href = url;
+        a.textContent = url.replace(/^https?:\/\//, "");
+        const b = li.querySelector("button");
+        b.onclick = async () => {
+          try { await navigator.clipboard.writeText(url); b.textContent = "Copiado"; setTimeout(() => b.textContent = "Copiar", 1500); }
+          catch (e) { b.textContent = "Cópialo a mano"; }
+        };
+        ol.appendChild(li);
+      });
+    } catch (e) {
+      ol.innerHTML = "";
+      const li = document.createElement("li");
+      li.textContent = e.message;
+      ol.appendChild(li);
+    }
+  };
+  return d;
+}
+
+/* ---------- Eventos ---------- */
+$("nombre").addEventListener("input", e => {
+  const limpio = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
+  if (limpio !== e.target.value) e.target.value = limpio;
+  clase.nombre = limpio;
+  $("panelPublicar").hidden = true;
+  guardar();
+});
+document.querySelectorAll(".agregar button").forEach(b => b.onclick = () => {
+  clase.p.push(nueva(b.dataset.tipo));
+  $("panelPublicar").hidden = true;
+  guardar(); pintar();
+  $("lista").lastElementChild.querySelector("textarea").focus();
+});
+$("btnPublicar").onclick = publicar;
+$("btnPresentar").onclick = () => {
+  const error = revisar();
+  if (error) { aviso(error); return; }
+  aviso("");
+  window.open(`presentar.html?i=0#${empaquetar(clase)}`, "_blank");
+};
+$("btnNueva").onclick = () => {
+  if (!confirm("¿Empezar una clase nueva en el editor? Las clases ya publicadas no se tocan.")) return;
+  clase = { nombre: "", p: [] };
+  $("nombre").value = "";
+  $("panelPublicar").hidden = true;
+  guardar(); pintar();
+};
+$("btnCopiarJSON").onclick = async () => {
+  try { await navigator.clipboard.writeText(contenidoArchivo()); aviso("Contenido copiado. Pégalo en GitHub y pulsa Commit changes."); }
+  catch (e) { aviso("No pude copiar; usa Descargar archivo."); }
+};
+$("btnDescargar").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([contenidoArchivo()], { type: "application/json" }));
+  a.download = (clase.nombre || "clase") + ".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+/* ---------- Inicio ---------- */
+async function iniciar() {
+  if (qs.get("clase")) {
+    try {
+      clase = await cargarClase(qs.get("clase"));
+      clase.nombre = clase.nombre || qs.get("clase");
+      aviso(`Editando «${clase.nombre}». Cuando termines, pulsa Publicar para guardar los cambios en el repositorio.`);
+    } catch (e) { aviso(e.message); }
+  }
+  if (!clase) clase = desempaquetar(location.hash.slice(1));
+  if (!clase) { try { clase = JSON.parse(localStorage.getItem(ALMACEN)); } catch (e) {} }
+  if (!clase || !Array.isArray(clase.p)) clase = ejemplo();
+  clase.nombre = clase.nombre || "";
+  $("nombre").value = clase.nombre;
+  guardar();
+  pintar();
+  listarClases();
+}
+iniciar();
+</script>
+</body>
+</html>

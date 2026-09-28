@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="repo.js"></script>
+<style>
+  body {
+    min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto;
+    padding: clamp(16px, 3vw, 40px); gap: clamp(12px, 2vw, 28px);
+  }
+  header p { margin: 0 0 6px; color: var(--suave); font-size: clamp(16px, 1.6vw, 22px); }
+  h1 { margin: 0; font-size: clamp(26px, 3.4vw, 50px); line-height: 1.15; max-width: 34ch; }
+  main { display: grid; grid-template-columns: 1fr auto; gap: clamp(16px, 3vw, 48px); align-items: center; min-width: 0; }
+  #zona { min-width: 0; }
+  #resumen { margin: 18px 0 0; color: var(--suave); font-size: clamp(16px, 1.7vw, 24px); }
+  #resumen:empty { display: none; }
+  .vacio { font-size: clamp(20px, 2.4vw, 34px); color: var(--suave); }
+
+  /* Barras (alternativas y escala) */
+  .barras { display: grid; gap: clamp(10px, 1.6vw, 22px); }
+  .fila { display: grid; grid-template-columns: minmax(80px, 30%) 1fr auto; gap: 16px; align-items: center; }
+  .etiqueta { font-size: clamp(18px, 2vw, 30px); font-weight: 700; overflow-wrap: anywhere; }
+  .riel { background: var(--riel); height: clamp(28px, 4vw, 56px); border-radius: 4px; overflow: hidden; }
+  .relleno { background: var(--barra); height: 100%; width: 0; transition: width .6s ease; }
+  .valor { font-size: clamp(18px, 2vw, 30px); min-width: 5.5ch; text-align: right; font-variant-numeric: tabular-nums; }
+  .valor small { color: var(--suave); font-size: .7em; margin-left: 6px; }
+
+  /* Histograma (número) */
+  .histo { display: flex; align-items: flex-end; gap: 6px; height: clamp(220px, 45vh, 480px); }
+  .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; min-width: 0; }
+  .colbarra { width: 100%; background: var(--barra); border-radius: 3px 3px 0 0; min-height: 2px; }
+  .cuenta { font-size: clamp(14px, 1.5vw, 22px); margin-bottom: 4px; }
+  .rango { font-size: clamp(11px, 1.1vw, 15px); color: var(--suave); margin-top: 6px; text-align: center; overflow-wrap: anywhere; }
+
+  /* Abierta: nube y lista */
+  .nube { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 26px; line-height: 1.1; }
+  .nube span { font-weight: 700; }
+  .nube .repetida { color: var(--barra); }
+  .lista { columns: 3 260px; column-gap: 16px; max-height: 62vh; overflow: auto; }
+  .lista p { break-inside: avoid; margin: 0 0 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; font-size: clamp(16px, 1.6vw, 22px); }
+
+  /* QR */
+  #qrpanel { text-align: center; background: #fff; padding: 16px; border: 1px solid var(--riel); }
+  #qrpanel img { width: clamp(170px, 21vw, 320px); height: auto; image-rendering: pixelated; display: block; }
+  #qrpanel p { margin: 8px 0 0; font-size: 17px; color: var(--suave); }
+  .oculto-qr #qrpanel { display: none; }
+  .oculto-qr main { grid-template-columns: 1fr; }
+  .resultados-ocultos #zona, .resultados-ocultos #resumen { visibility: hidden; }
+
+  footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  footer button, footer a { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; text-decoration: none; color: var(--tinta); }
+  footer button:hover, footer a:hover { border-color: var(--suave); }
+  #estado { margin-left: auto; color: var(--suave); font-size: 15px; }
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; }
+    .fila { grid-template-columns: 1fr auto; }
+    .fila .riel { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) { .relleno { transition: none; } }
+</style>
+</head>
+<body>
+  <header>
+    <p id="meta">Cargando…</p>
+    <h1 id="pregunta"></h1>
+  </header>
+  <main>
+    <section>
+      <div id="zona" aria-live="polite"></div>
+      <p id="resumen"></p>
+    </section>
+    <aside id="qrpanel"><div id="qr"></div><p>Escanea para responder</p></aside>
+  </main>
+  <footer>
+    <button id="btnAnterior" title="Flecha izquierda">Anterior</button>
+    <button id="btnSiguiente" title="Flecha derecha">Siguiente</button>
+    <button id="btnOcultar" title="Tecla H">Ocultar resultados</button>
+    <button id="btnVista" title="Tecla W" hidden>Ver como lista</button>
+    <button id="btnRonda" title="Tecla R">Nueva ronda</button>
+    <button id="btnQR" title="Tecla Q">Ocultar QR</button>
+    <button id="btnPantalla" title="Tecla F">Pantalla completa</button>
+    <a id="btnEditar" href="index.html">Editar preguntas</a>
+    <span id="estado"></span>
+    <p id="error" class="error"></p>
+  </footer>
+
+<script>
+const qs = new URLSearchParams(location.search);
+const nombreClase = qs.get("clase");        // clase publicada: presentar.html?clase=clase-05&p=2
+const datosClase = location.hash.slice(1);  // prueba desde el editor: presentar.html?i=0#...
+let clase = null, i = 0, vista = "nube", enCurso = false;
+
+iniciar();
+
+async function iniciar() {
+  try {
+    if (nombreClase) {
+      clase = await cargarClase(nombreClase);
+      i = (Number(qs.get("p")) || 1) - 1;
+      $("btnEditar").href = "index.html?clase=" + encodeURIComponent(nombreClase);
+    } else {
+      clase = desempaquetar(datosClase);
+      i = Number(qs.get("i")) || 0;
+      $("btnEditar").href = "index.html#" + datosClase;
+    }
+  } catch (e) {
+    $("meta").textContent = "";
+    $("pregunta").textContent = e.message;
+    return;
+  }
+  if (!clase || !clase.p || !clase.p.length) {
+    $("meta").textContent = "";
+    $("pregunta").textContent = "No hay preguntas en este enlace. Vuelve al editor.";
+    return;
+  }
+  i = Math.min(Math.max(0, i), clase.p.length - 1);
+  mostrar();
+  setInterval(actualizar, 3000);
+}
+
+function mostrar() {
+  const p = clase.p[i];
+  let url;
+  if (nombreClase) {
+    const c = encodeURIComponent(nombreClase);
+    history.replaceState(null, "", `?clase=${c}&p=${i + 1}`);
+    url = new URL(`votar.html?clase=${c}&q=${encodeURIComponent(p.id)}`, location.href).href;
+  } else {
+    history.replaceState(null, "", `?i=${i}#${datosClase}`);
+    url = new URL("votar.html#" + empaquetar(paraVotar(p)), location.href).href;
+  }
+  $("pregunta").textContent = p.texto;
+  document.title = p.texto;
+  $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}`;
+  const qr = qrcode(0, "M");
+  qr.addData(url);
+  qr.make();
+  $("qr").innerHTML = `<img alt="Código QR para responder" src="${qr.createDataURL(8, 2)}">`;
+  $("zona").innerHTML = "";
+  $("zona").dataset.clave = "";
+  $("resumen").textContent = "";
+  $("btnVista").hidden = p.tipo !== "abi";
+  actualizar(true);
+}
+
+async function actualizar(forzar) {
+  if (enCurso && !forzar) return;
+  enCurso = true;
+  const p = clase.p[i];
+  try {
+    const d = await api({ accion: "leer", q: p.id });
+    if (p !== clase.p[i]) return; // se cambió de pregunta mientras cargaba
+    const n = d.respuestas.length;
+    $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}, ronda ${d.ronda}, ${n} respuesta${n === 1 ? "" : "s"}`;
+    if (!n) {
+      $("zona").dataset.clave = "";
+      $("zona").innerHTML = '<p class="vacio">Esperando respuestas… escanea el QR para participar.</p>';
+      $("resumen").textContent = "";
+    } else {
+      ({ alt: dibujarAlt, esc: dibujarEsc, abi: dibujarAbi, num: dibujarNum })[p.tipo](p, d.respuestas);
+    }
+    $("error").textContent = "";
+    $("estado").textContent = "Actualizado " + new Date().toLocaleTimeString("es-CL");
+  } catch (e) {
+    $("error").textContent = "No pude leer las respuestas: " + e.message;
+  } finally {
+    enCurso = false;
+  }
+}
+
+/* ---------- Barras reutilizables (se animan en vez de saltar) ---------- */
+function barras(filas) {
+  const zona = $("zona");
+  const clave = "barras" + filas.length;
+  if (zona.dataset.clave !== clave) {
+    zona.dataset.clave = clave;
+    zona.innerHTML = '<div class="barras"></div>';
+    filas.forEach(() => {
+      const f = document.createElement("div");
+      f.className = "fila";
+      f.innerHTML = '<div class="etiqueta"></div><div class="riel"><div class="relleno"></div></div><div class="valor"></div>';
+      zona.firstChild.appendChild(f);
+    });
+  }
+  const els = zona.firstChild.children;
+  filas.forEach((f, k) => {
+    els[k].querySelector(".etiqueta").textContent = f.etiqueta;
+    els[k].querySelector(".valor").innerHTML = `${f.n}<small>${Math.round(f.pct)}%</small>`;
+    els[k].querySelector(".relleno").style.width = f.pct + "%";
+  });
+}
+
+function dibujarAlt(p, rs) {
+  const conteo = new Map(p.opciones.map(o => [o, 0]));
+  rs.forEach(r => r.split(SEP).forEach(x => { if (conteo.has(x)) conteo.set(x, conteo.get(x) + 1); }));
+  const n = rs.length;
+  barras(p.opciones.map(o => ({ etiqueta: o, n: conteo.get(o), pct: 100 * conteo.get(o) / n })));
+  $("resumen").textContent = p.multi ? "Se podía marcar más de una alternativa: los porcentajes son sobre el total de personas." : "";
+}
+
+function dibujarEsc(p, rs) {
+  const vals = rs.map(aNumero).filter(x => x !== null);
+  const filas = [];
+  for (let v = p.min; v <= p.max; v++) {
+    const n = vals.filter(x => x === v).length;
+    let etq = String(v);
+    if (v === p.min && p.etqMin) etq += ` (${p.etqMin})`;
+    if (v === p.max && p.etqMax) etq += ` (${p.etqMax})`;
+    filas.push({ etiqueta: etq, n, pct: vals.length ? 100 * n / vals.length : 0 });
+  }
+  barras(filas);
+  if (vals.length) {
+    const prom = vals.reduce((a, b) => a + b, 0) / vals.length;
+    $("resumen").textContent = `Promedio ${formatear(prom)}, mediana ${formatear(mediana(vals))}`;
+  }
+}
+
+function dibujarNum(p, rs) {
+  const vals = rs.map(aNumero).filter(x => x !== null);
+  const u = p.unidad ? " " + p.unidad : "";
+  const zona = $("zona");
+  zona.dataset.clave = "num";
+  if (!vals.length) { zona.innerHTML = '<p class="vacio">Las respuestas recibidas no son números.</p>'; return; }
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const k = min === max ? 1 : Math.min(10, new Set(vals).size);
+  const ancho = (max - min) / k || 1;
+  const bins = Array.from({ length: k }, (_, j) => ({ desde: min + j * ancho, hasta: min + (j + 1) * ancho, n: 0 }));
+  vals.forEach(x => { bins[Math.min(k - 1, Math.floor((x - min) / ancho))].n++; });
+  const tope = Math.max(...bins.map(b => b.n));
+  const etq = b => min === max ? formatear(min) : `${formatear(b.desde)}–${formatear(b.hasta)}`;
+  zona.innerHTML = '<div class="histo">' + bins.map(b =>
+    `<div class="col"><span class="cuenta">${b.n || ""}</span>` +
+    `<div class="colbarra" style="height:${Math.max(1, 85 * b.n / tope)}%"></div>` +
+    `<span class="rango">${etq(b)}</span></div>`).join("") + "</div>";
+  const prom = vals.reduce((a, b) => a + b, 0) / vals.length;
+  $("resumen").textContent = `Mediana ${formatear(mediana(vals))}${u}, promedio ${formatear(prom)}${u}, ` +
+                             `rango ${formatear(min)} a ${formatear(max)}${u}` +
+                             (vals.length < rs.length ? ` (${rs.length - vals.length} respuesta(s) no numérica(s) omitidas)` : "");
+}
+
+function normalizar(s) {
+  return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/^[\s"'«¿¡.,;:!?-]+|[\s"'».,;:!?-]+$/g, "");
+}
+
+function dibujarAbi(p, rs) {
+  const zona = $("zona");
+  zona.dataset.clave = "abi";
+  zona.innerHTML = "";
+  if (vista === "lista") {
+    const cont = document.createElement("div");
+    cont.className = "lista";
+    [...rs].reverse().forEach(r => { const el = document.createElement("p"); el.textContent = r; cont.appendChild(el); });
+    zona.appendChild(cont);
+    $("resumen").textContent = "Las más recientes aparecen primero.";
+    return;
+  }
+  const grupos = new Map();
+  rs.forEach(r => {
+    const k = normalizar(r);
+    if (!k) return;
+    if (!grupos.has(k)) grupos.set(k, { texto: r.trim(), n: 0 });
+    grupos.get(k).n++;
+  });
+  const lista = [...grupos.values()].sort((a, b) => b.n - a.n);
+  const tope = lista[0]?.n || 1;
+  const cont = document.createElement("div");
+  cont.className = "nube";
+  lista.forEach(g => {
+    const el = document.createElement("span");
+    el.textContent = g.texto;
+    el.style.fontSize = (tope === 1 ? 30 : 20 + 56 * (g.n - 1) / (tope - 1)) + "px";
+    if (g.n > 1) { el.className = "repetida"; el.title = g.n + " veces"; }
+    cont.appendChild(el);
+  });
+  zona.appendChild(cont);
+  $("resumen").textContent = tope > 1 ? "El tamaño indica cuántas personas escribieron lo mismo." : "";
+}
+
+/* ---------- Controles ---------- */
+function ir(paso) {
+  const j = i + paso;
+  if (j >= 0 && j < clase.p.length) { i = j; mostrar(); }
+}
+function alternarOcultar() {
+  const oc = document.body.classList.toggle("resultados-ocultos");
+  $("btnOcultar").textContent = oc ? "Mostrar resultados" : "Ocultar resultados";
+}
+function alternarVista() {
+  if (clase.p[i].tipo !== "abi") return;
+  vista = vista === "nube" ? "lista" : "nube";
+  $("btnVista").textContent = vista === "nube" ? "Ver como lista" : "Ver como nube";
+  actualizar(true);
+}
+async function nuevaRonda() {
+  const clave = localStorage.getItem("menti-clave") || prompt("Clave de profesor (la que pusiste en Apps Script):");
+  if (!clave) return;
+  if (!confirm("¿Empezar una nueva ronda para esta pregunta? Las respuestas anteriores quedan en la hoja y el gráfico parte de cero.")) return;
+  try {
+    await api({ accion: "ronda", q: clase.p[i].id, clave });
+    localStorage.setItem("menti-clave", clave);
+    $("zona").dataset.clave = "";
+    actualizar(true);
+  } catch (e) {
+    localStorage.removeItem("menti-clave");
+    $("error").textContent = e.message;
+  }
+}
+function alternarQR() {
+  const oc = document.body.classList.toggle("oculto-qr");
+  $("btnQR").textContent = oc ? "Mostrar QR" : "Ocultar QR";
+}
+function pantallaCompleta() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+$("btnAnterior").onclick = () => ir(-1);
+$("btnSiguiente").onclick = () => ir(1);
+$("btnOcultar").onclick = alternarOcultar;
+$("btnVista").onclick = alternarVista;
+$("btnRonda").onclick = nuevaRonda;
+$("btnQR").onclick = alternarQR;
+$("btnPantalla").onclick = pantallaCompleta;
+document.addEventListener("keydown", e => {
+  if (!clase) return;
+  const k = e.key.toLowerCase();
+  if (e.key === "ArrowRight") ir(1);
+  else if (e.key === "ArrowLeft") ir(-1);
+  else if (k === "h") alternarOcultar();
+  else if (k === "w") alternarVista();
+  else if (k === "r") nuevaRonda();
+  else if (k === "q") alternarQR();
+  else if (k === "f") pantallaCompleta();
+});
+</script>
+</body>
+</html>
