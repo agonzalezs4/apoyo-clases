@@ -2,7 +2,7 @@
   "nombre": "clase-10-3",
   "p": [
     {
-      "id": "0dgp4t",
+      "id": "c103-0dgp4t",
       "tipo": "alt",
       "texto": "Con el corte en t = 4 meses, en el grupo de policonsumo abandonaron 4 de 16 personas (25 %). ¿Qué tipo de medida es ese 25 %?",
       "opciones": [
@@ -15,7 +15,7 @@
       "pagina": "policonsumo_prevalencia_vs_tasa.html"
     },
     {
-      "id": "4n0gm2",
+      "id": "c103-4n0gm2",
       "tipo": "alt",
       "texto": "Con el corte a t = 4 meses, ¿qué afirmación es correcta?",
       "opciones": [
@@ -28,7 +28,7 @@
       "pagina": "policonsumo_prevalencia_vs_tasa.html"
     },
     {
-      "id": "b3ha6o",
+      "id": "c103-b3ha6o",
       "tipo": "alt",
       "texto": "¿A los 4 meses desde el ingreso, qué grupo abandona el tratamiento más rápidamente?",
       "opciones": [
