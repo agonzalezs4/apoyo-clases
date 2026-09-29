@@ -4,11 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Responder</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilos.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script src="config.js"></script>
 <script src="repo.js"></script>
 <style>
@@ -58,6 +54,7 @@ let ronda = null;
 let clase = null, claseNombre = "", idx = 0, tEstado = 0;
 const enCurso = new Set();  // preguntas con un envío en marcha
 const fallidas = new Set(); // preguntas cuyo envío se agotó estando el niño en otra
+const ultEstado = {};       // cuándo se consultó la ronda de cada pregunta
 const mem = {};             // respaldo si el navegador no deja usar localStorage
 const LISTO = "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
 const pref = () => claseNombre ? claseNombre + "/" : "";
@@ -87,10 +84,23 @@ async function cargarConReintento(nombre) {
     try { return await cargarClase(nombre); }
     catch (e) {
       ultimo = e;
-      if (k < 3) { $("pregunta").textContent = "Cargando… la conexión está lenta"; await espera(600 * (k + 1) + Math.random() * 600); }
+      if (!(e instanceof TypeError) && k >= 1) break; // 404 o archivo dañado: no tiene sentido insistir
+      if (k < (e instanceof TypeError ? 3 : 1)) { $("pregunta").textContent = "Cargando… la conexión está lenta"; await espera(600 * (k + 1) + Math.random() * 600); }
     }
   }
   throw ultimo;
+}
+
+// lz-string solo hace falta en el modo antiguo (pregunta dentro del enlace); así no bloquea la carga normal
+function cargarLZ() {
+  return new Promise((ok, mal) => {
+    if (typeof LZString !== "undefined") return ok();
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js";
+    s.onload = ok;
+    s.onerror = () => mal(new TypeError("lz-string"));
+    document.head.appendChild(s);
+  });
 }
 
 iniciar();
@@ -106,6 +116,7 @@ async function iniciar() {
       idx = k >= 0 ? k : Math.min(Math.max(0, (Number(qs.get("p")) || 1) - 1), clase.p.length - 1);
       p = clase.p[idx] || null;
     } else {
+      await cargarLZ();
       p = desempaquetar(location.hash.slice(1));
     }
   } catch (e) { p = null; fallaRed = e instanceof TypeError; }
@@ -187,7 +198,7 @@ function mostrarPregunta(dir) {
     main.animate([{ transform: `translateX(${dir * 36}px)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 180 });
   clearTimeout(tEstado);
   // Solo hace falta preguntar por la ronda si el niño ya votó (espera una nueva); si no, al enviar el servidor la devuelve
-  if (quiereEstado()) tEstado = setTimeout(estado, Math.random() * 4000);
+  if (quiereEstado() && Date.now() - (ultEstado[p.id] || 0) > 45000) tEstado = setTimeout(estado, Math.random() * 4000);
 }
 
 function ir(d) {
@@ -206,15 +217,16 @@ function ir(d) {
   mostrarPregunta(d);
 }
 
-const quiereEstado = () => p && p.tipo !== "abi" && leer(claveVoto(ronda)) !== null;
+function quiereEstado() { return !!p && p.tipo !== "abi" && leer(claveVoto(ronda)) !== null; }
 
 // Consulta periódica (detecta si se abre una nueva ronda). Espaciada y con azar para no saturar al servidor.
 function programarEstado() {
-  setTimeout(() => { if (!document.hidden && quiereEstado()) estado(); programarEstado(); }, 20000 + Math.random() * 10000);
+  setTimeout(() => { if (!document.hidden && quiereEstado()) estado(); programarEstado(); }, 60000 + Math.random() * 30000);
 }
 
 async function estado(intento = 0) {
   const q = p;
+  ultEstado[q.id] = Date.now();
   try {
     const d = await llamar({ accion: "estado", q: q.id });
     if (q !== p || d.ronda == null) return; // el niño ya cambió de pregunta / respuesta sin ronda
@@ -228,7 +240,7 @@ async function estado(intento = 0) {
     }
   } catch (e) {
     // consulta de fondo: si falla no se avisa; se reintenta unas veces
-    if (intento < 3) setTimeout(() => { if (q === p) estado(intento + 1); }, 3000 + Math.random() * 3000);
+    if (intento < 2) setTimeout(() => { if (q === p) estado(intento + 1); }, 5000 + Math.random() * 5000);
   }
 }
 
@@ -240,10 +252,10 @@ async function enviar(r, q) {
   if (!v) { v = Math.random().toString(36).slice(2, 10); guardar(kv, JSON.stringify({ r, v })); }
   const mostrar = (m, e) => { if (q === p) { $("mensaje").textContent = m; $("error").textContent = e || ""; } };
   mostrar("Enviando…");
-  const pausas = [1000, 2500, 5000, 8000];
+  const pausas = [1000, 2500, 5000, 8000, 8000, 8000, 8000];
   for (let k = 0; k <= pausas.length; k++) {
     try {
-      const d = await llamar({ accion: "enviar", q: q.id, r, t: q.texto, v }, 25000);
+      const d = await llamar({ accion: "enviar", q: q.id, r, t: q.texto, v }, 12000);
       olvidar(kv);
       mostrar("");
       return d;
@@ -273,10 +285,9 @@ async function responderUnaVez(r) {
     guardar(`voto-${pref()}${q.id}-${rr}`, r);
     if (d.ronda != null) guardar(claveRonda(q.id), d.ronda);
     if (q === p) { ronda = rr; pintar(); }
-  } else if (q === p) {
-    controles.forEach(c => { c.disabled = false; c.classList.remove("elegida"); });
   } else {
     fallidas.add(q.id);
+    if (q === p) pintar(); // pintar() muestra el error y deja los botones libres
   }
 }
 
@@ -371,8 +382,8 @@ function pintar() {
       if (!r) { $("error").textContent = "Escribe algo antes de enviar."; return; }
       const q = p;
       env.disabled = true;
-      const d = await enviar(r);
-      env.disabled = false;
+      let d = null;
+      try { d = await enviar(r, q); } finally { env.disabled = false; }
       if (d && q === p) { ta.value = ""; cuenta.textContent = "0 / 200"; $("mensaje").textContent = "Enviado. Puedes escribir otra respuesta si quieres."; }
     };
     zona.append(ta, cuenta, env);
