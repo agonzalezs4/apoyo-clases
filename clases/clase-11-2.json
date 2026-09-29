@@ -1,0 +1,41 @@
+{
+  "nombre": "clase-11-2",
+  "p": [
+    {
+      "id": "af8l1e",
+      "tipo": "alt",
+      "texto": "Calcule las tasas de mortalidad específicas por edad (por 1.000 habitantes) de cada comuna. Al compararlas grupo por grupo, ¿qué comuna tiene la menor mortalidad?",
+      "opciones": [
+        "Costa tiene mayor mortalidad en ambos grupos de edad",
+        "Costa tiene mayor mortalidad solo en el grupo de 65 y más",
+        "Costa tiene menor mortalidad en ambos grupos de edad",
+        "Ambas comunas tienen igual mortalidad en cada grupo de edad"
+      ],
+      "multi": false
+    },
+    {
+      "id": "abu6of",
+      "tipo": "alt",
+      "texto": "Si Costa tiene menor mortalidad en cada grupo de edad, ¿qué explica que su tasa cruda sea más del doble que la de Valle?",
+      "opciones": [
+        "En Costa el 48% tiene 65 años o más",
+        "En Costa las muertes se registran con más exactitud",
+        "En Costa se registraron más defunciones en el año",
+        "En Costa la población total es menor que en Valle"
+      ],
+      "multi": false
+    },
+    {
+      "id": "40qq98",
+      "tipo": "alt",
+      "texto": "Usando la misma población estándar (80.000 menores de 65 y 20.000 de 65 y más), las tasas ajustadas por edad son de 9,0 por 1.000 en Valle y de 8,0 por 1.000 en Costa. ¿Cómo se interpreta el 8,0 de Costa? ¿Cuántas personas murieron realmente por cada 1.000 habitantes en Costa en 2025?",
+      "opciones": [
+        "En 2025 murieron realmente 8 de cada 1.000 habitantes en Costa",
+        "La diferencia entre las tasas crudas se debía a errores de registro",
+        "La edad no influye en la mortalidad de ninguna de las dos comunas",
+        "Con igual estructura de edad, Costa tendría menor mortalidad"
+      ],
+      "multi": false
+    }
+  ]
+}
