@@ -112,27 +112,49 @@ const TMIN = 1;
 let tcut = Math.min(Math.max(T_INICIAL,TMIN),maxT), mode = "prev";
 
 /* ---------- Dibujo ---------- */
-const W=720, M={l:26,r:16,t:32,b:34}, rowH=12, headH=24, gap=12;
-let H = M.t + M.b;
-GRUPOS.forEach(g=>{ H += headH + g.personas.length*rowH + gap; });
-const svg = d3.select("#chart").attr("viewBox",`0 0 ${W} ${H}`);
-const x = d3.scaleLinear().domain([0,maxT]).range([M.l+6, W-M.r]);
+/* En pantallas angostas (celular) el gráfico se dibuja al tamaño real de la pantalla: antes se
+   dibujaba en 720 px y se encogía a la mitad, y el texto quedaba ilegible. Los números del eje no cambian. */
+const ANCHO = { W:720, M:{l:26,r:16,t:32,b:34}, rowH:12, headH:24, gap:12, legH:0, two:false,
+  fsName:13, fs:12, fsAx:12, fsTick:12, ln:1, bar:5, xs:4, xw:2.2, ro:3.6, rd:4, tl:2, th:6.5, grab:20 };
+const paramsPantalla = () => {
+  const cw = svg.node().clientWidth || 720;
+  if (cw >= 560) return ANCHO;
+  return { W:cw, M:{l:32,r:16,t:48,b:36}, rowH:16, headH:42, gap:14, legH:34, two:true,
+    fsName:15, fs:13.5, fsAx:13.5, fsTick:12*cw/720, ln:1.6, bar:8, xs:5.5, xw:3, ro:5, rd:5.5, tl:3, th:11, grab:30 };
+};
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svg = d3.select("#chart");
+let P = ANCHO, W = 720, M = ANCHO.M, H = 0, x = d3.scaleLinear();
+
+function layout(){
+  P = paramsPantalla(); W = P.W; M = P.M;
+  H = M.t + M.b + P.legH;
+  GRUPOS.forEach(g=>{ H += P.headH + g.personas.length*P.rowH + P.gap; });
+  svg.attr("viewBox",`0 0 ${W} ${H}`);
+  x = d3.scaleLinear().domain([0,maxT]).range([M.l+6, W-M.r]);
+}
 
 function render(){
+  layout();
   svg.selectAll("*").remove();
   const S = calc(tcut);
   const cCase=css("--case"), cCaseBg=css("--casebg"), cRisk=css("--risk"), cMut=css("--muted"), cFg=css("--navy");
-  let yOff = M.t;
-  const yTop = M.t - 8;
-  let legY = null;
+  const rowH = P.rowH;
+  let yOff = M.t + P.legH;
+  const yTop = P.two ? M.t - 18 : M.t - 8;
+  let legY = P.two ? M.t + 14 : null;
 
   GRUPOS.forEach((g,gi)=>{
     const s = S[gi];
-    svg.append("text").attr("class","gname").attr("x",M.l).attr("y",yOff+15)
-       .text(`${g.nombre}  ·  n = ${s.n}  ·  abandonaron: ${s.ev}`);
-    if(gi===0) legY = yOff+15;
-    yOff += headH;
+    const stats = `n = ${s.n}  ·  abandonaron: ${s.ev}`;
+    if(P.two){
+      svg.append("text").attr("class","gname").style("font-size",P.fsName+"px").attr("x",M.l).attr("y",yOff+17).text(g.nombre);
+      svg.append("text").attr("class","leg").style("font-size",P.fs+"px").attr("x",M.l).attr("y",yOff+17+P.fs+6).text(stats);
+    } else {
+      svg.append("text").attr("class","gname").attr("x",M.l).attr("y",yOff+15).text(`${g.nombre}  ·  ${stats}`);
+      if(gi===0) legY = yOff+15;
+    }
+    yOff += P.headH;
 
     g.personas.forEach(([t,e],i)=>{
       const y  = yOff + i*rowH + rowH/2;
@@ -143,30 +165,30 @@ function render(){
         if(ev) svg.append("rect").attr("x",M.l-10).attr("width",Math.max(x(tcut)-M.l+10,0))
                  .attr("y",y-rowH/2+1).attr("height",rowH-2).attr("rx",3)
                  .attr("fill",cCaseBg).attr("opacity",.85);
-        svg.append("circle").attr("cx",M.l-4).attr("cy",y).attr("r",4)
+        svg.append("circle").attr("cx",M.l-4).attr("cy",y).attr("r",P.rd)
            .attr("fill", ev?cCase:cRisk);
         svg.append("line").attr("x1",x(0)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
-           .attr("stroke",cMut).attr("stroke-width",1);
+           .attr("stroke",cMut).attr("stroke-width",P.ln);
       } else {
         svg.append("line").attr("x1",x(0)).attr("x2",x(te)).attr("y1",y).attr("y2",y)
-           .attr("stroke",cRisk).attr("stroke-width",5).attr("stroke-linecap","round");
+           .attr("stroke",cRisk).attr("stroke-width",P.bar).attr("stroke-linecap","round");
         if(t>tcut)
           svg.append("line").attr("x1",x(tcut)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
-             .attr("stroke",cMut).attr("stroke-width",1);
+             .attr("stroke",cMut).attr("stroke-width",P.ln);
       }
 
       if(e===1){
-        const s4=4;
+        const s4=P.xs;
         svg.append("path").attr("d",`M${x(t)-s4},${y-s4}L${x(t)+s4},${y+s4}M${x(t)+s4},${y-s4}L${x(t)-s4},${y+s4}`)
-           .attr("stroke",cCase).attr("stroke-width",2.2).attr("fill","none");
+           .attr("stroke",cCase).attr("stroke-width",P.xw).attr("fill","none");
       } else {
-        svg.append("circle").attr("cx",x(t)).attr("cy",y).attr("r",3.6)
-           .attr("fill","var(--bg)").attr("stroke",cFg).attr("stroke-width",1.5);
+        svg.append("circle").attr("cx",x(t)).attr("cy",y).attr("r",P.ro)
+           .attr("fill","var(--bg)").attr("stroke",cFg).attr("stroke-width",P.two?2:1.5);
       }
     });
-    yOff += g.personas.length*rowH + gap;
+    yOff += g.personas.length*rowH + P.gap;
   });
-  const yBottom = yOff - gap;
+  const yBottom = yOff - P.gap;
 
   // Lo posterior a t queda atenuado (no cuenta)
   if(tcut < maxT){
@@ -176,26 +198,28 @@ function render(){
 
   // Línea t + asa
   svg.append("line").attr("class","grab").attr("x1",x(tcut)).attr("x2",x(tcut)).attr("y1",yTop).attr("y2",yBottom+2)
-     .attr("stroke",cFg).attr("stroke-width",2);
-  svg.append("circle").attr("class","grab").attr("cx",x(tcut)).attr("cy",yTop).attr("r",6.5)
+     .attr("stroke",cFg).attr("stroke-width",P.tl);
+  svg.append("circle").attr("class","grab").attr("cx",x(tcut)).attr("cy",yTop).attr("r",P.th)
      .attr("fill",cFg).attr("stroke","var(--bg)").attr("stroke-width",2);
-  svg.append("text").attr("class","axlab").attr("x",Math.min(Math.max(x(tcut),40),W-40)).attr("y",yTop-12)
+  svg.append("text").attr("class","axlab").style("font-size",P.fsAx+"px").attr("x",Math.min(Math.max(x(tcut),P.two?56:40),W-(P.two?56:40))).attr("y",yTop-P.th-5)
      .attr("text-anchor","middle").attr("font-weight",700).text(`t = ${tcut} ${UNIDAD}`);
 
-  // Leyenda dentro del gráfico (esquina superior derecha)
+  // Leyenda: en el celular va en su propia fila arriba; en pantalla ancha, en la esquina superior derecha
   const leg = svg.append("g");
-  const lt = leg.append("text").attr("class","leg").attr("x",W-M.r-4).attr("y",legY).attr("text-anchor","end");
+  const lt = leg.append("text").attr("class","leg").style("font-size",P.fs+"px")
+     .attr("x", P.two ? M.l : W-M.r-4).attr("y",legY).attr("text-anchor", P.two ? "start" : "end");
   lt.append("tspan").attr("fill",cCase).attr("font-weight",700).text("✕");
   lt.append("tspan").text(" abandonó     ");
   lt.append("tspan").attr("font-weight",700).text("○");
   lt.append("tspan").text(" sigue en tratamiento");
   const bb = lt.node().getBBox();
-  leg.insert("rect","text").attr("x",bb.x-5).attr("y",bb.y-2).attr("width",bb.width+10).attr("height",bb.height+4)
-     .attr("rx",4).attr("fill","var(--bg)").attr("stroke",cMut).attr("stroke-width",.8);
+  leg.insert("rect","text").attr("x",bb.x-6).attr("y",bb.y-3).attr("width",bb.width+12).attr("height",bb.height+6)
+     .attr("rx",4).attr("fill","var(--bg)").attr("stroke",cMut).attr("stroke-width",P.two?1.2:.8);
 
-  svg.append("g").attr("transform",`translate(0,${yBottom+4})`)
+  const eje = svg.append("g").attr("transform",`translate(0,${yBottom+4})`)
      .call(d3.axisBottom(x).ticks(Math.min(maxT,12)).tickFormat(d=>d));
-  svg.append("text").attr("class","axlab").attr("x",(M.l+W-M.r)/2).attr("y",H-4)
+  eje.selectAll("text").style("font-size",P.fsTick+"px");   // los números del eje conservan su tamaño de siempre
+  svg.append("text").attr("class","axlab").style("font-size",P.fsAx+"px").attr("x",(M.l+W-M.r)/2).attr("y",H-4)
      .attr("text-anchor","middle").text(`${UNIDAD[0].toUpperCase()+UNIDAD.slice(1)} desde el ingreso al tratamiento`);
 
   renderCards(S);
@@ -244,7 +268,7 @@ const drag = d3.drag()
     if(ev.button) return false;
     const pt = ev.touches ? ev.touches[0] : ev;
     const [px] = d3.pointer(pt, svg.node());
-    return Math.abs(px - x(tcut)) < 20;
+    return Math.abs(px - x(tcut)) < P.grab;
   })
   .on("start drag", ev => setT(x.invert(ev.x)));
 svg.call(drag).style("touch-action","pan-y");
@@ -259,9 +283,17 @@ document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",
 
 /* Si va dentro de un iframe, avisa su alto a la página que lo contiene (opcional) */
 function avisarAlto(){
-  try{ parent.postMessage({tipo:"alto-widget", alto:document.documentElement.scrollHeight},"*"); }catch(e){}
+  try{
+    const h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height) + 24; // + margen del body
+    parent.postMessage({tipo:"alto-widget", alto:h},"*");
+  }catch(e){}
 }
 render();
+let anchoPrev = svg.node().clientWidth;
+addEventListener("resize", () => {              // girar el celular o cambiar el tamaño de la ventana
+  const w = svg.node().clientWidth;
+  if (Math.abs(w - anchoPrev) > 20) { anchoPrev = w; render(); }
+});
 </script>
 </body>
 </html>
