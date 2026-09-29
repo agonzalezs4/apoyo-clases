@@ -126,10 +126,29 @@ async function iniciar() {
       : "Este enlace no es válido. Vuelve a escanear el QR.";
     return;
   }
-    $("pregunta").textContent = p.texto;
-    if (p.pagina) $("pregunta").insertAdjacentHTML("afterend", `<iframe src="${p.pagina}" style="width:100%;height:55vh;border:0;margin-bottom:16px"></iframe>`);
-  estado();
-  setInterval(estado, 8000); // detecta si se abre una nueva ronda
+  if (clase && clase.p.length > 1) armarNavegacion();
+  mostrarPregunta(0);
+  programarEstado();
+  const alVolver = () => { if (!document.hidden && quiereEstado()) setTimeout(estado, Math.random() * 2000); };
+  document.addEventListener("visibilitychange", alVolver);
+  addEventListener("online", alVolver);
+}
+
+function armarNavegacion() {
+  $("error").insertAdjacentHTML("afterend",
+    `<div id="nav">
+       <button id="ant" class="enviar" aria-label="Pregunta anterior">‹</button>
+       <span id="pos" aria-live="polite"></span>
+       <button id="sig" class="enviar" aria-label="Pregunta siguiente">›</button>
+     </div>`);
+  $("ant").onclick = () => ir(-1);
+  $("sig").onclick = () => ir(1);
+  engancharSwipe(document);
+  document.addEventListener("keydown", e => {
+    if (e.target.closest("input, textarea")) return;
+    if (e.key === "ArrowRight") ir(1);
+    if (e.key === "ArrowLeft") ir(-1);
+  });
 }
 
 // Deslizar a la izquierda = siguiente, a la derecha = anterior. También se engancha dentro del iframe.
