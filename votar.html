@@ -103,6 +103,14 @@ function cargarLZ() {
   });
 }
 
+// El gráfico embebido avisa su alto: así se ve completo, sin una segunda barra de desplazamiento dentro de la pregunta
+addEventListener("message", e => {
+  const f = document.getElementById("pagina");
+  if (!f || e.source !== f.contentWindow || !e.data || e.data.tipo !== "alto-widget") return;
+  const h = Number(e.data.alto);
+  if (h > 100 && h < 5000) f.style.height = h + "px";
+});
+
 iniciar();
 
 async function iniciar() {
