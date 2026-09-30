@@ -65,7 +65,7 @@ const LISTO = "Tu respuesta quedó registrada. Si se abre una nueva ronda, podr�
 const pref = () => claseNombre ? claseNombre + "/" : "";
 const claveVoto = r => `voto-${pref()}${p.id}-${r}`;
 const claveRonda = id => `ronda-${pref()}${id}`;
-const claveNum = () => `num-${claseNombre}`;  // los 4 dígitos que este celular eligió para la tanda
+const claveNum = () => `num-${claseNombre}`;  // los dígitos que este celular eligió para la tanda
 const claveCod = () => `cod-${claseNombre}`;  // el código completo (letra + dígitos), cuando el servidor lo devolvió
 const espera = ms => new Promise(res => setTimeout(res, ms));
 const leer = k => { try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {} return k in mem ? mem[k] : null; };
@@ -75,11 +75,13 @@ const olvidar = k => { delete mem[k]; try { localStorage.removeItem(k); } catch 
 // Un solo código por celular y por tanda (clase-##-#): se elige aquí, sin consultar al servidor. La letra la agrega el servidor.
 function digitosTanda() {
   let n = leer(claveNum());
-  if (!/^[1-9]\d{3}$/.test(n || "")) { n = String(1000 + Math.floor(Math.random() * 9000)); guardar(claveNum(), n); }
+  const base = 10 ** (DIGITOS_CODIGO - 1); // sin cero a la izquierda: 5 dígitos van de 10000 a 99999
+  if (!new RegExp(`^[1-9]\\d{${DIGITOS_CODIGO - 1}}$`).test(n || "")) { n = String(base + Math.floor(Math.random() * 9 * base)); guardar(claveNum(), n); }
   return n;
 }
 function mostrarCodigo() {
-  const c = claseNombre ? leer(claveCod()) : null;
+  let c = claseNombre ? leer(claveCod()) : null;
+  if (c && c.length !== DIGITOS_CODIGO + 1) c = null; // un código guardado con otro largo (versión anterior) ya no vale
   $("codigo").hidden = !c;
   if (c) $("codigo").querySelector("b").textContent = c;
 }

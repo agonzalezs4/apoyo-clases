@@ -12,6 +12,7 @@ async function api(params) {
 
 const $ = id => document.getElementById(id);
 const SEP = " ‖ "; // separa alternativas cuando se marcan varias
+const DIGITOS_CODIGO = 5; // dígitos del código de sorteo, tras la letra (igual que DIGITOS en apps-script/Codigo.gs)
 const TIPOS = { alt: "Alternativas", esc: "Escala", abi: "Abierta", num: "Número" };
 
 // Las preguntas viajan dentro del enlace, comprimidas

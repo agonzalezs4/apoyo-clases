@@ -72,7 +72,8 @@
   dialog legend + * { clear: both; }
   dialog summary { cursor: pointer; font-weight: 700; margin-bottom: 10px; }
   dialog fieldset label { display: flex; gap: 10px; align-items: baseline; padding: 3px 0; cursor: pointer; }
-  #sorteoMin { width: 4.5em; }
+  #sorteoPct { width: 4.5em; }
+  .escalaCorr { display: flex; flex-wrap: wrap; gap: 2px 20px; }
   .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
   .premiados { display: flex; flex-wrap: wrap; gap: 10px 14px; margin: 10px 0 18px; }
   .premiados span { padding: 4px 16px; border: 3px solid var(--barra); border-radius: 6px; background: #fff; font-family: var(--uss-fuente-cifras); font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; letter-spacing: .08em; }
@@ -119,12 +120,12 @@
 
 <dialog id="dlgSorteo" aria-labelledby="sorteoTitulo">
   <h2 id="sorteoTitulo">Sorteo de la tanda</h2>
-  <p class="ayuda">Marca la respuesta correcta de cada pregunta. Los votos de toda la tanda se leen de Google <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
+  <p class="ayuda">Marca la respuesta correcta de cada pregunta (en las de escala solo si tienen una; si no, no cuentan). Los votos de toda la tanda se leen de Google <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
   <details id="sorteoDetalle" open>
     <summary>Respuestas correctas</summary>
     <div id="sorteoPreguntas"></div>
   </details>
-  <p>Premiar a los códigos con al menos <input id="sorteoMin" type="number" min="1" inputmode="numeric"> respuestas buenas de <b id="sorteoTotal"></b>.</p>
+  <p>Premiar a los códigos con <input id="sorteoPct" type="number" min="1" max="100" value="50" inputmode="numeric"> % o más de las preguntas buenas <b id="sorteoMinTexto"></b></p>
   <div class="acciones">
     <button id="btnCalcular" class="principal">Calcular premiados</button>
     <button id="btnRefrescar" hidden title="Vuelve a leer los votos de Google (por si llegaron más)">Actualizar votos</button>
@@ -133,7 +134,7 @@
   <p id="sorteoMsg" class="ayuda" aria-live="polite"></p>
   <p id="sorteoError" class="error"></p>
   <div id="sorteoResultado" aria-live="polite"></div>
-  <p><label>Verificar un código: <input id="sorteoCodigo" type="text" maxlength="5" autocomplete="off" spellcheck="false" placeholder="K4827"></label></p>
+  <p><label>Verificar un código: <input id="sorteoCodigo" type="text" autocomplete="off" spellcheck="false"></label></p>
   <p id="sorteoVerif"></p>
 </dialog>
 
@@ -366,11 +367,16 @@ async function nuevaRonda() {
   }
 }
 /* ---------- Sorteo de la tanda ---------- */
-// Cada celular tiene un código (letra + 4 dígitos) que vale para todas las preguntas de la tanda.
+// Cada celular tiene un código (letra + 5 dígitos) que vale para todas las preguntas de la tanda.
 // Aquí se hace UNA lectura de Google con los votos de toda la tanda y se corrige en el navegador:
 // la alternativa correcta la marca el profesor en este momento y no se guarda en el JSON ni en la hoja.
-const LARGO_CODIGO = 5;
-const corregibles = () => clase.p.filter(p => p.tipo === "alt" || p.tipo === "num"); // escala y abierta no tienen "correcta"
+const LARGO_CODIGO = DIGITOS_CODIGO + 1; // la letra y los dígitos
+$("sorteoCodigo").maxLength = LARGO_CODIGO;
+$("sorteoCodigo").placeholder = "K" + "48271827".slice(0, DIGITOS_CODIGO);
+const corregibles = () => clase.p.filter(p => p.tipo === "alt" || p.tipo === "num" || p.tipo === "esc"); // la abierta no tiene "correcta"
+// Alternativas y número siempre llevan correcta. En escala es opcional: sin marcarla, esa pregunta no cuenta.
+const calificables = sel => corregibles().filter(p => p.tipo !== "esc" || sel[p.id] !== "");
+const minimoBuenas = (total, pct) => Math.max(1, Math.ceil(total * pct / 100 - 1e-9)); // "50 % o más" de 3 preguntas = 2
 const claveSel = () => "sorteo-" + nombreClase;
 let votosSorteo = null;      // { votos: [[código, pregunta, respuesta]], invalidos } de la última lectura
 let resultadoSorteo = null;  // un objeto por código, con sus buenas y si queda premiado
@@ -382,7 +388,7 @@ function armarSorteo() {
   let guardadas = {};
   try { guardadas = JSON.parse(localStorage.getItem(claveSel())) || {}; } catch (e) {}
   const pregs = corregibles();
-  if (!pregs.length) { cont.innerHTML = '<p class="vacio">Esta tanda no tiene preguntas con respuesta correcta (alternativas o número).</p>'; $("btnCalcular").disabled = true; return; }
+  if (!pregs.length) { cont.innerHTML = '<p class="vacio">Esta tanda no tiene preguntas con respuesta correcta (alternativas, número o escala).</p>'; $("btnCalcular").disabled = true; return; }
   pregs.forEach(p => {
     const fs = document.createElement("fieldset");
     fs.dataset.id = p.id;
@@ -395,6 +401,27 @@ function armarSorteo() {
       inp.type = "text"; inp.inputMode = "decimal"; inp.placeholder = "Respuesta correcta (número)";
       if (typeof g === "string") inp.value = g;
       fs.appendChild(inp);
+    } else if (p.tipo === "esc") {
+      const fila = document.createElement("div");
+      fila.className = "escalaCorr";
+      const opciones = [["", "Sin correcta (no cuenta)"]];
+      for (let v = p.min; v <= p.max; v++) {
+        let t = String(v);
+        if (v === p.min && p.etqMin) t += ` (${p.etqMin})`;
+        if (v === p.max && p.etqMax) t += ` (${p.etqMax})`;
+        opciones.push([String(v), t]);
+      }
+      opciones.forEach(([valor, texto]) => {
+        const l = document.createElement("label");
+        const c = document.createElement("input");
+        c.type = "radio";
+        c.name = "corr-" + p.id;
+        c.value = valor;
+        c.checked = valor === (typeof g === "string" ? g : "");
+        l.append(c, document.createTextNode(texto));
+        fila.appendChild(l);
+      });
+      fs.appendChild(fila);
     } else {
       p.opciones.forEach(op => {
         const l = document.createElement("label");
@@ -409,10 +436,14 @@ function armarSorteo() {
     }
     cont.appendChild(fs);
   });
-  $("sorteoTotal").textContent = pregs.length;
-  $("sorteoMin").max = pregs.length;
-  $("sorteoMin").value = pregs.length; // por defecto: todas buenas
   $("btnCalcular").disabled = false;
+  actualizarMinimo();
+}
+
+// Muestra cuántas buenas equivalen al porcentaje elegido, con las preguntas que hoy cuentan
+function actualizarMinimo() {
+  const pct = Number($("sorteoPct").value), total = calificables(leerSeleccion()).length;
+  $("sorteoMinTexto").textContent = total && pct >= 1 && pct <= 100 ? `(al menos ${minimoBuenas(total, pct)} de ${total})` : "";
 }
 
 // Lo marcado en pantalla: texto (una alternativa o un número), o lista de textos si se podía marcar varias
@@ -427,10 +458,11 @@ function leerSeleccion() {
   return sel;
 }
 
-const seleccionCompleta = (p, v) => p.tipo === "num" ? aNumero(v) !== null : (p.multi ? v.length > 0 : v !== "");
+const seleccionCompleta = (p, v) => p.tipo === "num" ? aNumero(v) !== null : p.tipo === "esc" ? true : (p.multi ? v.length > 0 : v !== "");
 
 function esBuena(p, resp, sel) {
   if (p.tipo === "num") { const x = aNumero(resp), c = aNumero(sel); return x !== null && c !== null && Math.abs(x - c) < 1e-9; }
+  if (p.tipo === "esc") { const x = aNumero(resp); return x !== null && x === Number(sel); }
   if (p.multi) { const a = new Set(resp.split(SEP)), b = new Set(sel); return a.size === b.size && [...a].every(x => b.has(x)); }
   return resp === sel;
 }
@@ -443,7 +475,7 @@ function evaluarSorteo(votos, sel, minimo) {
     if (!m.has(q)) m.set(q, new Set());
     m.get(q).add(r);
   });
-  const pregs = corregibles();
+  const pregs = calificables(sel);
   return [...porCodigo].map(([codigo, m]) => {
     let buenas = 0, repetido = false;
     pregs.forEach(p => {
@@ -463,8 +495,11 @@ async function calcularSorteo(refrescar) {
   const sel = leerSeleccion();
   const faltan = pregs.filter(p => !seleccionCompleta(p, sel[p.id])).map(p => clase.p.indexOf(p) + 1);
   if (faltan.length) { error.textContent = `Falta marcar la respuesta correcta de la pregunta ${faltan.join(", ")}.`; return; }
-  const minimo = Number($("sorteoMin").value);
-  if (!Number.isInteger(minimo) || minimo < 1 || minimo > pregs.length) { error.textContent = `El mínimo debe ser un número entre 1 y ${pregs.length}.`; return; }
+  const pct = Number($("sorteoPct").value);
+  if (!(pct >= 1 && pct <= 100)) { error.textContent = "El porcentaje debe estar entre 1 y 100."; return; }
+  const total = calificables(sel).length;
+  if (!total) { error.textContent = "Marca la respuesta correcta de al menos una pregunta."; return; }
+  const minimo = minimoBuenas(total, pct);
   try { localStorage.setItem(claveSel(), JSON.stringify(sel)); } catch (e) {}
 
   if (refrescar || !votosSorteo) {
@@ -486,18 +521,18 @@ async function calcularSorteo(refrescar) {
   }
   $("btnRefrescar").hidden = false;
   $("sorteoDetalle").open = false; // se pliegan las preguntas para que los códigos premiados queden a la vista
-  resultadoSorteo = { filas: evaluarSorteo(votosSorteo.votos, sel, minimo), minimo, total: pregs.length };
+  resultadoSorteo = { filas: evaluarSorteo(votosSorteo.votos, sel, minimo), minimo, total, pct };
   pintarSorteo();
   verificarCodigo();
 }
 
 function pintarSorteo() {
-  const { filas, minimo, total } = resultadoSorteo;
+  const { filas, minimo, total, pct } = resultadoSorteo;
   const premiados = filas.filter(f => f.premiado), repetidos = filas.filter(f => f.repetido);
   const cont = $("sorteoResultado");
   cont.innerHTML = "";
   const linea = (t) => { const el = document.createElement("p"); el.textContent = t; cont.appendChild(el); return el; };
-  linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (mínimo ${minimo} de ${total} buenas).`).style.fontWeight = "700";
+  linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
   if (premiados.length) {
     const div = document.createElement("div");
     div.className = "premiados";
@@ -546,7 +581,8 @@ $("btnCalcular").onclick = () => calcularSorteo(false);
 $("btnRefrescar").onclick = () => calcularSorteo(true);
 $("btnCerrarSorteo").onclick = () => $("dlgSorteo").close();
 $("sorteoCodigo").oninput = verificarCodigo;
-$("sorteoPreguntas").addEventListener("change", () => { try { localStorage.setItem(claveSel(), JSON.stringify(leerSeleccion())); } catch (e) {} });
+$("sorteoPreguntas").addEventListener("change", () => { try { localStorage.setItem(claveSel(), JSON.stringify(leerSeleccion())); } catch (e) {} actualizarMinimo(); });
+$("sorteoPct").oninput = actualizarMinimo;
 $("btnQR").onclick = alternarQR;
 $("btnPantalla").onclick = pantallaCompleta;
 document.addEventListener("keydown", e => {

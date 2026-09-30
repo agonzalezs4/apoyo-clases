@@ -15,8 +15,8 @@
  *  - "leer" (la pantalla del profesor) se guarda 2 s en caché: no recorre toda la hoja en cada consulta.
  *
  * Código de sorteo (nuevo):
- *  - Cada celular elige 4 dígitos al azar y los envía con cada voto ("n"). Aquí se les antepone una
- *    letra verificadora que solo se puede calcular con SECRETO, y el código completo (ej. K4827) se
+ *  - Cada celular elige 5 dígitos al azar y los envía con cada voto ("n"). Aquí se les antepone una
+ *    letra verificadora que solo se puede calcular con SECRETO, y el código completo (ej. K48271) se
  *    guarda en la columna F y se devuelve al celular. Cero llamadas extra: viaja en el mismo "enviar".
  *  - "sorteo" lee la hoja UNA vez para todas las preguntas de la tanda y devuelve (código, pregunta,
  *    respuesta). La corrección la hace la pantalla del profesor: la alternativa correcta nunca sale de ahí.
@@ -26,7 +26,7 @@
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la piden los botones "Nueva ronda" y "Sortear"
 const SECRETO = "PON_AQUI_TU_SECRETO"; // solo tú lo sabes: de él sale la letra verificadora del código
 const HOJA = "Respuestas";
-const DIGITOS = 4; // largo de la parte numérica del código (debe coincidir con votar.html)
+const DIGITOS = 5; // largo de la parte numérica del código (debe coincidir con DIGITOS_CODIGO en config.js)
 const LETRAS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // sin I ni O: se confunden con 1 y 0
 const RE_DIGITOS = new RegExp("^[1-9]\\d{" + (DIGITOS - 1) + "}$");
 const RE_CODIGO = new RegExp("^[" + LETRAS + "]\\d{" + DIGITOS + "}$");
