@@ -56,6 +56,29 @@
   .oculto-qr main { grid-template-columns: 1fr; }
   .resultados-ocultos #zona, .resultados-ocultos #resumen { visibility: hidden; }
 
+  /* Sorteo de la tanda */
+  dialog { width: min(920px, 94vw); max-height: 90vh; overflow: auto; padding: clamp(16px, 2.4vw, 32px); background: var(--papel); color: var(--tinta); border: 1px solid var(--riel); border-radius: 6px; }
+  dialog::backdrop { background: rgba(16, 43, 66, .55); }
+  dialog h2 { margin: 0 0 6px; font-size: clamp(22px, 2.4vw, 32px); }
+  dialog p { margin: 0 0 12px; }
+  dialog .ayuda { color: var(--suave); }
+  dialog button { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  dialog button:hover { border-color: var(--suave); }
+  dialog button.principal { background: var(--barra); border-color: var(--barra); color: #fff; }
+  dialog button:disabled { opacity: .5; cursor: default; }
+  dialog input[type=text], dialog input[type=number] { font: inherit; padding: 6px 10px; border: 1px solid var(--riel); border-radius: 4px; background: #fff; color: var(--tinta); }
+  dialog fieldset { margin: 0 0 12px; padding: 10px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  dialog legend { float: left; width: 100%; padding: 0; margin: 0 0 6px; font-weight: 700; } /* como un título normal, sin que el borde lo atraviese */
+  dialog legend + * { clear: both; }
+  dialog summary { cursor: pointer; font-weight: 700; margin-bottom: 10px; }
+  dialog fieldset label { display: flex; gap: 10px; align-items: baseline; padding: 3px 0; cursor: pointer; }
+  #sorteoPct { width: 4.5em; }
+  .escalaCorr { display: flex; flex-wrap: wrap; gap: 2px 20px; }
+  .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .premiados { display: flex; flex-wrap: wrap; gap: 10px 14px; margin: 10px 0 18px; }
+  .premiados span { padding: 4px 16px; border: 3px solid var(--barra); border-radius: 6px; background: #fff; font-family: var(--uss-fuente-cifras); font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; letter-spacing: .08em; }
+  #sorteoVerif { font-size: 18px; margin-top: 8px; }
+
   footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   footer button, footer a { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; text-decoration: none; color: var(--tinta); }
   footer button:hover, footer a:hover { border-color: var(--suave); }
@@ -87,12 +110,33 @@
     <button id="btnOcultar" title="Tecla H">Ocultar resultados</button>
     <button id="btnVista" title="Tecla W" hidden>Ver como lista</button>
     <button id="btnRonda" title="Tecla R">Nueva ronda</button>
+    <button id="btnSorteo" title="Tecla S" hidden>Sortear</button>
     <button id="btnQR" title="Tecla Q">Ocultar QR</button>
     <button id="btnPantalla" title="Tecla F">Pantalla completa</button>
     <a id="btnEditar" href="index.html">Editar preguntas</a>
     <span id="estado"></span>
     <p id="error" class="error"></p>
   </footer>
+
+<dialog id="dlgSorteo" aria-labelledby="sorteoTitulo">
+  <h2 id="sorteoTitulo">Sorteo de la tanda</h2>
+  <p class="ayuda">Marca la respuesta correcta de cada pregunta (en las de escala solo si tienen una; si no, no cuentan). Los votos de toda la tanda se leen de Google <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
+  <details id="sorteoDetalle" open>
+    <summary>Respuestas correctas</summary>
+    <div id="sorteoPreguntas"></div>
+  </details>
+  <p>Premiar a los códigos con <input id="sorteoPct" type="number" min="1" max="100" value="50" inputmode="numeric"> % o más de las preguntas buenas <b id="sorteoMinTexto"></b></p>
+  <div class="acciones">
+    <button id="btnCalcular" class="principal">Calcular premiados</button>
+    <button id="btnRefrescar" hidden title="Vuelve a leer los votos de Google (por si llegaron más)">Actualizar votos</button>
+    <button id="btnCerrarSorteo">Cerrar</button>
+  </div>
+  <p id="sorteoMsg" class="ayuda" aria-live="polite"></p>
+  <p id="sorteoError" class="error"></p>
+  <div id="sorteoResultado" aria-live="polite"></div>
+  <p><label>Verificar un código: <input id="sorteoCodigo" type="text" autocomplete="off" spellcheck="false"></label></p>
+  <p id="sorteoVerif"></p>
+</dialog>
 
 <script>
 const qs = new URLSearchParams(location.search);
@@ -124,6 +168,7 @@ async function iniciar() {
     return;
   }
   i = Math.min(Math.max(0, i), clase.p.length - 1);
+  $("btnSorteo").hidden = !nombreClase; // la tanda (clase-##-#) solo existe en las clases publicadas
   mostrar();
   setInterval(actualizar, 3000);
 }
@@ -304,13 +349,16 @@ function alternarVista() {
   $("btnVista").textContent = vista === "nube" ? "Ver como lista" : "Ver como nube";
   actualizar(true);
 }
+const claveProfesor = () => localStorage.getItem("menti-clave") || prompt("Clave de profesor (la que pusiste en Apps Script):");
+
 async function nuevaRonda() {
-  const clave = localStorage.getItem("menti-clave") || prompt("Clave de profesor (la que pusiste en Apps Script):");
+  const clave = claveProfesor();
   if (!clave) return;
   if (!confirm("¿Empezar una nueva ronda para esta pregunta? Las respuestas anteriores quedan en la hoja y el gráfico parte de cero.")) return;
   try {
     await api({ accion: "ronda", q: clase.p[i].id, clave });
     localStorage.setItem("menti-clave", clave);
+    votosSorteo = null; // los votos leídos para el sorteo ya no son los vigentes
     $("zona").dataset.clave = "";
     actualizar(true);
   } catch (e) {
@@ -318,6 +366,202 @@ async function nuevaRonda() {
     $("error").textContent = e.message;
   }
 }
+/* ---------- Sorteo de la tanda ---------- */
+// Cada celular tiene un código (letra + 5 dígitos) que vale para todas las preguntas de la tanda.
+// Aquí se hace UNA lectura de Google con los votos de toda la tanda y se corrige en el navegador:
+// la alternativa correcta la marca el profesor en este momento y no se guarda en el JSON ni en la hoja.
+const LARGO_CODIGO = DIGITOS_CODIGO + 1; // la letra y los dígitos
+$("sorteoCodigo").maxLength = LARGO_CODIGO;
+$("sorteoCodigo").placeholder = "K" + "48271827".slice(0, DIGITOS_CODIGO);
+const corregibles = () => clase.p.filter(p => p.tipo === "alt" || p.tipo === "num" || p.tipo === "esc"); // la abierta no tiene "correcta"
+// Alternativas y número siempre llevan correcta. En escala es opcional: sin marcarla, esa pregunta no cuenta.
+const calificables = sel => corregibles().filter(p => p.tipo !== "esc" || sel[p.id] !== "");
+const minimoBuenas = (total, pct) => Math.max(1, Math.ceil(total * pct / 100 - 1e-9)); // "50 % o más" de 3 preguntas = 2
+const claveSel = () => "sorteo-" + nombreClase;
+let votosSorteo = null;      // { votos: [[código, pregunta, respuesta]], invalidos } de la última lectura
+let resultadoSorteo = null;  // un objeto por código, con sus buenas y si queda premiado
+let sorteoArmado = false;
+
+function armarSorteo() {
+  const cont = $("sorteoPreguntas");
+  cont.innerHTML = "";
+  let guardadas = {};
+  try { guardadas = JSON.parse(localStorage.getItem(claveSel())) || {}; } catch (e) {}
+  const pregs = corregibles();
+  if (!pregs.length) { cont.innerHTML = '<p class="vacio">Esta tanda no tiene preguntas con respuesta correcta (alternativas, número o escala).</p>'; $("btnCalcular").disabled = true; return; }
+  pregs.forEach(p => {
+    const fs = document.createElement("fieldset");
+    fs.dataset.id = p.id;
+    const lg = document.createElement("legend");
+    lg.textContent = `${clase.p.indexOf(p) + 1}. ${p.texto}`;
+    fs.appendChild(lg);
+    const g = guardadas[p.id];
+    if (p.tipo === "num") {
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.inputMode = "decimal"; inp.placeholder = "Respuesta correcta (número)";
+      if (typeof g === "string") inp.value = g;
+      fs.appendChild(inp);
+    } else if (p.tipo === "esc") {
+      const fila = document.createElement("div");
+      fila.className = "escalaCorr";
+      const opciones = [["", "Sin correcta (no cuenta)"]];
+      for (let v = p.min; v <= p.max; v++) {
+        let t = String(v);
+        if (v === p.min && p.etqMin) t += ` (${p.etqMin})`;
+        if (v === p.max && p.etqMax) t += ` (${p.etqMax})`;
+        opciones.push([String(v), t]);
+      }
+      opciones.forEach(([valor, texto]) => {
+        const l = document.createElement("label");
+        const c = document.createElement("input");
+        c.type = "radio";
+        c.name = "corr-" + p.id;
+        c.value = valor;
+        c.checked = valor === (typeof g === "string" ? g : "");
+        l.append(c, document.createTextNode(texto));
+        fila.appendChild(l);
+      });
+      fs.appendChild(fila);
+    } else {
+      p.opciones.forEach(op => {
+        const l = document.createElement("label");
+        const c = document.createElement("input");
+        c.type = p.multi ? "checkbox" : "radio";
+        c.name = "corr-" + p.id;
+        c.value = op;
+        c.checked = p.multi ? Array.isArray(g) && g.includes(op) : g === op;
+        l.append(c, document.createTextNode(op));
+        fs.appendChild(l);
+      });
+    }
+    cont.appendChild(fs);
+  });
+  $("btnCalcular").disabled = false;
+  actualizarMinimo();
+}
+
+// Muestra cuántas buenas equivalen al porcentaje elegido, con las preguntas que hoy cuentan
+function actualizarMinimo() {
+  const pct = Number($("sorteoPct").value), total = calificables(leerSeleccion()).length;
+  $("sorteoMinTexto").textContent = total && pct >= 1 && pct <= 100 ? `(al menos ${minimoBuenas(total, pct)} de ${total})` : "";
+}
+
+// Lo marcado en pantalla: texto (una alternativa o un número), o lista de textos si se podía marcar varias
+function leerSeleccion() {
+  const sel = {};
+  $("sorteoPreguntas").querySelectorAll("fieldset").forEach(fs => {
+    const p = clase.p.find(x => x.id === fs.dataset.id);
+    if (p.tipo === "num") sel[p.id] = fs.querySelector("input").value.trim();
+    else if (p.multi) sel[p.id] = [...fs.querySelectorAll("input:checked")].map(c => c.value);
+    else { const c = fs.querySelector("input:checked"); sel[p.id] = c ? c.value : ""; }
+  });
+  return sel;
+}
+
+const seleccionCompleta = (p, v) => p.tipo === "num" ? aNumero(v) !== null : p.tipo === "esc" ? true : (p.multi ? v.length > 0 : v !== "");
+
+function esBuena(p, resp, sel) {
+  if (p.tipo === "num") { const x = aNumero(resp), c = aNumero(sel); return x !== null && c !== null && Math.abs(x - c) < 1e-9; }
+  if (p.tipo === "esc") { const x = aNumero(resp); return x !== null && x === Number(sel); }
+  if (p.multi) { const a = new Set(resp.split(SEP)), b = new Set(sel); return a.size === b.size && [...a].every(x => b.has(x)); }
+  return resp === sel;
+}
+
+function evaluarSorteo(votos, sel, minimo) {
+  const porCodigo = new Map(); // código -> Map(pregunta -> respuestas distintas que llegaron con ese código)
+  votos.forEach(([c, q, r]) => {
+    if (!porCodigo.has(c)) porCodigo.set(c, new Map());
+    const m = porCodigo.get(c);
+    if (!m.has(q)) m.set(q, new Set());
+    m.get(q).add(r);
+  });
+  const pregs = calificables(sel);
+  return [...porCodigo].map(([codigo, m]) => {
+    let buenas = 0, repetido = false;
+    pregs.forEach(p => {
+      const rs = m.get(p.id);
+      if (!rs) return;
+      if (rs.size > 1) repetido = true; // respuestas distintas con el mismo código: lo usaron dos personas
+      else if (esBuena(p, [...rs][0], sel[p.id])) buenas++;
+    });
+    return { codigo, buenas, repetido, premiado: !repetido && buenas >= minimo };
+  }).sort((a, b) => a.codigo.localeCompare(b.codigo));
+}
+
+async function calcularSorteo(refrescar) {
+  const error = $("sorteoError");
+  error.textContent = "";
+  const pregs = corregibles();
+  const sel = leerSeleccion();
+  const faltan = pregs.filter(p => !seleccionCompleta(p, sel[p.id])).map(p => clase.p.indexOf(p) + 1);
+  if (faltan.length) { error.textContent = `Falta marcar la respuesta correcta de la pregunta ${faltan.join(", ")}.`; return; }
+  const pct = Number($("sorteoPct").value);
+  if (!(pct >= 1 && pct <= 100)) { error.textContent = "El porcentaje debe estar entre 1 y 100."; return; }
+  const total = calificables(sel).length;
+  if (!total) { error.textContent = "Marca la respuesta correcta de al menos una pregunta."; return; }
+  const minimo = minimoBuenas(total, pct);
+  try { localStorage.setItem(claveSel(), JSON.stringify(sel)); } catch (e) {}
+
+  if (refrescar || !votosSorteo) {
+    const clave = claveProfesor();
+    if (!clave) return;
+    $("btnCalcular").disabled = $("btnRefrescar").disabled = true;
+    $("sorteoMsg").textContent = "Leyendo los votos de la tanda…";
+    try {
+      votosSorteo = await api({ accion: "sorteo", qs: pregs.map(p => p.id).join(","), clave });
+      localStorage.setItem("menti-clave", clave);
+    } catch (e) {
+      if (/clave/i.test(e.message)) localStorage.removeItem("menti-clave");
+      error.textContent = e.message;
+      return;
+    } finally {
+      $("btnCalcular").disabled = $("btnRefrescar").disabled = false;
+      $("sorteoMsg").textContent = "";
+    }
+  }
+  $("btnRefrescar").hidden = false;
+  $("sorteoDetalle").open = false; // se pliegan las preguntas para que los códigos premiados queden a la vista
+  resultadoSorteo = { filas: evaluarSorteo(votosSorteo.votos, sel, minimo), minimo, total, pct };
+  pintarSorteo();
+  verificarCodigo();
+}
+
+function pintarSorteo() {
+  const { filas, minimo, total, pct } = resultadoSorteo;
+  const premiados = filas.filter(f => f.premiado), repetidos = filas.filter(f => f.repetido);
+  const cont = $("sorteoResultado");
+  cont.innerHTML = "";
+  const linea = (t) => { const el = document.createElement("p"); el.textContent = t; cont.appendChild(el); return el; };
+  linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
+  if (premiados.length) {
+    const div = document.createElement("div");
+    div.className = "premiados";
+    premiados.forEach(f => { const s = document.createElement("span"); s.textContent = f.codigo; div.appendChild(s); });
+    cont.appendChild(div);
+  }
+  if (repetidos.length) linea(`Revisar: lo usaron dos personas (respuestas distintas con el mismo código): ${repetidos.map(f => f.codigo).join(", ")}.`).className = "error";
+  if (votosSorteo.invalidos) linea(`${votosSorteo.invalidos} voto(s) con código inválido: se ignoraron.`).className = "ayuda";
+}
+
+function verificarCodigo() {
+  const c = $("sorteoCodigo").value.trim().toUpperCase();
+  const out = $("sorteoVerif");
+  if (c.length < LARGO_CODIGO) { out.textContent = ""; return; }
+  if (!resultadoSorteo) { out.textContent = "Primero calcula los premiados."; return; }
+  const f = resultadoSorteo.filas.find(x => x.codigo === c);
+  const { total } = resultadoSorteo;
+  out.textContent = !f ? "Ese código no aparece entre los votos de esta tanda."
+    : f.repetido ? "Código repetido: lo usaron dos personas. Pídeles que muestren su celular."
+    : f.premiado ? `✔ Premiado: ${f.buenas} de ${total} buenas.`
+    : `Sin premio: ${f.buenas} de ${total} buenas.`;
+}
+
+function abrirSorteo() {
+  if (!nombreClase) return;
+  if (!sorteoArmado) { armarSorteo(); sorteoArmado = true; }
+  $("dlgSorteo").showModal();
+}
+
 function alternarQR() {
   const oc = document.body.classList.toggle("oculto-qr");
   $("btnQR").textContent = oc ? "Mostrar QR" : "Ocultar QR";
@@ -332,16 +576,25 @@ $("btnSiguiente").onclick = () => ir(1);
 $("btnOcultar").onclick = alternarOcultar;
 $("btnVista").onclick = alternarVista;
 $("btnRonda").onclick = nuevaRonda;
+$("btnSorteo").onclick = abrirSorteo;
+$("btnCalcular").onclick = () => calcularSorteo(false);
+$("btnRefrescar").onclick = () => calcularSorteo(true);
+$("btnCerrarSorteo").onclick = () => $("dlgSorteo").close();
+$("sorteoCodigo").oninput = verificarCodigo;
+$("sorteoPreguntas").addEventListener("change", () => { try { localStorage.setItem(claveSel(), JSON.stringify(leerSeleccion())); } catch (e) {} actualizarMinimo(); });
+$("sorteoPct").oninput = actualizarMinimo;
 $("btnQR").onclick = alternarQR;
 $("btnPantalla").onclick = pantallaCompleta;
 document.addEventListener("keydown", e => {
   if (!clase) return;
+  if ($("dlgSorteo").open || (e.target.closest && e.target.closest("input, select, textarea"))) return; // en el sorteo se escribe: las teclas no son atajos
   const k = e.key.toLowerCase();
   if (e.key === "ArrowRight") ir(1);
   else if (e.key === "ArrowLeft") ir(-1);
   else if (k === "h") alternarOcultar();
   else if (k === "w") alternarVista();
   else if (k === "r") nuevaRonda();
+  else if (k === "s") abrirSorteo();
   else if (k === "q") alternarQR();
   else if (k === "f") pantallaCompleta();
 });
