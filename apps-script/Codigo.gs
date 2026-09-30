@@ -21,6 +21,13 @@
  *  - "sorteo" lee la hoja UNA vez para todas las preguntas de la tanda y devuelve (código, pregunta,
  *    respuesta). La corrección la hace la pantalla del profesor: la alternativa correcta nunca sale de ahí.
  *  - En la hoja "Respuestas" agrega el encabezado "codigo" en la celda F1 (solo es una etiqueta).
+ *
+ * Envío por tanda (nuevo):
+ *  - El celular ya no envía cada pregunta al tocarla: el estudiante puede cambiar sus alternativas y,
+ *    al final, pulsa "Responder". "lote" recibe TODAS las respuestas en una sola consulta (d = JSON con
+ *    [pregunta, respuesta, texto]) y devuelve el código y la ronda de cada pregunta.
+ *  - "estados" devuelve las rondas de toda la tanda en una sola consulta (antes era una por pregunta).
+ *  - "enviar" y "estado" siguen existiendo por si algún celular tiene abierta la versión anterior.
  */
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la piden los botones "Nueva ronda" y "Sortear"
@@ -37,6 +44,10 @@ function doGet(e) {
   try {
     if (p.accion === "sorteo") {
       out = sorteo_(p.qs, p.clave); // recibe varias preguntas (qs), no una sola (q)
+    } else if (p.accion === "lote") {
+      out = lote_(p.d, p.v, p.n); // todas las respuestas de la tanda en una consulta
+    } else if (p.accion === "estados") {
+      out = estados_(p.qs);
     } else {
       const q = String(p.q || "").slice(0, 40);
       if (!q) throw new Error("Falta el identificador de la pregunta");
@@ -114,6 +125,48 @@ function enviar_(q, r, t, v, n) {
   hoja_().appendRow([new Date(), "'" + q, ronda, "'" + t, "'" + r, codigo ? "'" + codigo : ""]);
   if (claveV) cache.put(claveV, String(ronda), 21600);
   return conCodigo_({ ok: true, ronda: ronda }, codigo);
+}
+
+/* Guarda de una vez las respuestas de la tanda. d = JSON [[pregunta, respuesta, texto], ...] */
+function lote_(d, v, n) {
+  let items;
+  try { items = JSON.parse(String(d || "")); } catch (err) { throw new Error("Envío inválido"); }
+  if (!Array.isArray(items) || !items.length) throw new Error("No hay respuestas que guardar");
+  items = items.slice(0, 30).map(it => {
+    it = Array.isArray(it) ? it : [];
+    return { q: String(it[0] || "").slice(0, 40), r: String(it[1] || "").trim().slice(0, 500), t: String(it[2] || "").slice(0, 300) };
+  });
+  if (items.some(it => !it.q || !it.r)) throw new Error("Respuesta vacía");
+  v = String(v || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
+  n = String(n || "");
+  const codigo = RE_DIGITOS.test(n) ? codigo_(n) : "";
+  const cache = CacheService.getScriptCache();
+  const claveV = v ? "lote_" + v : "";
+  if (claveV) {
+    // Reintento del celular: se devuelve lo mismo sin volver a escribir en la hoja
+    const antes = cache.get(claveV);
+    if (antes !== null) { const o = JSON.parse(antes); o.repetido = true; return o; }
+  }
+  const h = hoja_();
+  const ahora = new Date();
+  const rondas = Object.create(null);
+  // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
+  items.forEach(it => {
+    rondas[it.q] = ronda_(it.q);
+    h.appendRow([ahora, "'" + it.q, rondas[it.q], "'" + it.t, "'" + it.r, codigo ? "'" + codigo : ""]);
+  });
+  const out = conCodigo_({ ok: true, rondas: rondas }, codigo);
+  if (claveV) cache.put(claveV, JSON.stringify(out), 21600);
+  return out;
+}
+
+/* Rondas vigentes de toda la tanda en una sola consulta */
+function estados_(qs) {
+  const ids = String(qs || "").split(",").map(s => s.trim().slice(0, 40)).filter(Boolean).slice(0, 30);
+  if (!ids.length) throw new Error("Faltan las preguntas de la tanda");
+  const rondas = Object.create(null);
+  ids.forEach(q => { rondas[q] = ronda_(q); });
+  return { rondas: rondas };
 }
 
 function conCodigo_(out, codigo) {

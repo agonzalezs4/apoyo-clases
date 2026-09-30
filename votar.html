@@ -42,6 +42,12 @@
   #nav { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 28px; padding: 10px 0; background: var(--papel); }
   #nav button { width: auto; margin: 0; padding: 12px 18px; min-width: 56px; touch-action: manipulation; }
   #pos { color: var(--suave); font-size: 16px; }
+  .resumen { display: grid; gap: 10px; }
+  .fila { width: 100%; text-align: left; font-size: 17px; line-height: 1.3; padding: 12px 14px; background: #fff; border: 2px solid var(--riel); border-radius: 6px; }
+  .fila span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .fila small { display: block; margin-top: 4px; font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+  .fila small.falta { color: var(--aviso); }
+  .fila:disabled { opacity: 1; cursor: default; }
 </style>
 </head>
 <body>
@@ -54,23 +60,41 @@
 </main>
 
 <script>
-let p = null;
-let ronda = null;
+let p = null;               // pregunta en pantalla (null en la pantalla final "Revisa y responde")
+let tanda = [];             // todas las preguntas de la tanda
 let clase = null, claseNombre = "", idx = 0, tEstado = 0;
-const enCurso = new Set();  // preguntas con un envío en marcha
-const fallidas = new Set(); // preguntas cuyo envío se agotó estando el niño en otra
-const ultEstado = {};       // cuándo se consultó la ronda de cada pregunta
+let enviando = false;       // hay un envío de la tanda en marcha
+let ultEstado = 0;          // cuándo se consultaron las rondas por última vez
 const mem = {};             // respaldo si el navegador no deja usar localStorage
-const LISTO = "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
+const LISTO = "Tus respuestas quedaron registradas. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
 const pref = () => claseNombre ? claseNombre + "/" : "";
-const claveVoto = r => `voto-${pref()}${p.id}-${r}`;
+const claveVoto = (id, r) => `voto-${pref()}${id}-${r}`;  // lo ya enviado de esa pregunta en esa ronda
 const claveRonda = id => `ronda-${pref()}${id}`;
+const claveBorr = id => `borr-${pref()}${id}`;            // lo marcado pero todavía sin enviar
 const claveNum = () => `num-${claseNombre}`;  // los dígitos que este celular eligió para la tanda
 const claveCod = () => `cod-${claseNombre}`;  // el código completo (letra + dígitos), cuando el servidor lo devolvió
 const espera = ms => new Promise(res => setTimeout(res, ms));
 const leer = k => { try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {} return k in mem ? mem[k] : null; };
 const guardar = (k, v) => { mem[k] = String(v); try { localStorage.setItem(k, v); } catch (e) {} };
 const olvidar = k => { delete mem[k]; try { localStorage.removeItem(k); } catch (e) {} };
+
+const rondaDe = id => leer(claveRonda(id));
+const enviada = q => leer(claveVoto(q.id, rondaDe(q.id)));  // lo enviado en la ronda vigente, o null
+const borrador = q => leer(claveBorr(q.id)) || "";
+const hayResumen = () => tanda.length > 1;                   // la pantalla final solo tiene sentido con varias preguntas
+const ultimo = () => hayResumen() ? tanda.length : tanda.length - 1;
+const enResumen = () => !p;
+
+// Lo marcado de una pregunta, si está listo para enviarse; null si falta o no vale
+function respuestaDe(q) {
+  const v = borrador(q).trim();
+  if (!v) return null;
+  if (q.tipo === "num") return aNumero(v) === null ? null : v;
+  if (q.tipo === "esc") { const x = Number(v); return Number.isInteger(x) && x >= q.min && x <= q.max ? v : null; }
+  if (q.tipo === "alt") { const s = v.split(SEP); return s.every(o => q.opciones.includes(o)) && (q.multi || s.length === 1) ? v : null; }
+  return v;
+}
+const pendientes = () => tanda.filter(q => enviada(q) === null);
 
 // Un solo código por celular y por tanda (clase-##-#): se elige aquí, sin consultar al servidor. La letra la agrega el servidor.
 function digitosTanda() {
@@ -141,21 +165,22 @@ async function iniciar() {
     if (qs.get("clase")) {
       claseNombre = qs.get("clase");
       clase = await cargarConReintento(claseNombre);
-      const k = clase.p.findIndex(x => x.id === qs.get("q"));
-      idx = k >= 0 ? k : Math.min(Math.max(0, (Number(qs.get("p")) || 1) - 1), clase.p.length - 1);
-      p = clase.p[idx] || null;
+      tanda = clase.p;
+      const k = tanda.findIndex(x => x.id === qs.get("q"));
+      idx = k >= 0 ? k : Math.min(Math.max(0, (Number(qs.get("p")) || 1) - 1), ultimo());
     } else {
       await cargarLZ();
-      p = desempaquetar(location.hash.slice(1));
+      const unica = desempaquetar(location.hash.slice(1));
+      tanda = unica ? [unica] : [];
     }
-  } catch (e) { p = null; fallaRed = e instanceof TypeError; }
-  if (!p) {
+  } catch (e) { tanda = []; fallaRed = e instanceof TypeError; }
+  if (!tanda.length) {
     $("pregunta").textContent = fallaRed
       ? "No se pudo cargar la pregunta. Revisa tu conexión y vuelve a abrir el enlace."
       : "Este enlace no es válido. Vuelve a escanear el QR.";
     return;
   }
-  if (clase && clase.p.length > 1) armarNavegacion();
+  if (hayResumen()) armarNavegacion();
   mostrarPregunta(0);
   programarEstado();
   const alVolver = () => { if (!document.hidden && quiereEstado()) setTimeout(estado, Math.random() * 2000); };
@@ -200,15 +225,17 @@ function engancharSwipe(doc) {
 
 function actualizarNav() {
   if (!$("nav")) return;
-  $("pos").textContent = `${idx + 1} / ${clase.p.length}`;
+  $("pos").textContent = enResumen() ? "Revisar" : `${idx + 1} / ${tanda.length}`;
   $("ant").disabled = idx === 0;
-  $("sig").disabled = idx === clase.p.length - 1;
+  $("sig").disabled = idx === ultimo();
+  $("sig").setAttribute("aria-label", idx === tanda.length - 1 ? "Revisar y responder" : "Pregunta siguiente");
 }
 
 function mostrarPregunta(dir) {
-  $("pregunta").textContent = p.texto;
+  p = tanda[idx] || null; // fuera de la tanda = pantalla final
+  $("pregunta").textContent = p ? p.texto : "Revisa y responde";
   const actual = document.getElementById("pagina");
-  if (!p.pagina) { if (actual) actual.remove(); }
+  if (!p || !p.pagina) { if (actual) actual.remove(); }
   else if (!actual || actual.getAttribute("src") !== p.pagina) {
     if (actual) actual.remove();
     const f = document.createElement("iframe");
@@ -218,7 +245,6 @@ function mostrarPregunta(dir) {
     f.src = p.pagina;
     $("pregunta").after(f);
   }
-  ronda = leer(claveRonda(p.id));
   $("error").textContent = "";
   pintar(); // las opciones aparecen ya, sin esperar al servidor
   actualizarNav();
@@ -226,71 +252,72 @@ function mostrarPregunta(dir) {
   if (dir && main.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches)
     main.animate([{ transform: `translateX(${dir * 36}px)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 180 });
   clearTimeout(tEstado);
-  // Solo hace falta preguntar por la ronda si el niño ya votó (espera una nueva); si no, al enviar el servidor la devuelve
-  if (quiereEstado() && Date.now() - (ultEstado[p.id] || 0) > 45000) tEstado = setTimeout(estado, Math.random() * 4000);
+  // Solo hace falta preguntar por las rondas si ya se envió algo (se espera una nueva); si no, al enviar el servidor las devuelve
+  if (quiereEstado() && Date.now() - ultEstado > 45000) tEstado = setTimeout(estado, Math.random() * 4000);
 }
 
 function ir(d) {
-  if (!clase) return;
+  if (tanda.length < 2) return;
   const n = idx + d;
-  if (n < 0 || n >= clase.p.length) return; // en los extremos no pasa nada
-  const ta = document.querySelector("textarea"), env = document.querySelector("#zona .enviar");
-  if (ta && ta.value.trim() && !(env && env.disabled) && !confirm("Tienes texto sin enviar. ¿Cambiar de pregunta igual?")) return;
+  if (n < 0 || n > ultimo()) return; // en los extremos no pasa nada
   idx = n;
-  p = clase.p[n];
   const u = new URL(location.href);
   u.searchParams.set("p", n + 1);
   u.searchParams.delete("q");
   history.replaceState(null, "", u);
   window.scrollTo(0, 0);
-  mostrarPregunta(d);
+  mostrarPregunta(Math.sign(d));
 }
 
-function quiereEstado() { return !!p && p.tipo !== "abi" && leer(claveVoto(ronda)) !== null; }
+function quiereEstado() { return tanda.some(q => enviada(q) !== null); }
 
 // Consulta periódica (detecta si se abre una nueva ronda). Espaciada y con azar para no saturar al servidor.
 function programarEstado() {
   setTimeout(() => { if (!document.hidden && quiereEstado()) estado(); programarEstado(); }, 60000 + Math.random() * 30000);
 }
 
+// Una sola consulta trae la ronda de todas las preguntas de la tanda
 async function estado(intento = 0) {
-  const q = p;
-  ultEstado[q.id] = Date.now();
+  ultEstado = Date.now();
   try {
-    const d = await llamar({ accion: "estado", q: q.id });
-    if (q !== p || d.ronda == null) return; // el niño ya cambió de pregunta / respuesta sin ronda
-    if (ronda != null && Number(d.ronda) < Number(ronda)) return; // respuesta vieja llegada tarde
-    guardar(claveRonda(q.id), d.ronda);
-    if (String(d.ronda) !== String(ronda)) {
-      const antes = leer(claveVoto(ronda));
-      ronda = d.ronda;
-      // solo se repinta si cambia lo que el niño ve, y nunca en medio de un envío
-      if (!enCurso.has(q.id) && antes !== leer(claveVoto(ronda))) pintar();
-    }
+    const d = await llamar({ accion: "estados", qs: tanda.map(q => q.id).join(",") });
+    if (!d.rondas) return;
+    let cambio = false;
+    tanda.forEach(q => {
+      const nueva = d.rondas[q.id], vieja = rondaDe(q.id);
+      if (nueva == null || String(nueva) === String(vieja)) return;
+      if (vieja != null && Number(nueva) < Number(vieja)) return; // respuesta vieja llegada tarde
+      const antes = enviada(q);
+      guardar(claveRonda(q.id), nueva);
+      if (antes !== enviada(q)) cambio = true; // solo se repinta si cambia lo que el estudiante ve
+    });
+    if (cambio && !enviando) pintar();
   } catch (e) {
     // consulta de fondo: si falla no se avisa; se reintenta unas veces
-    if (intento < 2) setTimeout(() => { if (q === p) estado(intento + 1); }, 5000 + Math.random() * 5000);
+    if (intento < 2) setTimeout(() => estado(intento + 1), 5000 + Math.random() * 5000);
   }
 }
 
-async function enviar(r, q) {
-  // mismo código en los reintentos, y también si el niño repite el toque (por si el servidor evita duplicados)
-  const kv = `v-${pref()}${q.id}`;
+// Envía de una vez las respuestas de la tanda: items = [[pregunta, respuesta, texto], ...]
+async function enviarLote(items) {
+  // mismo código en los reintentos, y también si se repite el toque (el servidor ignora el duplicado)
+  const d = JSON.stringify(items);
+  const kv = `v-${pref()}lote`;
   let v = null;
-  try { const o = JSON.parse(leer(kv)); if (o && o.r === r) v = o.v; } catch (e) {}
-  if (!v) { v = Math.random().toString(36).slice(2, 10); guardar(kv, JSON.stringify({ r, v })); }
-  const mostrar = (m, e) => { if (q === p) { $("mensaje").textContent = m; $("error").textContent = e || ""; } };
+  try { const o = JSON.parse(leer(kv)); if (o && o.d === d) v = o.v; } catch (e) {}
+  if (!v) { v = Math.random().toString(36).slice(2, 10); guardar(kv, JSON.stringify({ d, v })); }
+  const mostrar = (m, e) => { $("mensaje").textContent = m; $("error").textContent = e || ""; };
   mostrar("Enviando…");
   const pausas = [1000, 2500, 5000, 8000, 8000, 8000, 8000];
   for (let k = 0; k <= pausas.length; k++) {
     try {
-      const params = { accion: "enviar", q: q.id, r, t: q.texto, v };
+      const params = { accion: "lote", d, v };
       if (claseNombre) params.n = digitosTanda(); // en el modo antiguo (pregunta dentro del enlace) no hay tanda ni código
-      const d = await llamar(params, 12000);
+      const r = await llamar(params, 12000);
       olvidar(kv);
       mostrar("");
-      if (d.codigo && claseNombre) { guardar(claveCod(), d.codigo); mostrarCodigo(); }
-      return d;
+      if (r.codigo && claseNombre) guardar(claveCod(), r.codigo);
+      return r;
     } catch (e) {
       if (k < pausas.length) {
         if (k >= 1) mostrar("Enviando… (la conexión está lenta, sigue esperando)");
@@ -298,29 +325,30 @@ async function enviar(r, q) {
       }
     }
   }
-  mostrar("", "No se pudo enviar tu respuesta. Inténtalo de nuevo.");
+  mostrar("", "No se pudieron enviar tus respuestas. Inténtalo de nuevo.");
   return null;
 }
 
-// Para alternativas, escala y número: una respuesta por ronda
-async function responderUnaVez(r) {
-  const q = p;
-  if (enCurso.has(q.id)) return;
-  enCurso.add(q.id);
-  fallidas.delete(q.id);
-  const controles = $("zona").querySelectorAll("button, input");
-  controles.forEach(c => c.disabled = true);
+// Botón "Responder": manda todo lo pendiente de la tanda en una sola consulta
+async function responder() {
+  if (enviando) return;
+  const pend = pendientes();
+  const items = pend.map(q => [q.id, respuestaDe(q), q.texto.slice(0, 80)]);
+  if (!items.length || items.some(it => it[1] === null)) return;
+  enviando = true;
+  pintar();
   let d = null;
-  try { d = await enviar(r, q); } finally { enCurso.delete(q.id); }
+  try { d = await enviarLote(items); } finally { enviando = false; }
   if (d) {
-    const rr = d.ronda != null ? d.ronda : (q === p ? ronda : leer(claveRonda(q.id)));
-    guardar(`voto-${pref()}${q.id}-${rr}`, r);
-    if (d.ronda != null) guardar(claveRonda(q.id), d.ronda);
-    if (q === p) { ronda = rr; pintar(); }
-  } else {
-    fallidas.add(q.id);
-    if (q === p) pintar(); // pintar() muestra el error y deja los botones libres
+    items.forEach(([id, r]) => {
+      const ronda = d.rondas && d.rondas[id] != null ? d.rondas[id] : rondaDe(id);
+      guardar(claveVoto(id, ronda), r);
+      if (d.rondas && d.rondas[id] != null) guardar(claveRonda(id), d.rondas[id]);
+      olvidar(claveBorr(id));
+    });
+    window.scrollTo(0, 0);
   }
+  pintar(); // si falló, el error ya está en pantalla y los borradores siguen ahí
 }
 
 function boton(texto, clase = "opcion") {
@@ -330,35 +358,78 @@ function boton(texto, clase = "opcion") {
   return b;
 }
 
+// Botón "Responder" con su aviso de qué falta; se usa en la pantalla final (o bajo la pregunta si la tanda es de una sola)
+function panelEnvio() {
+  const pend = pendientes();
+  if (!pend.length) return;
+  const faltan = pend.filter(q => respuestaDe(q) === null).map(q => tanda.indexOf(q) + 1);
+  const env = boton("Responder", "enviar");
+  env.disabled = enviando || faltan.length > 0;
+  env.onclick = responder;
+  $("zona").appendChild(env);
+  if (!enviando) $("mensaje").textContent = faltan.length
+    ? `Falta responder la pregunta ${faltan.join(", ")}.`
+    : "Después de pulsar «Responder» ya no podrás cambiar tus respuestas.";
+}
+
 function pintar() {
+  $("zona").innerHTML = "";
+  $("mensaje").textContent = "";
+  if (enResumen()) pintarResumen(); else pintarPregunta();
+  if (enviando) { $("mensaje").textContent = "Enviando…"; $("zona").querySelectorAll("button, input, textarea").forEach(c => c.disabled = true); }
+  mostrarCodigo();
+}
+
+// Pantalla final: lo que se marcó en cada pregunta (se puede tocar para corregir) y el botón "Responder"
+function pintarResumen() {
   const zona = $("zona");
-  zona.innerHTML = "";
-  const ya = p.tipo === "abi" ? null : leer(claveVoto(ronda));
-  $("mensaje").textContent = ya ? LISTO : "";
-  if (fallidas.has(p.id)) $("error").textContent = "No se pudo enviar tu respuesta. Inténtalo de nuevo.";
-  if (enCurso.has(p.id)) $("mensaje").textContent = "Enviando…";
+  const listo = !pendientes().length;
+  $("pregunta").textContent = listo ? "Tus respuestas quedaron registradas" : "Revisa y responde";
+  const lista = document.createElement("div");
+  lista.className = "resumen";
+  tanda.forEach((q, i) => {
+    const ya = enviada(q);
+    const r = ya !== null ? ya : respuestaDe(q);
+    const b = document.createElement("button");
+    b.className = "fila";
+    const t = document.createElement("span");
+    t.textContent = `${i + 1}. ${q.texto}`;
+    const a = document.createElement("small");
+    a.textContent = r !== null ? r.split(SEP).join(", ") : "Sin responder";
+    if (r === null) a.className = "falta";
+    b.append(t, a);
+    if (listo) b.disabled = true; // ya enviada: no se corrige desde aquí
+    else b.onclick = () => ir(i - idx);
+    lista.appendChild(b);
+  });
+  zona.appendChild(lista);
+  if (listo) $("mensaje").textContent = LISTO;
+  else panelEnvio();
+}
+
+function pintarPregunta() {
+  const zona = $("zona");
+  const ya = enviada(p);
+  const cur = ya !== null ? ya : borrador(p);
+  const editable = ya === null;
+  if (ya !== null) $("mensaje").textContent = hayResumen() ? LISTO : "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
+  else if (hayResumen() && respuestaDe(p) !== null) $("mensaje").textContent = "Aún no se envía: puedes cambiarla hasta pulsar «Responder» al final.";
+  const marcar = v => { guardar(claveBorr(p.id), v); pintar(); };
 
   if (p.tipo === "alt") {
     const cont = document.createElement("div");
     cont.className = "opciones";
-    const elegidas = ya ? ya.split(SEP) : [];
+    const elegidas = cur ? cur.split(SEP) : [];
     p.opciones.forEach(op => {
       const b = boton(op);
-      if (ya) { b.disabled = true; if (elegidas.includes(op)) b.classList.add("elegida"); }
-      else if (p.multi) { b.setAttribute("aria-pressed", "false"); b.onclick = () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); }
-      else b.onclick = () => { b.classList.add("elegida"); responderUnaVez(op); };
+      const esta = elegidas.includes(op);
+      if (esta) b.classList.add("elegida");
+      if (!editable) b.disabled = true;
+      else if (p.multi) { b.setAttribute("aria-pressed", esta ? "true" : "false"); b.onclick = () => marcar(p.opciones.filter(o => o === op ? !esta : elegidas.includes(o)).join(SEP)); }
+      else b.onclick = () => marcar(op);
       cont.appendChild(b);
     });
     zona.appendChild(cont);
-    if (p.multi && !ya) {
-      const env = boton("Enviar", "enviar");
-      env.onclick = () => {
-        const sel = [...cont.children].filter(b => b.getAttribute("aria-pressed") === "true").map(b => b.textContent);
-        if (!sel.length) { $("error").textContent = "Marca al menos una alternativa."; return; }
-        responderUnaVez(sel.join(SEP));
-      };
-      zona.appendChild(env);
-    }
   }
 
   if (p.tipo === "esc") {
@@ -366,8 +437,9 @@ function pintar() {
     cont.className = "opciones escala";
     for (let v = p.min; v <= p.max; v++) {
       const b = boton(String(v));
-      if (ya) { b.disabled = true; if (ya === String(v)) b.classList.add("elegida"); }
-      else b.onclick = () => { b.classList.add("elegida"); responderUnaVez(String(v)); };
+      if (cur === String(v)) b.classList.add("elegida");
+      if (!editable) b.disabled = true;
+      else b.onclick = () => marcar(String(v));
       cont.appendChild(b);
     }
     zona.appendChild(cont);
@@ -387,16 +459,12 @@ function pintar() {
     const inp = document.createElement("input");
     inp.inputMode = "decimal";
     inp.placeholder = "Escribe un número";
+    inp.value = cur;
+    if (!editable) inp.disabled = true;
+    else inp.oninput = () => guardar(claveBorr(p.id), inp.value);
     fila.appendChild(inp);
     if (p.unidad) { const u = document.createElement("span"); u.textContent = p.unidad; fila.appendChild(u); }
     zona.appendChild(fila);
-    const env = boton("Enviar", "enviar");
-    zona.appendChild(env);
-    if (ya) { inp.value = ya; inp.disabled = true; env.disabled = true; }
-    else env.onclick = () => {
-      if (aNumero(inp.value) === null) { $("error").textContent = "Escribe solo un número (por ejemplo 12,5)."; return; }
-      responderUnaVez(inp.value.trim());
-    };
   }
 
   if (p.tipo === "abi") {
@@ -404,25 +472,22 @@ function pintar() {
     ta.rows = 3;
     ta.maxLength = 200;
     ta.placeholder = "Escribe tu respuesta";
+    ta.value = cur;
     const cuenta = document.createElement("div");
     cuenta.className = "cuenta";
-    cuenta.textContent = "0 / 200";
-    ta.oninput = () => cuenta.textContent = ta.value.length + " / 200";
-    const env = boton("Enviar", "enviar");
-    env.onclick = async () => {
-      const r = ta.value.trim();
-      if (!r) { $("error").textContent = "Escribe algo antes de enviar."; return; }
-      const q = p;
-      env.disabled = true;
-      let d = null;
-      try { d = await enviar(r, q); } finally { env.disabled = false; }
-      if (d && q === p) { ta.value = ""; cuenta.textContent = "0 / 200"; $("mensaje").textContent = "Enviado. Puedes escribir otra respuesta si quieres."; }
-    };
-    zona.append(ta, cuenta, env);
+    cuenta.textContent = ta.value.length + " / 200";
+    if (!editable) ta.disabled = true;
+    else ta.oninput = () => { cuenta.textContent = ta.value.length + " / 200"; guardar(claveBorr(p.id), ta.value); };
+    zona.append(ta, cuenta);
   }
 
-  if (enCurso.has(p.id)) zona.querySelectorAll("button, input").forEach(c => c.disabled = true);
-  mostrarCodigo();
+  // Última pregunta: lleva a la pantalla final. Si la tanda es de una sola, el botón "Responder" va aquí mismo
+  if (!hayResumen()) panelEnvio();
+  else if (idx === tanda.length - 1) {
+    const rev = boton("Revisar y responder ›", "enviar");
+    rev.onclick = () => ir(1);
+    zona.appendChild(rev);
+  }
 }
 </script>
 </body>
