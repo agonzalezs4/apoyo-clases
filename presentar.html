@@ -179,10 +179,11 @@ function mostrar() {
   if (nombreClase) {
     const c = encodeURIComponent(nombreClase);
     history.replaceState(null, "", `?clase=${c}&p=${i + 1}`);
-    url = new URL(`votar.html?clase=${c}&q=${encodeURIComponent(p.id)}`, location.href).href;
-    const cod = nombreClase.replace(/^clase-/, "") + (i > 0 ? "-" + (i + 1) : "");
-    $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b>";
-    $("corto").querySelector("b").textContent = "tinyurl.com/epi-uss/" + cod;
+    // Un solo QR y un solo enlace corto para toda la tanda: el estudiante entra una vez y cambia de pregunta
+    // dentro de votar.html. Así no vuelve a cargar la página (ni a caer en otro navegador) en cada pregunta.
+    url = new URL(`votar.html?clase=${c}`, location.href).href;
+    $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b><br><small>Una sola vez: sirve para toda la tanda</small>";
+    $("corto").querySelector("b").textContent = "tinyurl.com/epi-uss/" + nombreClase.replace(/^clase-/, "");
   } else {
     history.replaceState(null, "", `?i=${i}#${datosClase}`);
     url = new URL("votar.html#" + empaquetar(paraVotar(p)), location.href).href;
@@ -190,10 +191,13 @@ function mostrar() {
   $("pregunta").textContent = p.texto;
   document.title = p.texto;
   $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}`;
-  const qr = qrcode(0, "M");
-  qr.addData(url);
-  qr.make();
-  $("qr").innerHTML = `<img alt="Código QR para responder" src="${qr.createDataURL(8, 2)}">`;
+  if ($("qr").dataset.url !== url) { // el enlace de la tanda no cambia entre preguntas: el QR tampoco se redibuja
+    const qr = qrcode(0, "M");
+    qr.addData(url);
+    qr.make();
+    $("qr").innerHTML = `<img alt="Código QR para responder" src="${qr.createDataURL(8, 2)}">`;
+    $("qr").dataset.url = url;
+  }
   $("zona").innerHTML = "";
   $("zona").dataset.clave = "";
   $("resumen").textContent = "";
@@ -532,14 +536,18 @@ function pintarSorteo() {
   const cont = $("sorteoResultado");
   cont.innerHTML = "";
   const linea = (t) => { const el = document.createElement("p"); el.textContent = t; cont.appendChild(el); return el; };
-  linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
-  if (premiados.length) {
-    const div = document.createElement("div");
-    div.className = "premiados";
-    premiados.forEach(f => { const s = document.createElement("span"); s.textContent = f.codigo; div.appendChild(s); });
-    cont.appendChild(div);
+  if (!filas.length) {
+    linea("Todavía no hay votos con código en esta tanda. Los códigos aparecen cuando los estudiantes responden desde su celular; después pulsa «Actualizar votos».");
+  } else {
+    linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
+    if (premiados.length) {
+      const div = document.createElement("div");
+      div.className = "premiados";
+      premiados.forEach(f => { const s = document.createElement("span"); s.textContent = f.codigo; div.appendChild(s); });
+      cont.appendChild(div);
+    }
+    if (repetidos.length) linea(`Revisar: lo usaron dos personas (respuestas distintas con el mismo código): ${repetidos.map(f => f.codigo).join(", ")}.`).className = "error";
   }
-  if (repetidos.length) linea(`Revisar: lo usaron dos personas (respuestas distintas con el mismo código): ${repetidos.map(f => f.codigo).join(", ")}.`).className = "error";
   if (votosSorteo.invalidos) linea(`${votosSorteo.invalidos} voto(s) con código inválido: se ignoraron.`).className = "ayuda";
 }
 
