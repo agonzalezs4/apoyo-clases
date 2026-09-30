@@ -532,14 +532,18 @@ function pintarSorteo() {
   const cont = $("sorteoResultado");
   cont.innerHTML = "";
   const linea = (t) => { const el = document.createElement("p"); el.textContent = t; cont.appendChild(el); return el; };
-  linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
-  if (premiados.length) {
-    const div = document.createElement("div");
-    div.className = "premiados";
-    premiados.forEach(f => { const s = document.createElement("span"); s.textContent = f.codigo; div.appendChild(s); });
-    cont.appendChild(div);
+  if (!filas.length) {
+    linea("Todavía no hay votos con código en esta tanda. Los códigos aparecen cuando los estudiantes responden desde su celular; después pulsa «Actualizar votos».");
+  } else {
+    linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
+    if (premiados.length) {
+      const div = document.createElement("div");
+      div.className = "premiados";
+      premiados.forEach(f => { const s = document.createElement("span"); s.textContent = f.codigo; div.appendChild(s); });
+      cont.appendChild(div);
+    }
+    if (repetidos.length) linea(`Revisar: lo usaron dos personas (respuestas distintas con el mismo código): ${repetidos.map(f => f.codigo).join(", ")}.`).className = "error";
   }
-  if (repetidos.length) linea(`Revisar: lo usaron dos personas (respuestas distintas con el mismo código): ${repetidos.map(f => f.codigo).join(", ")}.`).className = "error";
   if (votosSorteo.invalidos) linea(`${votosSorteo.invalidos} voto(s) con código inválido: se ignoraron.`).className = "ayuda";
 }
 
