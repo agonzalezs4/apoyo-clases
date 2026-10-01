@@ -95,6 +95,8 @@ function respuestaDe(q) {
   return v;
 }
 const pendientes = () => tanda.filter(q => enviada(q) === null);
+// Lo enviado se guarda tal cual; "" = el estudiante pulsó «Responder» dejando esa pregunta en blanco (queda cerrada en esa ronda)
+const numeros = qs => qs.map(q => tanda.indexOf(q) + 1).join(", ");
 
 // Un solo código por celular y por tanda (clase-##-#): se elige aquí, sin consultar al servidor. La letra la agrega el servidor.
 function digitosTanda() {
@@ -329,18 +331,21 @@ async function enviarLote(items) {
   return null;
 }
 
-// Botón "Responder": manda todo lo pendiente de la tanda en una sola consulta
+// Botón "Responder": manda todo lo pendiente de la tanda en una sola consulta.
+// Las preguntas en blanco viajan solo con su id (el servidor no escribe fila; solo devuelve su ronda para cerrarlas aquí)
 async function responder() {
   if (enviando) return;
   const pend = pendientes();
-  const items = pend.map(q => [q.id, respuestaDe(q), q.texto.slice(0, 80)]);
-  if (!items.length || items.some(it => it[1] === null)) return;
+  const blancas = pend.filter(q => respuestaDe(q) === null);
+  if (blancas.length === pend.length) return;
+  if (blancas.length && !confirm(`Dejaste sin responder ${blancas.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(blancas)}. Después de enviar ya no podrás cambiar tus respuestas. ¿Responder igual?`)) return;
+  const items = pend.map(q => { const r = respuestaDe(q); return r === null ? [q.id] : [q.id, r, q.texto.slice(0, 80)]; });
   enviando = true;
   pintar();
   let d = null;
   try { d = await enviarLote(items); } finally { enviando = false; }
   if (d) {
-    items.forEach(([id, r]) => {
+    items.forEach(([id, r = ""]) => {
       const ronda = d.rondas && d.rondas[id] != null ? d.rondas[id] : rondaDe(id);
       guardar(claveVoto(id, ronda), r);
       if (d.rondas && d.rondas[id] != null) guardar(claveRonda(id), d.rondas[id]);
@@ -362,14 +367,15 @@ function boton(texto, clase = "opcion") {
 function panelEnvio() {
   const pend = pendientes();
   if (!pend.length) return;
-  const faltan = pend.filter(q => respuestaDe(q) === null).map(q => tanda.indexOf(q) + 1);
+  const blancas = pend.filter(q => respuestaDe(q) === null);
   const env = boton("Responder", "enviar");
-  env.disabled = enviando || faltan.length > 0;
+  env.disabled = enviando || blancas.length === pend.length;
   env.onclick = responder;
   $("zona").appendChild(env);
-  if (!enviando) $("mensaje").textContent = faltan.length
-    ? `Falta responder la pregunta ${faltan.join(", ")}.`
-    : "Después de pulsar «Responder» ya no podrás cambiar tus respuestas.";
+  if (enviando) return;
+  if (blancas.length === pend.length) { $("mensaje").textContent = hayResumen() ? "Marca al menos una respuesta para poder enviar." : ""; return; }
+  $("mensaje").textContent = (blancas.length ? `Sin responder: ${blancas.length === 1 ? "pregunta" : "preguntas"} ${numeros(blancas)}. Puedes volver a ellas o enviar así. ` : "")
+    + "Después de pulsar «Responder» ya no podrás cambiar tus respuestas.";
 }
 
 function pintar() {
@@ -389,13 +395,14 @@ function pintarResumen() {
   lista.className = "resumen";
   tanda.forEach((q, i) => {
     const ya = enviada(q);
-    const r = ya !== null ? ya : respuestaDe(q);
+    const r = ya !== null ? ya || null : respuestaDe(q);
+    const invalida = ya === null && r === null && borrador(q).trim() !== ""; // p. ej. un número mal escrito
     const b = document.createElement("button");
     b.className = "fila";
     const t = document.createElement("span");
     t.textContent = `${i + 1}. ${q.texto}`;
     const a = document.createElement("small");
-    a.textContent = r !== null ? r.split(SEP).join(", ") : "Sin responder";
+    a.textContent = r !== null ? r.split(SEP).join(", ") : invalida ? "Número no válido: tócala para corregirlo" : "Sin responder";
     if (r === null) a.className = "falta";
     b.append(t, a);
     if (listo) b.disabled = true; // ya enviada: no se corrige desde aquí
@@ -412,9 +419,10 @@ function pintarPregunta() {
   const ya = enviada(p);
   const cur = ya !== null ? ya : borrador(p);
   const editable = ya === null;
-  if (ya !== null) $("mensaje").textContent = hayResumen() ? LISTO : "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
-  else if (hayResumen() && respuestaDe(p) !== null) $("mensaje").textContent = "Aún no se envía: puedes cambiarla hasta pulsar «Responder» al final.";
-  const marcar = v => { guardar(claveBorr(p.id), v); pintar(); };
+  if (ya === "") $("mensaje").textContent = "Enviaste la tanda sin responder esta pregunta. Si se abre una nueva ronda, podrás responderla aquí mismo.";
+  else if (ya !== null) $("mensaje").textContent = hayResumen() ? LISTO : "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
+  else if (hayResumen() && respuestaDe(p) !== null) $("mensaje").textContent = "Aún no se envía: puedes cambiarla o quitarla hasta pulsar «Responder» al final.";
+  const marcar = v => { if (v) guardar(claveBorr(p.id), v); else olvidar(claveBorr(p.id)); pintar(); };
 
   if (p.tipo === "alt") {
     const cont = document.createElement("div");
@@ -426,7 +434,7 @@ function pintarPregunta() {
       if (esta) b.classList.add("elegida");
       if (!editable) b.disabled = true;
       else if (p.multi) { b.setAttribute("aria-pressed", esta ? "true" : "false"); b.onclick = () => marcar(p.opciones.filter(o => o === op ? !esta : elegidas.includes(o)).join(SEP)); }
-      else b.onclick = () => marcar(op);
+      else b.onclick = () => marcar(esta ? "" : op); // tocar de nuevo la elegida la quita
       cont.appendChild(b);
     });
     zona.appendChild(cont);
@@ -439,7 +447,7 @@ function pintarPregunta() {
       const b = boton(String(v));
       if (cur === String(v)) b.classList.add("elegida");
       if (!editable) b.disabled = true;
-      else b.onclick = () => marcar(String(v));
+      else b.onclick = () => marcar(cur === String(v) ? "" : String(v));
       cont.appendChild(b);
     }
     zona.appendChild(cont);

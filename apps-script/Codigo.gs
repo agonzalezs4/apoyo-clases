@@ -25,7 +25,8 @@
  * Envío por tanda (nuevo):
  *  - El celular ya no envía cada pregunta al tocarla: el estudiante puede cambiar sus alternativas y,
  *    al final, pulsa "Responder". "lote" recibe TODAS las respuestas en una sola consulta (d = JSON con
- *    [pregunta, respuesta, texto]) y devuelve el código y la ronda de cada pregunta.
+ *    [pregunta, respuesta, texto]) y devuelve el código y la ronda de cada pregunta. No es obligatorio
+ *    responder todas: las que quedan en blanco viajan solo con su id y no generan fila en la hoja.
  *  - "estados" devuelve las rondas de toda la tanda en una sola consulta (antes era una por pregunta).
  *  - "enviar" y "estado" siguen existiendo por si algún celular tiene abierta la versión anterior.
  */
@@ -127,7 +128,8 @@ function enviar_(q, r, t, v, n) {
   return conCodigo_({ ok: true, ronda: ronda }, codigo);
 }
 
-/* Guarda de una vez las respuestas de la tanda. d = JSON [[pregunta, respuesta, texto], ...] */
+/* Guarda de una vez las respuestas de la tanda. d = JSON [[pregunta, respuesta, texto], ...]
+   Una pregunta que el estudiante dejó en blanco viaja como [pregunta]: no se escribe fila, solo se devuelve su ronda */
 function lote_(d, v, n) {
   let items;
   try { items = JSON.parse(String(d || "")); } catch (err) { throw new Error("Envío inválido"); }
@@ -136,7 +138,8 @@ function lote_(d, v, n) {
     it = Array.isArray(it) ? it : [];
     return { q: String(it[0] || "").slice(0, 40), r: String(it[1] || "").trim().slice(0, 500), t: String(it[2] || "").slice(0, 300) };
   });
-  if (items.some(it => !it.q || !it.r)) throw new Error("Respuesta vacía");
+  if (items.some(it => !it.q)) throw new Error("Falta el identificador de la pregunta");
+  if (!items.some(it => it.r)) throw new Error("Respuesta vacía");
   v = String(v || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
   n = String(n || "");
   const codigo = RE_DIGITOS.test(n) ? codigo_(n) : "";
@@ -153,6 +156,7 @@ function lote_(d, v, n) {
   // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
   items.forEach(it => {
     rondas[it.q] = ronda_(it.q);
+    if (!it.r) return; // en blanco
     h.appendRow([ahora, "'" + it.q, rondas[it.q], "'" + it.t, "'" + it.r, codigo ? "'" + codigo : ""]);
   });
   const out = conCodigo_({ ok: true, rondas: rondas }, codigo);
