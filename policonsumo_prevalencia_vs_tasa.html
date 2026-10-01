@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abandono de tratamiento: personas vs tiempo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  /* Paleta tomada de las diapositivas USS: azul marino, azules de las tarjetas, dorado del pie */
+  :root{
+    --bg:#ffffff; --fg:#1f2937; --muted:#9aa5b8; --line:#c5cee0;
+    --navy:#17375e; --blue:#2d6fc4; --gold:#c9a961;
+    --case:#d62828; --casebg:#fde4e4;      /* abandono (la "x" roja de las diapos) */
+    --risk:#2d6fc4;                         /* personas / tiempo en tratamiento */
+    --panel:#e6ebf3; --hi:#fbf1d5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:12px;background:var(--bg);color:var(--fg);
+       font-family:Calibri,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;line-height:1.4}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:1.3rem;margin:0 0 4px;color:var(--navy);font-weight:700}
+  .bar{height:3px;width:64px;background:var(--gold);border-radius:2px;margin:0 0 8px}
+  .sub{margin:0 0 10px;font-size:.95rem}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .tabs button{flex:1 1 0;min-width:150px;padding:9px 10px;border:1.5px solid var(--navy);
+       background:transparent;color:var(--navy);border-radius:8px;font:inherit;font-weight:700;cursor:pointer}
+  .tabs button[aria-pressed="true"]{background:var(--navy);color:#fff}
+  .tabs button:focus-visible,#tcut:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .sliderrow{display:flex;align-items:center;gap:10px;margin:2px 0 4px}
+  .sliderrow label{white-space:nowrap;font-size:.95rem;color:var(--navy)}
+  .sliderrow input{flex:1;min-width:0;accent-color:var(--navy)}
+  svg{width:100%;height:auto;display:block;touch-action:pan-y}
+  .tick text{fill:var(--fg);font-size:12px}
+  .domain,.tick line{stroke:var(--muted)}
+  .axlab,.gname,.leg{fill:var(--fg);font-size:12px}
+  .gname{font-weight:700;font-size:13px;fill:var(--navy)}
+  .grab{cursor:ew-resize}
+  .cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .card{flex:1 1 300px;background:var(--panel);border-radius:10px;padding:10px 12px}
+  .card h2{font-size:1rem;margin:0 0 6px;color:var(--navy)}
+  .m{padding:3px 6px;border-radius:6px;font-size:.92rem}
+  .m.on{background:var(--hi);font-weight:700;box-shadow:inset 3px 0 0 var(--gold)}
+  .nb{white-space:nowrap}
+  .den{font-weight:400;font-size:.85rem;margin-top:4px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--risk);margin:2px 2px 0 0}
+  .dot.c{background:var(--case)}
+  .nota{font-size:.85rem;margin:8px 2px 0;opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="titulo"></h1>
+  <div class="bar"></div>
+  <p class="sub" id="subtitulo"></p>
+
+  <div class="tabs" role="group" aria-label="Denominador">
+    <button data-m="prev" aria-pressed="true">Contar personas (incidencia acumulada)</button>
+    <button data-m="tasa" aria-pressed="false">Contar tiempo (tasa de incidencia)</button>
+  </div>
+
+  <div class="sliderrow">
+    <label for="tcut">Corte t = <b id="tval"></b></label>
+    <input type="range" id="tcut" step="1">
+  </div>
+
+  <svg id="chart" role="img" aria-label="Seguimiento de cada persona por grupo, con línea de corte t que se puede mover"></svg>
+
+  <div class="cards" id="cards"></div>
+  <p class="nota"><b>Incidencia acumulada:</b> abandonos hasta t sobre todas las personas que ingresaron, sin importar cuánto tiempo lleva cada una.
+     <b>Tasa de incidencia:</b> los mismos abandonos sobre el tiempo que cada persona estuvo en tratamiento y observada (persona-meses).</p>
+
+</div>
+
+<script>
+/* =====================================================================
+   EDITA AQUÍ (solo esta sección)
+   Cada persona se escribe como [meses observados, abandonó]
+     abandonó = 1  → dejó el tratamiento a los "meses" indicados
+     abandonó = 0  → seguía en tratamiento cuando terminó su observación
+   Atajo: rep(6, 6, 0) = 6 personas observadas 6 meses que NO abandonaron
+   ===================================================================== */
+const rep = (n, t, e) => Array.from({length:n}, () => [t, e]);
+
+const TITULO     = "Policonsumo y abandono de tratamiento";
+const SUBTITULO  = "Los mismos datos con dos denominadores. Mueva la línea t y compare.";
+const UNIDAD     = "meses";   // unidad de tiempo
+const POR        = 1000;      // la tasa se muestra "por 1.000 persona-meses"
+const T_INICIAL  = 6;         // dónde parte la línea t
+
+const GRUPOS = [
+  { nombre: "Una sustancia",
+    personas: [ [2,1],[3,1],[3,1],[5,1],          // 4 abandonos (el de los 5 meses ocurre después de t = 4)
+                ...rep(6, 6, 0) ] },              // 6 siguen en tratamiento
+  { nombre: "Policonsumo (2 o más sustancias)",
+    personas: [ [1,1],[1,1],[2,1],[3,1],          // 4 abandonos tempranos
+                ...rep(3,1,0), ...rep(4,2,0), ...rep(3,3,0), ...rep(2,4,0) ] } // ingresaron hace poco
+];
+
+/* ===================== FIN DE LO EDITABLE ===================== */
+
+/* ---------- Cálculos (solo con lo ocurrido hasta t) ---------- */
+const fmt = (v,d=1) => v.toFixed(d).replace(".",",");
+const POR_TXT = String(POR).replace(/\B(?=(\d{3})+(?!\d))/g,".");   // 1000 → "1.000"
+const calc = T => GRUPOS.map(g=>{
+  const n  = g.personas.length;
+  const ev = g.personas.filter(([t,e]) => e===1 && t<=T).length;
+  const pt = g.personas.reduce((s,[t]) => s + Math.min(t,T), 0);
+  return {n, ev, pt, prev: ev/n, tasa: pt>0 ? POR*ev/pt : 0};
+});
+const maxT = d3.max(GRUPOS, g=>d3.max(g.personas,p=>p[0]));
+const TMIN = 1;
+let tcut = Math.min(Math.max(T_INICIAL,TMIN),maxT), mode = "prev";
+
+/* ---------- Dibujo ---------- */
+/* En pantallas angostas (celular) el gráfico se dibuja al tamaño real de la pantalla: antes se
+   dibujaba en 720 px y se encogía a la mitad, y el texto quedaba ilegible. Los números del eje no cambian. */
+const ANCHO = { W:720, M:{l:26,r:16,t:32,b:34}, rowH:12, headH:24, gap:12, legH:0, two:false,
+  fsName:13, fs:12, fsAx:12, fsTick:12, ln:1, bar:5, xs:4, xw:2.2, ro:3.6, rd:4, tl:2, th:6.5, grab:20 };
+const paramsPantalla = () => {
+  const cw = svg.node().clientWidth || 720;
+  if (cw >= 560) return ANCHO;
+  return { W:cw, M:{l:32,r:16,t:48,b:36}, rowH:16, headH:42, gap:14, legH:34, two:true,
+    fsName:15, fs:13.5, fsAx:13.5, fsTick:12*cw/720, ln:1.6, bar:8, xs:5.5, xw:3, ro:5, rd:5.5, tl:3, th:11, grab:30 };
+};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svg = d3.select("#chart");
+let P = ANCHO, W = 720, M = ANCHO.M, H = 0, x = d3.scaleLinear();
+
+function layout(){
+  P = paramsPantalla(); W = P.W; M = P.M;
+  H = M.t + M.b + P.legH;
+  GRUPOS.forEach(g=>{ H += P.headH + g.personas.length*P.rowH + P.gap; });
+  svg.attr("viewBox",`0 0 ${W} ${H}`);
+  x = d3.scaleLinear().domain([0,maxT]).range([M.l+6, W-M.r]);
+}
+
+function render(){
+  layout();
+  svg.selectAll("*").remove();
+  const S = calc(tcut);
+  const cCase=css("--case"), cCaseBg=css("--casebg"), cRisk=css("--risk"), cMut=css("--muted"), cFg=css("--navy");
+  const rowH = P.rowH;
+  let yOff = M.t + P.legH;
+  const yTop = P.two ? M.t - 18 : M.t - 8;
+  let legY = P.two ? M.t + 14 : null;
+
+  GRUPOS.forEach((g,gi)=>{
+    const s = S[gi];
+    const stats = `n = ${s.n}  ·  abandonaron: ${s.ev}`;
+    if(P.two){
+      svg.append("text").attr("class","gname").style("font-size",P.fsName+"px").attr("x",M.l).attr("y",yOff+17).text(g.nombre);
+      svg.append("text").attr("class","leg").style("font-size",P.fs+"px").attr("x",M.l).attr("y",yOff+17+P.fs+6).text(stats);
+    } else {
+      svg.append("text").attr("class","gname").attr("x",M.l).attr("y",yOff+15).text(`${g.nombre}  ·  ${stats}`);
+      if(gi===0) legY = yOff+15;
+    }
+    yOff += P.headH;
+
+    g.personas.forEach(([t,e],i)=>{
+      const y  = yOff + i*rowH + rowH/2;
+      const te = Math.min(t,tcut);          // tiempo que cuenta
+      const ev = e===1 && t<=tcut;          // abandono que cuenta
+
+      if(mode==="prev"){
+        if(ev) svg.append("rect").attr("x",M.l-10).attr("width",Math.max(x(tcut)-M.l+10,0))
+                 .attr("y",y-rowH/2+1).attr("height",rowH-2).attr("rx",3)
+                 .attr("fill",cCaseBg).attr("opacity",.85);
+        svg.append("circle").attr("cx",M.l-4).attr("cy",y).attr("r",P.rd)
+           .attr("fill", ev?cCase:cRisk);
+        svg.append("line").attr("x1",x(0)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
+           .attr("stroke",cMut).attr("stroke-width",P.ln);
+      } else {
+        svg.append("line").attr("x1",x(0)).attr("x2",x(te)).attr("y1",y).attr("y2",y)
+           .attr("stroke",cRisk).attr("stroke-width",P.bar).attr("stroke-linecap","round");
+        if(t>tcut)
+          svg.append("line").attr("x1",x(tcut)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
+             .attr("stroke",cMut).attr("stroke-width",P.ln);
+      }
+
+      if(e===1){
+        const s4=P.xs;
+        svg.append("path").attr("d",`M${x(t)-s4},${y-s4}L${x(t)+s4},${y+s4}M${x(t)+s4},${y-s4}L${x(t)-s4},${y+s4}`)
+           .attr("stroke",cCase).attr("stroke-width",P.xw).attr("fill","none");
+      } else {
+        svg.append("circle").attr("cx",x(t)).attr("cy",y).attr("r",P.ro)
+           .attr("fill","var(--bg)").attr("stroke",cFg).attr("stroke-width",P.two?2:1.5);
+      }
+    });
+    yOff += g.personas.length*rowH + P.gap;
+  });
+  const yBottom = yOff - P.gap;
+
+  // Lo posterior a t queda atenuado (no cuenta)
+  if(tcut < maxT){
+    svg.append("rect").attr("x",x(tcut)).attr("width",x(maxT)-x(tcut)+8)
+       .attr("y",yTop).attr("height",yBottom-yTop+2).attr("fill","var(--bg)").attr("opacity",.7);
+  }
+
+  // Línea t + asa
+  svg.append("line").attr("class","grab").attr("x1",x(tcut)).attr("x2",x(tcut)).attr("y1",yTop).attr("y2",yBottom+2)
+     .attr("stroke",cFg).attr("stroke-width",P.tl);
+  svg.append("circle").attr("class","grab").attr("cx",x(tcut)).attr("cy",yTop).attr("r",P.th)
+     .attr("fill",cFg).attr("stroke","var(--bg)").attr("stroke-width",2);
+  svg.append("text").attr("class","axlab").style("font-size",P.fsAx+"px").attr("x",Math.min(Math.max(x(tcut),P.two?56:40),W-(P.two?56:40))).attr("y",yTop-P.th-5)
+     .attr("text-anchor","middle").attr("font-weight",700).text(`t = ${tcut} ${UNIDAD}`);
+
+  // Leyenda: en el celular va en su propia fila arriba; en pantalla ancha, en la esquina superior derecha
+  const leg = svg.append("g");
+  const lt = leg.append("text").attr("class","leg").style("font-size",P.fs+"px")
+     .attr("x", P.two ? M.l : W-M.r-4).attr("y",legY).attr("text-anchor", P.two ? "start" : "end");
+  lt.append("tspan").attr("fill",cCase).attr("font-weight",700).text("✕");
+  lt.append("tspan").text(" abandonó     ");
+  lt.append("tspan").attr("font-weight",700).text("○");
+  lt.append("tspan").text(" sigue en tratamiento");
+  const bb = lt.node().getBBox();
+  leg.insert("rect","text").attr("x",bb.x-6).attr("y",bb.y-3).attr("width",bb.width+12).attr("height",bb.height+6)
+     .attr("rx",4).attr("fill","var(--bg)").attr("stroke",cMut).attr("stroke-width",P.two?1.2:.8);
+
+  const eje = svg.append("g").attr("transform",`translate(0,${yBottom+4})`)
+     .call(d3.axisBottom(x).ticks(Math.min(maxT,12)).tickFormat(d=>d));
+  eje.selectAll("text").style("font-size",P.fsTick+"px");   // los números del eje conservan su tamaño de siempre
+  svg.append("text").attr("class","axlab").style("font-size",P.fsAx+"px").attr("x",(M.l+W-M.r)/2).attr("y",H-4)
+     .attr("text-anchor","middle").text(`${UNIDAD[0].toUpperCase()+UNIDAD.slice(1)} desde el ingreso al tratamiento`);
+
+  renderCards(S);
+  avisarAlto();
+}
+
+function renderCards(S){
+  const box = document.getElementById("cards"); box.innerHTML = "";
+  GRUPOS.forEach((g,gi)=>{
+    const s = S[gi];
+
+    // De qué está hecho cada denominador
+    const casos = g.personas.filter(([t,e]) => e===1 && t<=tcut).length;
+    const puntos = '<span class="dot c"></span>'.repeat(casos) + '<span class="dot"></span>'.repeat(s.n-casos);
+    const cuenta = {};
+    g.personas.forEach(([t]) => { const m = Math.min(t,tcut); cuenta[m] = (cuenta[m]||0)+1; });
+    const suma = Object.keys(cuenta).map(Number).sort((a,b)=>a-b)
+                   .map(m => cuenta[m]>1 ? `${m}×${cuenta[m]}` : `${m}`).join(" + ");
+
+    const c = document.createElement("div"); c.className="card";
+    c.innerHTML = `<h2>${g.nombre}</h2>
+      <div class="m ${mode==="prev"?"on":""}">Incidencia acumulada de abandono = <span class="nb">${s.ev}/${s.n}</span> = <span class="nb">${fmt(100*s.prev)} %</span>
+        ${mode==="prev" ? `<div class="den">Denominador: ${s.n} personas, cada una cuenta 1<br>${puntos}</div>` : ""}</div>
+      <div class="m ${mode==="tasa"?"on":""}">Tasa de incidencia de abandono = <span class="nb">${s.ev}/${s.pt} persona-${UNIDAD}</span> = <span class="nb">${fmt(s.tasa)} por ${POR_TXT}</span>
+        ${mode==="tasa" ? `<div class="den">Denominador: ${UNIDAD} que aportó cada persona hasta t<br>${suma} = ${s.pt} persona-${UNIDAD}</div>` : ""}</div>`;
+    box.appendChild(c);
+  });
+}
+
+/* ---------- Control de t: arrastrar la línea o usar el deslizador ---------- */
+const slider = document.getElementById("tcut");
+slider.min = TMIN; slider.max = maxT; slider.value = tcut;
+function setT(v){
+  v = Math.min(Math.max(Math.round(v),TMIN),maxT);
+  if(v===tcut) return;
+  tcut = v; slider.value = v;
+  document.getElementById("tval").textContent = `${v} ${UNIDAD}`;
+  render();
+}
+slider.addEventListener("input", e=>setT(+e.target.value));
+document.getElementById("tval").textContent = `${tcut} ${UNIDAD}`;
+
+const drag = d3.drag()
+  .container(() => svg.node())
+  .filter(ev => {                                   // solo se arrastra si se toca cerca de la línea
+    if(ev.button) return false;
+    const pt = ev.touches ? ev.touches[0] : ev;
+    const [px] = d3.pointer(pt, svg.node());
+    return Math.abs(px - x(tcut)) < P.grab;
+  })
+  .on("start drag", ev => setT(x.invert(ev.x)));
+svg.call(drag).style("touch-action","pan-y");
+
+document.getElementById("titulo").textContent = TITULO;
+document.getElementById("subtitulo").textContent = SUBTITULO;
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+  mode = b.dataset.m;
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  render();
+}));
+
+/* Si va dentro de un iframe, avisa su alto a la página que lo contiene (opcional) */
+function avisarAlto(){
+  try{
+    const h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height) + 24; // + margen del body
+    parent.postMessage({tipo:"alto-widget", alto:h},"*");
+  }catch(e){}
+}
+render();
+let anchoPrev = svg.node().clientWidth;
+addEventListener("resize", () => {              // girar el celular o cambiar el tamaño de la ventana
+  const w = svg.node().clientWidth;
+  if (Math.abs(w - anchoPrev) > 20) { anchoPrev = w; render(); }
+});
+</script>
+</body>
+</html>

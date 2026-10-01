@@ -1,0 +1,334 @@
+Historial de versiones colapsadas — apoyo-clases
+============================================================
+El historial de git se reemplazó por una única versión inicial (octubre de 2026)
+para no seguir exponiendo claves de versiones anteriores. Este archivo conserva
+la descripción de las 56 versiones colapsadas, de la más antigua a la más reciente
+(hora de Chile). No incluye identificadores de commit ni correos.
+
+[01] 2026-09-28 10:41 · agonzalezs4
+     prueba_primera
+     cargo los archivos, veo si funcionan
+
+[02] 2026-09-28 10:55 · agonzalezs4
+     añade estilo uss
+
+[03] 2026-09-28 11:01 · agonzalezs4
+     add config
+     key to find the spreadsheet
+
+[04] 2026-09-28 11:13 · agonzalezs4
+     clase10_tanda1
+
+[05] 2026-09-28 11:17 · agonzalezs4
+     clase 10 tanda 1 pero con folder
+
+[06] 2026-09-28 11:26 · agonzalezs4
+     Add 404 error page with dynamic content handling
+
+[07] 2026-09-28 11:29 · agonzalezs4
+     Update logic to find 'p' with fallback option
+     en el contexto de no hacer que hagan qr para cada pregunta
+
+[08] 2026-09-28 11:32 · agonzalezs4
+     Modify QR panel to add ID for scan prompt
+     Updated the QR panel to include an ID for the scan prompt.
+
+[09] 2026-09-28 11:56 · agonzalezs4
+     Improve error handling in 404 page script
+
+[10] 2026-09-28 12:10 · agonzalezs4
+     Implement password protection for editor access
+     Added a script to prompt for a password and restrict access to the page.
+
+[11] 2026-09-28 12:11 · agonzalezs4
+     Update HASH_CLAVE with new hash value
+
+[12] 2026-09-28 12:11 · agonzalezs4
+     Delete clase-10-1.json
+
+[13] 2026-09-28 12:20 · agonzalezs4
+     Implement QR code generator feature
+     Added QR code generator section with functionality to create, download, and display QR codes based on user input.
+
+[14] 2026-09-28 12:28 · agonzalezs4
+     Add repo.js script to index.html
+
+[15] 2026-09-28 12:37 · agonzalezs4
+     Refactor URL generation for clase and corto
+
+[16] 2026-09-28 12:39 · agonzalezs4
+     Update short URL display in presentar.html
+
+[17] 2026-09-28 12:47 · agonzalezs4
+     Add clase-10-2.json with health-related questions
+
+[18] 2026-09-28 18:02 · agonzalezs4
+     ejemplo
+
+[19] 2026-09-28 18:16 · agonzalezs4
+     cambios a diapo
+
+[20] 2026-09-28 18:57 · agonzalezs4
+     Add clase-10-3 JSON file with questions and options
+
+[21] 2026-09-28 19:05 · agonzalezs4
+     Change QR link input autocomplete to 'on'
+     Updated the autocomplete attribute of the QR link input field to 'on'.
+
+[22] 2026-09-28 19:07 · agonzalezs4
+     Set default value and update autocomplete for QR input
+     Updated the QR input field to include a default value and changed autocomplete setting.
+
+[23] 2026-09-28 19:08 · agonzalezs4
+     Enhance qrEnlace input with focus event listener
+     Add focus event listener to qrEnlace input for better user experience.
+
+[24] 2026-09-28 19:11 · agonzalezs4
+     Change question textarea to optional page input
+     Replaced textarea for question input with optional page input field.
+
+[25] 2026-09-28 19:12 · agonzalezs4
+     Add iframe to display page content conditionally
+
+[26] 2026-09-28 19:13 · agonzalezs4
+     Add iframe insertion for valid page links
+     Insert iframe for page link if available.
+
+[27] 2026-09-28 19:16 · agonzalezs4
+     Update JSON structure for class 10-3
+
+[28] 2026-09-28 19:23 · Claude
+     Restore question text in votar.html (regression from iframe change)
+
+[29] 2026-09-28 19:26 · agonzalezs4
+     Display question text and embed iframe for valid link
+
+[30] 2026-09-28 19:37 · Claude
+     votar: deslizar entre preguntas, opciones inmediatas y envío más robusto
+     - Deslizar/botones/flechas para pasar de p=N a p=N+1 dentro de la clase (sin pasar de los extremos)
+     - Las opciones se pintan sin esperar al servidor; ronda cacheada por pregunta
+     - Envío con timeout y reintentos con backoff+azar; consulta de estado espaciada y sin alertas
+
+[31] 2026-09-28 20:15 · Claude
+     votar: corrige carreras de estado, claves por clase, ids únicos y más robustez móvil
+     - estado ya no repinta en medio de un envío ni en la primera consulta
+     - estado solo se consulta si el niño ya votó; reintentos con jitter proporcional y código v estable
+     - claves de localStorage por clase, respaldo en memoria si no hay localStorage
+     - ids de pregunta únicos en clase-10-2 y clase-10-3 (se repetían y mezclaban respuestas)
+     - swipe: ignora bordes, dos dedos y zoom; funciona sobre el iframe; scroll arriba al navegar
+     - reintento al cargar la clase; iframe reutilizado
+
+[32] 2026-09-28 20:49 · Claude
+     Apps Script: sin LockService, ronda en caché, dedupe por v y leer con caché
+
+[33] 2026-09-28 21:39 · Claude
+     votar: arregla pregunta abierta y modo hash; más reintentos, sondeo espaciado, sin recursos que bloqueen
+     - enviar() en preguntas abiertas recibía mal el argumento (no enviaba)
+     - quiereEstado como función (error en modo hash)
+     - 8 intentos con timeout de 12 s; estado cada 60-90 s y no si se consultó hace <45 s
+     - tras agotar reintentos en la misma pregunta se repinta con botones libres
+     - lz-string se carga solo en modo hash; se quita Google Fonts (sin uso)
+
+[34] 2026-09-28 21:56 · agonzalezs4
+     Merge branch 'main' into claude/clever-bardeen-kfawwk
+
+[35] 2026-09-28 21:57 · Claude
+     votar: restaura la navegación y el envío robusto tras resolver el conflicto con main
+     El merge de main dejó la versión antigua de iniciar() (sin deslizar, sondeo cada 8 s).
+     Se restaura votar.html tal como estaba en 9423d3b, que ya incluye la línea de main
+     ($("pregunta").textContent = p.texto) dentro de mostrarPregunta.
+
+[36] 2026-09-28 21:59 · agonzalezs4
+     Merge pull request #1 from agonzalezs4/claude/clever-bardeen-kfawwk
+     votar: deslizar entre preguntas, envío robusto con muchos estudiantes y Apps Script más rápido
+
+[37] 2026-09-28 22:15 · Claude
+     Gráfico embebido legible en celular y con alto ajustado
+     - El gráfico se dibuja al tamaño real de la pantalla en anchos <560 px (antes se dibujaba en 720 px y se encogía a la mitad): títulos, leyenda, líneas, marcas, línea t y asa más grandes; leyenda y título de cada grupo en filas propias
+     - Los números del eje conservan su tamaño de siempre; pantalla ancha sin cambios
+     - Se redibuja al girar el celular
+     - votar.html ajusta el alto del iframe al contenido (sin scroll interno)
+
+[38] 2026-09-28 22:17 · agonzalezs4
+     Merge pull request #2 from agonzalezs4/claude/clever-bardeen-kfawwk
+     Gráfico embebido legible en celular
+
+[39] 2026-09-29 12:07 · Claude
+     editor: restaura el campo Pregunta junto al de Página
+     El commit 19a959f reemplazó el textarea de la pregunta por el campo de
+     página en vez de agregarlo. Sin ese campo no se podía escribir ni editar
+     el texto de una pregunta, revisar() bloqueaba Publicar por "no tiene
+     texto", y agregar preguntas Abierta/Escala/Número lanzaba un error al
+     buscar el textarea para darle foco.
+
+[40] 2026-09-29 12:22 · agonzalezs4
+     Add clase-11-1.json with questions and options
+
+[41] 2026-09-29 12:44 · agonzalezs4
+     Add clase-11-2 JSON file with mortality questions
+
+[42] 2026-09-29 22:37 · Claude
+     Sorteo por tanda: código con letra verificadora y botón «Sortear»
+     - votar: cada celular elige 4 dígitos por tanda (clase-##-#) sin consultar al
+       servidor; el servidor antepone una letra verificadora (HMAC con SECRETO) y
+       devuelve el código, que se muestra arriba en todas las preguntas de la tanda.
+     - Apps Script: el código viaja en el mismo "enviar" (una columna más en el
+       mismo appendRow, sin llamadas extra ni candados). Nueva acción "sorteo" que
+       lee la hoja una sola vez para todas las preguntas de la tanda, protegida con
+       CLAVE, y descarta filas con código inválido o de rondas anteriores.
+     - presentar: botón «Sortear» (tecla S). El profesor marca la alternativa
+       correcta ahí mismo (no se guarda en el JSON), la corrección se hace en el
+       navegador y se premian los códigos con al menos N buenas (por defecto, todas
+       las de la tanda). Permite verificar un código y detecta códigos repetidos.
+
+[43] 2026-09-29 22:51 · Claude
+     Sorteo: premio con 50 % o más de la tanda, escala corregible y código de 5 dígitos
+     - El mínimo ahora es un porcentaje (por defecto 50 %) del total de preguntas
+       de la tanda, redondeado hacia arriba (50 % de 3 = 2, de 5 = 3). El panel
+       muestra cuántas buenas equivale ("al menos 2 de 4") y se recalcula en el
+       navegador sin volver a consultar a Google.
+     - Las preguntas de escala pueden tener correcta: el profesor marca el valor
+       o deja "Sin correcta" y esa pregunta no cuenta (ni para el total).
+     - Se leen los votos de todas las alternativas/escala/número de la tanda en
+       una sola consulta, así marcar o quitar una correcta no exige otra lectura.
+     - El código pasa a letra + 5 dígitos (DIGITOS_CODIGO en config.js y DIGITOS en
+       Codigo.gs), lo que hace muy improbable que dos celulares coincidan.
+
+[44] 2026-09-29 22:56 · agonzalezs4
+     Merge pull request #3 from agonzalezs4/claude/wizardly-cori-h255ap
+     Sorteo por tanda, más código 5 dígitos y permitir preguntas abiertas
+
+[45] 2026-09-29 23:08 · Claude
+     Sorteo: aviso claro cuando aún no hay votos y franja del código más compacta
+     - presentar: si todavía no hay votos con código, el panel lo dice (y sugiere
+       «Actualizar votos») en vez de mostrar «0 códigos premiados de 0».
+     - votar: la franja del código ocupa menos alto en el celular (texto más corto
+       y cifras algo menores) ahora que el código tiene 6 caracteres.
+
+[46] 2026-09-29 23:16 · Claude
+     Presentar: un solo QR y enlace corto por tanda, no por pregunta
+     El QR proyectado apuntaba a cada pregunta (votar.html?clase=…&q=…) y el enlace
+     corto cambiaba (11-1, 11-1-2, …), así que cada estudiante volvía a cargar la
+     página —y podía caer en otro navegador, perdiendo su código— en cada pregunta.
+     Ahora el QR es votar.html?clase=… y el enlace corto es siempre tinyurl.com/epi-uss/11-1;
+     el estudiante lo escanea una vez y cambia de pregunta dentro de votar.html.
+
+     - El QR no se redibuja al cambiar de pregunta (el enlace no cambia).
+     - El texto del panel aclara que sirve para toda la tanda.
+     - El modo de prueba desde el editor sigue con un enlace por pregunta (la
+       pregunta viaja dentro del enlace y ahí no existe la tanda).
+     - 404.html no cambia: 11-1-2, 11-1-3… siguen funcionando si alguien los usa.
+
+[47] 2026-09-29 23:24 · agonzalezs4
+     Merge pull request #4 from agonzalezs4/claude/wizardly-cori-h255ap
+     Claude/wizardly cori h255ap
+
+[48] 2026-09-30 18:06 · agonzalezs4
+     Add clase-12-1.json with questions and options
+
+[49] 2026-09-30 18:35 · agonzalezs4
+     Add clase-12-2 JSON file with questions and options
+
+[50] 2026-09-30 20:08 · Claude
+     Votar: responder la tanda completa y enviarla de una vez
+     Las alternativas ya no se envían al tocarlas: el estudiante puede cambiar
+     su elección en cualquier pregunta y, al final, pulsa «Responder». Una sola
+     consulta (accion=lote) guarda toda la tanda y devuelve el código y la ronda
+     de cada pregunta; otra (accion=estados) consulta las rondas de la tanda
+     entera. Lo marcado se guarda en el celular hasta enviarse.
+
+[51] 2026-09-30 22:29 · Claude
+     Votar: no exigir responder todas las preguntas de la tanda
+     «Responder» se habilita con al menos una respuesta y pide confirmación si
+     quedan preguntas en blanco. Esas viajan solo con su id: el servidor no
+     escribe fila y devuelve su ronda, para cerrarlas en el celular hasta una
+     nueva ronda. Tocar de nuevo la alternativa elegida la quita.
+
+[52] 2026-10-01 00:22 · Claude
+     Votar: arreglos de la revisión de funcionalidad, UX y carga
+     Estudiante (votar.html):
+     - Tanda de 1 pregunta (número/abierta): «Responder» se habilita al escribir.
+     - Confirmación de preguntas en blanco dentro de la página (confirm() no
+       aparece en el navegador interno de algunos lectores QR).
+     - Un envío sin confirmar (recarga, sin señal) queda fijo y se reintenta con
+       el mismo v: el código no queda «repetido» en el sorteo.
+     - Número mal escrito: aviso al escribir y no se envía como «en blanco».
+     - «Responder» siempre visible sobre la barra inferior; dice «Enviando…».
+     - Nueva ronda: aviso de qué pregunta se reabrió, sin cerrar el teclado.
+     - Atajo «Revisar y responder ›» al corregir; doble toque no desmarca;
+       aria-pressed; enunciados largos con letra menor; textos en singular.
+     - Otra pestaña con la misma tanda o volver con «atrás»: se pone al día.
+
+     Carga sobre Apps Script (solo menos consultas):
+     - «estados» con intervalo mínimo al volver a la pestaña o recuperar red,
+       sin consultar justo después del lote y con un solo reintento.
+     - Errores fijos del servidor (Apps Script sin reimplementar): 1 consulta
+       en vez de 8, con aviso para el profesor.
+     - Plazo de 30 s por intento (cortar a los 12 s solo sumaba ejecuciones).
+     - lote_: marca «en curso» y avance parcial; un reintento no duplica filas.
+     - leer_ lee B:E (sin fechas); el proyector no consulta oculto ni con el
+       sorteo abierto.
+
+     Profesor: aviso si el Apps Script publicado es la versión anterior;
+     textos que explican «Responder»; aviso de Nueva ronda más claro.
+     Editor: publicar con otro nombre genera ids nuevos.
+     Datos: ids con prefijo c121-/c122- (chocaban con 11-1/11-2).
+
+[53] 2026-10-01 01:55 · Claude
+     Votar: corrige regresiones encontradas al verificar los arreglos
+     - Los avisos «Responder igual» y de número mal escrito quedaban tapados
+       por la barra ‹ › en celulares de 360x640: ahora se desplaza al fondo.
+     - Un doble toque en «Revisar y responder ›» ya no envía la tanda sin
+       revisarla (el 2.º toque caía sobre «Responder»).
+     - Si la ronda guardada en el celular es mayor que la del servidor (p. ej.
+       Apps Script nuevo), manda la del servidor: la pregunta se cierra al
+       primer envío. Solo no se retrocede si durante el envío se vio otra ronda.
+     - «Reintentar envío» avisa si quedó otra pregunta marcada fuera del lote
+       y, tras reintentar, pide enviarla.
+     - lote_: la marca «en curso» dura 6 min (lo que puede durar una ejecución)
+       y un reintento tras un fallo a medias informa la ronda real de lo ya
+       escrito.
+     - Editor: cada nombre de clase tiene ids propios y fijos (derivados del
+       id de origen); volver al nombre original recupera los ids publicados, y
+       un borrador local renombrado ya no choca con la clase anterior.
+
+[54] 2026-10-01 09:15 · agonzalezs4
+     Merge pull request #5 from agonzalezs4/claude/determined-fermi-3jnguv
+     Votar: corrige regresiones encontradas al verificar los arreglos
+
+     - Los avisos «Responder igual» y de número mal escrito quedaban tapados
+       por la barra ‹ › en celulares de 360x640: ahora se desplaza al fondo.
+     - Un doble toque en «Revisar y responder ›» ya no envía la tanda sin
+       revisarla (el 2.º toque caía sobre «Responder»).
+     - Si la ronda guardada en el celular es mayor que la del servidor (p. ej.
+       Apps Script nuevo), manda la del servidor: la pregunta se cierra al
+       primer envío. Solo no se retrocede si durante el envío se vio otra ronda.
+     - «Reintentar envío» avisa si quedó otra pregunta marcada fuera del lote
+       y, tras reintentar, pide enviarla.
+     - lote_: la marca «en curso» dura 6 min (lo que puede durar una ejecución)
+       y un reintento tras un fallo a medias informa la ronda real de lo ya
+       escrito.
+     - Editor: cada nombre de clase tiene ids propios y fijos (derivados del
+       id de origen); volver al nombre original recupera los ids publicados, y
+       un borrador local renombrado ya no choca con la clase anterior.
+
+[55] 2026-10-01 09:38 · Claude
+     Votación autorizada por el profesor y acceso seguro con límite de intentos
+     - presentar.html: «Abrir votación / Cerrar votación» (tecla V) reemplaza a
+       «Editar preguntas». La tanda parte cerrada; el sorteo avisa si sigue abierta.
+     - votar.html: mientras esté cerrada no muestra las preguntas («Espera a que
+       tu profesor abra la votación») y consulta cada 5-10 s hasta que se abra.
+       Si el profesor cierra antes del envío, lo marcado queda guardado.
+     - Apps Script: "lote" y "enviar" rechazan respuestas de preguntas cerradas;
+       "abrir" abre o cierra la tanda; "estados" y "leer" informan si está abierta.
+     - Acceso del profesor: la clave se comprueba solo en el servidor ("entrar"),
+       con bloqueo de 15 min tras 5 fallos (y correo de aviso), código de 6 dígitos
+       al correo como segundo paso, y una sesión que vence en 12 h. La clave ya no
+       se guarda en el navegador ni viaja en cada acción.
+     - profesor.js: ventana de acceso con la clave oculta (antes prompt() la mostraba
+       en el proyector). index.html deja de publicar el hash SHA-256 de su clave y
+       usa el mismo acceso; agrega «Cerrar sesión».
+
+[56] 2026-10-01 09:53 · agonzalezs4
+     Merge pull request #6 from agonzalezs4/claude/sweet-hawking-z7lloc
+     Votación autorizada por el profesor y acceso seguro con límite de intentos

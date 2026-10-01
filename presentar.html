@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="repo.js"></script>
+<script src="profesor.js"></script>
+<style>
+  body {
+    min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto;
+    padding: clamp(16px, 3vw, 40px); gap: clamp(12px, 2vw, 28px);
+  }
+  header p { margin: 0 0 6px; color: var(--suave); font-size: clamp(16px, 1.6vw, 22px); }
+  h1 { margin: 0; font-size: clamp(26px, 3.4vw, 50px); line-height: 1.15; max-width: 34ch; }
+  main { display: grid; grid-template-columns: 1fr auto; gap: clamp(16px, 3vw, 48px); align-items: center; min-width: 0; }
+  #zona { min-width: 0; }
+  #resumen { margin: 18px 0 0; color: var(--suave); font-size: clamp(16px, 1.7vw, 24px); }
+  #resumen:empty { display: none; }
+  .vacio { font-size: clamp(20px, 2.4vw, 34px); color: var(--suave); }
+
+  /* Barras (alternativas y escala) */
+  .barras { display: grid; gap: clamp(10px, 1.6vw, 22px); }
+  .fila { display: grid; grid-template-columns: minmax(80px, 30%) 1fr auto; gap: 16px; align-items: center; }
+  .etiqueta { font-size: clamp(18px, 2vw, 30px); font-weight: 700; overflow-wrap: anywhere; }
+  .riel { background: var(--riel); height: clamp(28px, 4vw, 56px); border-radius: 4px; overflow: hidden; }
+  .relleno { background: var(--barra); height: 100%; width: 0; transition: width .6s ease; }
+  .valor { font-size: clamp(18px, 2vw, 30px); min-width: 5.5ch; text-align: right; font-variant-numeric: tabular-nums; }
+  .valor small { color: var(--suave); font-size: .7em; margin-left: 6px; }
+
+  /* Histograma (número) */
+  .histo { display: flex; align-items: flex-end; gap: 6px; height: clamp(220px, 45vh, 480px); }
+  .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; min-width: 0; }
+  .colbarra { width: 100%; background: var(--barra); border-radius: 3px 3px 0 0; min-height: 2px; }
+  .cuenta { font-size: clamp(14px, 1.5vw, 22px); margin-bottom: 4px; }
+  .rango { font-size: clamp(11px, 1.1vw, 15px); color: var(--suave); margin-top: 6px; text-align: center; overflow-wrap: anywhere; }
+
+  /* Abierta: nube y lista */
+  .nube { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 26px; line-height: 1.1; }
+  .nube span { font-weight: 700; }
+  .nube .repetida { color: var(--barra); }
+  .lista { columns: 3 260px; column-gap: 16px; max-height: 62vh; overflow: auto; }
+  .lista p { break-inside: avoid; margin: 0 0 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; font-size: clamp(16px, 1.6vw, 22px); }
+
+  /* QR */
+  #qrpanel { text-align: center; background: #fff; padding: 16px; border: 1px solid var(--riel); }
+  #qrpanel img { width: clamp(170px, 21vw, 320px); height: auto; image-rendering: pixelated; display: block; }
+  #qrpanel p { margin: 8px 0 0; font-size: 17px; color: var(--suave); }
+  .oculto-qr #qrpanel { display: none; }
+  .oculto-qr main { grid-template-columns: 1fr; }
+  .resultados-ocultos #zona, .resultados-ocultos #resumen { visibility: hidden; }
+
+  /* Sorteo de la tanda */
+  dialog { width: min(920px, 94vw); max-height: 90vh; overflow: auto; padding: clamp(16px, 2.4vw, 32px); background: var(--papel); color: var(--tinta); border: 1px solid var(--riel); border-radius: 6px; }
+  dialog::backdrop { background: rgba(16, 43, 66, .55); }
+  dialog h2 { margin: 0 0 6px; font-size: clamp(22px, 2.4vw, 32px); }
+  dialog p { margin: 0 0 12px; }
+  dialog .ayuda { color: var(--suave); }
+  dialog button { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  dialog button:hover { border-color: var(--suave); }
+  dialog button.principal { background: var(--barra); border-color: var(--barra); color: #fff; }
+  dialog button:disabled { opacity: .5; cursor: default; }
+  dialog input[type=text], dialog input[type=number] { font: inherit; padding: 6px 10px; border: 1px solid var(--riel); border-radius: 4px; background: #fff; color: var(--tinta); }
+  dialog fieldset { margin: 0 0 12px; padding: 10px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  dialog legend { float: left; width: 100%; padding: 0; margin: 0 0 6px; font-weight: 700; } /* como un título normal, sin que el borde lo atraviese */
+  dialog legend + * { clear: both; }
+  dialog summary { cursor: pointer; font-weight: 700; margin-bottom: 10px; }
+  dialog fieldset label { display: flex; gap: 10px; align-items: baseline; padding: 3px 0; cursor: pointer; }
+  #sorteoPct { width: 4.5em; }
+  .escalaCorr { display: flex; flex-wrap: wrap; gap: 2px 20px; }
+  .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .premiados { display: flex; flex-wrap: wrap; gap: 10px 14px; margin: 10px 0 18px; }
+  .premiados span { padding: 4px 16px; border: 3px solid var(--barra); border-radius: 6px; background: #fff; font-family: var(--uss-fuente-cifras); font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; letter-spacing: .08em; }
+  #sorteoVerif { font-size: 18px; margin-top: 8px; }
+
+  footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  footer button, footer a { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; text-decoration: none; color: var(--tinta); }
+  footer button:hover, footer a:hover { border-color: var(--suave); }
+  footer #btnVotacion { font-weight: 700; }
+  footer #btnVotacion.cerrada { background: var(--barra); border-color: var(--barra); color: #fff; } /* a la vista: la tanda espera que la abras */
+  footer button:disabled { opacity: .5; cursor: default; }
+  #estado { margin-left: auto; color: var(--suave); font-size: 15px; }
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; }
+    .fila { grid-template-columns: 1fr auto; }
+    .fila .riel { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) { .relleno { transition: none; } }
+</style>
+</head>
+<body>
+  <header>
+    <p id="meta">Cargando…</p>
+    <h1 id="pregunta"></h1>
+  </header>
+  <main>
+    <section>
+      <div id="pagina"></div>
+      <div id="zona" aria-live="polite"></div>
+      <p id="resumen"></p>
+    </section>
+    <aside id="qrpanel"><div id="qr"></div><p id="corto">Escanea para responder</p></aside>
+  </main>
+  <footer>
+    <button id="btnAnterior" title="Flecha izquierda">Anterior</button>
+    <button id="btnSiguiente" title="Flecha derecha">Siguiente</button>
+    <button id="btnOcultar" title="Tecla H">Ocultar resultados</button>
+    <button id="btnVista" title="Tecla W" hidden>Ver como lista</button>
+    <button id="btnRonda" title="Tecla R">Nueva ronda</button>
+    <button id="btnSorteo" title="Tecla S" hidden>Sortear</button>
+    <button id="btnQR" title="Tecla Q">Ocultar QR</button>
+    <button id="btnPantalla" title="Tecla F">Pantalla completa</button>
+    <button id="btnVotacion" title="Tecla V" disabled>Abrir votación</button>
+    <span id="estado"></span>
+    <p id="error" class="error"></p>
+  </footer>
+
+<dialog id="dlgSorteo" aria-labelledby="sorteoTitulo">
+  <h2 id="sorteoTitulo">Sorteo de la tanda</h2>
+  <p id="sorteoAbierta" class="error" hidden>La votación sigue abierta: ciérrala antes de mostrar las respuestas correctas, para que nadie responda después de verlas.</p>
+  <p class="ayuda">Marca la respuesta correcta de cada pregunta (en las de escala solo si tienen una; si no, no cuentan). Los votos de toda la tanda se leen de Google <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
+  <details id="sorteoDetalle" open>
+    <summary>Respuestas correctas</summary>
+    <div id="sorteoPreguntas"></div>
+  </details>
+  <p>Premiar a los códigos con <input id="sorteoPct" type="number" min="1" max="100" value="50" inputmode="numeric"> % o más de las preguntas buenas <b id="sorteoMinTexto"></b></p>
+  <div class="acciones">
+    <button id="btnCalcular" class="principal">Calcular premiados</button>
+    <button id="btnRefrescar" hidden title="Vuelve a leer los votos de Google (por si llegaron más)">Actualizar votos</button>
+    <button id="btnCerrarSorteo">Cerrar</button>
+  </div>
+  <p id="sorteoMsg" class="ayuda" aria-live="polite"></p>
+  <p id="sorteoError" class="error"></p>
+  <div id="sorteoResultado" aria-live="polite"></div>
+  <p><label>Verificar un código: <input id="sorteoCodigo" type="text" autocomplete="off" spellcheck="false"></label></p>
+  <p id="sorteoVerif"></p>
+</dialog>
+
+<script>
+const qs = new URLSearchParams(location.search);
+const nombreClase = qs.get("clase");        // clase publicada: presentar.html?clase=clase-05&p=2
+const datosClase = location.hash.slice(1);  // prueba desde el editor: presentar.html?i=0#...
+let clase = null, i = 0, vista = "nube", enCurso = false;
+let votacion;           // si la tanda está abierta, según el servidor (undefined hasta la primera lectura)
+let tVotacion = 0;      // cuándo se abrió o cerró desde aquí: una lectura que salió antes trae el estado viejo
+let cambiandoVotacion = false;
+
+iniciar();
+
+async function iniciar() {
+  try {
+    if (nombreClase) {
+      clase = await cargarClase(nombreClase);
+      i = (Number(qs.get("p")) || 1) - 1;
+    } else {
+      clase = desempaquetar(datosClase);
+      i = Number(qs.get("i")) || 0;
+    }
+  } catch (e) {
+    $("meta").textContent = "";
+    $("pregunta").textContent = e.message;
+    return;
+  }
+  if (!clase || !clase.p || !clase.p.length) {
+    $("meta").textContent = "";
+    $("pregunta").textContent = "No hay preguntas en este enlace. Vuelve al editor.";
+    return;
+  }
+  i = Math.min(Math.max(0, i), clase.p.length - 1);
+  $("btnSorteo").hidden = !nombreClase; // la tanda (clase-##-#) solo existe en las clases publicadas
+  mostrar();
+  // Con el proyector en otra pestaña (diapositivas) o el sorteo abierto no se consulta: menos carga para el Apps Script
+  setInterval(() => { if (!document.hidden && !document.querySelector("dialog[open]")) actualizar(); }, 3000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) actualizar(); });
+}
+
+function mostrar() {
+  const p = clase.p[i];
+  let url;
+  if (nombreClase) {
+    const c = encodeURIComponent(nombreClase);
+    history.replaceState(null, "", `?clase=${c}&p=${i + 1}`);
+    // Un solo QR y un solo enlace corto para toda la tanda: el estudiante entra una vez y cambia de pregunta
+    // dentro de votar.html. Así no vuelve a cargar la página (ni a caer en otro navegador) en cada pregunta.
+    url = new URL(`votar.html?clase=${c}`, location.href).href;
+    $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b><br><small>Una sola vez: sirve para toda la tanda.<br>Al final, pulsa «Responder»</small>";
+    $("corto").querySelector("b").textContent = "tinyurl.com/epi-uss/" + nombreClase.replace(/^clase-/, "");
+  } else {
+    history.replaceState(null, "", `?i=${i}#${datosClase}`);
+    url = new URL("votar.html#" + empaquetar(paraVotar(p)), location.href).href;
+  }
+  $("pregunta").textContent = p.texto;
+  document.title = p.texto;
+  $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}`;
+  if ($("qr").dataset.url !== url) { // el enlace de la tanda no cambia entre preguntas: el QR tampoco se redibuja
+    const qr = qrcode(0, "M");
+    qr.addData(url);
+    qr.make();
+    $("qr").innerHTML = `<img alt="Código QR para responder" src="${qr.createDataURL(8, 2)}">`;
+    $("qr").dataset.url = url;
+  }
+  $("zona").innerHTML = "";
+  $("zona").dataset.clave = "";
+  $("resumen").textContent = "";
+  $("pagina").innerHTML = p.pagina ? `<iframe src="${p.pagina}" style="width:100%;height:60vh;border:0"></iframe>` : "";
+  actualizar(true);
+}
+
+async function actualizar(forzar) {
+  if (enCurso && !forzar) return;
+  enCurso = true;
+  const p = clase.p[i], t0 = Date.now();
+  try {
+    const d = await api({ accion: "leer", q: p.id });
+    if (p !== clase.p[i]) return; // se cambió de pregunta mientras cargaba
+    if (typeof d.abierta === "boolean" && t0 > tVotacion) votacion = d.abierta;
+    pintarVotacion();
+    const n = d.respuestas.length;
+    $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}, ronda ${d.ronda}, ${n} respuesta${n === 1 ? "" : "s"}` +
+      (votacion === true ? " · votación abierta" : votacion === false ? " · votación cerrada" : "");
+    if (!n) {
+      $("zona").dataset.clave = "";
+      $("zona").innerHTML = votacion === false
+        ? '<p class="vacio">La votación está cerrada.<br><small>Los estudiantes pueden escanear el QR desde ya, pero verán las preguntas cuando pulses «Abrir votación».</small></p>'
+        : '<p class="vacio">Esperando respuestas… escanea el QR para participar.<br><small>Llegan cuando cada estudiante pulsa «Responder»' + (nombreClase && clase.p.length > 1 ? ' al final de la tanda' : '') + '.</small></p>';
+      $("resumen").textContent = "";
+    } else {
+      ({ alt: dibujarAlt, esc: dibujarEsc, abi: dibujarAbi, num: dibujarNum })[p.tipo](p, d.respuestas);
+    }
+    // Sin "version" 3, el Apps Script publicado es anterior: sin accion=lote (2) los celulares no podrían enviar; sin "abrir" (3), no se puede abrir la votación
+    $("error").textContent = d.version >= 3 ? "" : "El Apps Script publicado es una versión anterior" + (d.version >= 2 ? " (sin «Abrir votación»)" : ": los celulares no podrán enviar") + ". Pega el Codigo.gs nuevo, ejecuta «autorizar» y luego Implementar › Administrar implementaciones › (lápiz) › Versión: Nueva versión › Implementar.";
+    $("estado").textContent = "Actualizado " + new Date().toLocaleTimeString("es-CL");
+  } catch (e) {
+    $("error").textContent = "No pude leer las respuestas: " + e.message;
+  } finally {
+    enCurso = false;
+  }
+}
+
+/* ---------- Barras reutilizables (se animan en vez de saltar) ---------- */
+function barras(filas) {
+  const zona = $("zona");
+  const clave = "barras" + filas.length;
+  if (zona.dataset.clave !== clave) {
+    zona.dataset.clave = clave;
+    zona.innerHTML = '<div class="barras"></div>';
+    filas.forEach(() => {
+      const f = document.createElement("div");
+      f.className = "fila";
+      f.innerHTML = '<div class="etiqueta"></div><div class="riel"><div class="relleno"></div></div><div class="valor"></div>';
+      zona.firstChild.appendChild(f);
+    });
+  }
+  const els = zona.firstChild.children;
+  filas.forEach((f, k) => {
+    els[k].querySelector(".etiqueta").textContent = f.etiqueta;
+    els[k].querySelector(".valor").innerHTML = `${f.n}<small>${Math.round(f.pct)}%</small>`;
+    els[k].querySelector(".relleno").style.width = f.pct + "%";
+  });
+}
+
+function dibujarAlt(p, rs) {
+  const conteo = new Map(p.opciones.map(o => [o, 0]));
+  rs.forEach(r => r.split(SEP).forEach(x => { if (conteo.has(x)) conteo.set(x, conteo.get(x) + 1); }));
+  const n = rs.length;
+  barras(p.opciones.map(o => ({ etiqueta: o, n: conteo.get(o), pct: 100 * conteo.get(o) / n })));
+  $("resumen").textContent = p.multi ? "Se podía marcar más de una alternativa: los porcentajes son sobre el total de personas." : "";
+}
+
+function dibujarEsc(p, rs) {
+  const vals = rs.map(aNumero).filter(x => x !== null);
+  const filas = [];
+  for (let v = p.min; v <= p.max; v++) {
+    const n = vals.filter(x => x === v).length;
+    let etq = String(v);
+    if (v === p.min && p.etqMin) etq += ` (${p.etqMin})`;
+    if (v === p.max && p.etqMax) etq += ` (${p.etqMax})`;
+    filas.push({ etiqueta: etq, n, pct: vals.length ? 100 * n / vals.length : 0 });
+  }
+  barras(filas);
+  if (vals.length) {
+    const prom = vals.reduce((a, b) => a + b, 0) / vals.length;
+    $("resumen").textContent = `Promedio ${formatear(prom)}, mediana ${formatear(mediana(vals))}`;
+  }
+}
+
+function dibujarNum(p, rs) {
+  const vals = rs.map(aNumero).filter(x => x !== null);
+  const u = p.unidad ? " " + p.unidad : "";
+  const zona = $("zona");
+  zona.dataset.clave = "num";
+  if (!vals.length) { zona.innerHTML = '<p class="vacio">Las respuestas recibidas no son números.</p>'; return; }
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const k = min === max ? 1 : Math.min(10, new Set(vals).size);
+  const ancho = (max - min) / k || 1;
+  const bins = Array.from({ length: k }, (_, j) => ({ desde: min + j * ancho, hasta: min + (j + 1) * ancho, n: 0 }));
+  vals.forEach(x => { bins[Math.min(k - 1, Math.floor((x - min) / ancho))].n++; });
+  const tope = Math.max(...bins.map(b => b.n));
+  const etq = b => min === max ? formatear(min) : `${formatear(b.desde)}–${formatear(b.hasta)}`;
+  zona.innerHTML = '<div class="histo">' + bins.map(b =>
+    `<div class="col"><span class="cuenta">${b.n || ""}</span>` +
+    `<div class="colbarra" style="height:${Math.max(1, 85 * b.n / tope)}%"></div>` +
+    `<span class="rango">${etq(b)}</span></div>`).join("") + "</div>";
+  const prom = vals.reduce((a, b) => a + b, 0) / vals.length;
+  $("resumen").textContent = `Mediana ${formatear(mediana(vals))}${u}, promedio ${formatear(prom)}${u}, ` +
+                             `rango ${formatear(min)} a ${formatear(max)}${u}` +
+                             (vals.length < rs.length ? ` (${rs.length - vals.length} respuesta(s) no numérica(s) omitidas)` : "");
+}
+
+function normalizar(s) {
+  return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/^[\s"'«¿¡.,;:!?-]+|[\s"'».,;:!?-]+$/g, "");
+}
+
+function dibujarAbi(p, rs) {
+  const zona = $("zona");
+  zona.dataset.clave = "abi";
+  zona.innerHTML = "";
+  if (vista === "lista") {
+    const cont = document.createElement("div");
+    cont.className = "lista";
+    [...rs].reverse().forEach(r => { const el = document.createElement("p"); el.textContent = r; cont.appendChild(el); });
+    zona.appendChild(cont);
+    $("resumen").textContent = "Las más recientes aparecen primero.";
+    return;
+  }
+  const grupos = new Map();
+  rs.forEach(r => {
+    const k = normalizar(r);
+    if (!k) return;
+    if (!grupos.has(k)) grupos.set(k, { texto: r.trim(), n: 0 });
+    grupos.get(k).n++;
+  });
+  const lista = [...grupos.values()].sort((a, b) => b.n - a.n);
+  const tope = lista[0]?.n || 1;
+  const cont = document.createElement("div");
+  cont.className = "nube";
+  lista.forEach(g => {
+    const el = document.createElement("span");
+    el.textContent = g.texto;
+    el.style.fontSize = (tope === 1 ? 30 : 20 + 56 * (g.n - 1) / (tope - 1)) + "px";
+    if (g.n > 1) { el.className = "repetida"; el.title = g.n + " veces"; }
+    cont.appendChild(el);
+  });
+  zona.appendChild(cont);
+  $("resumen").textContent = tope > 1 ? "El tamaño indica cuántas personas escribieron lo mismo." : "";
+}
+
+/* ---------- Controles ---------- */
+function ir(paso) {
+  const j = i + paso;
+  if (j >= 0 && j < clase.p.length) { i = j; mostrar(); }
+}
+function alternarOcultar() {
+  const oc = document.body.classList.toggle("resultados-ocultos");
+  $("btnOcultar").textContent = oc ? "Mostrar resultados" : "Ocultar resultados";
+}
+function alternarVista() {
+  if (clase.p[i].tipo !== "abi") return;
+  vista = vista === "nube" ? "lista" : "nube";
+  $("btnVista").textContent = vista === "nube" ? "Ver como lista" : "Ver como nube";
+  actualizar(true);
+}
+/* ---------- Abrir y cerrar la votación ---------- */
+// La tanda parte cerrada: los celulares que ya escanearon el QR esperan, y el servidor rechaza respuestas hasta que la abras
+function pintarVotacion() {
+  const b = $("btnVotacion");
+  b.textContent = votacion === true ? "Cerrar votación" : "Abrir votación";
+  b.classList.toggle("cerrada", votacion === false);
+  b.disabled = votacion === undefined || cambiandoVotacion;
+  $("sorteoAbierta").hidden = votacion !== true;
+}
+async function alternarVotacion() {
+  if (cambiandoVotacion || votacion === undefined) return;
+  const abrir = !votacion;
+  cambiandoVotacion = true;
+  pintarVotacion();
+  try {
+    const r = await apiProfesor({ accion: "abrir", qs: clase.p.map(p => p.id).join(","), abrir: abrir ? 1 : 0 });
+    if (r) { votacion = r.abierta; tVotacion = Date.now(); $("error").textContent = ""; }
+  } catch (e) {
+    $("error").textContent = `No pude ${abrir ? "abrir" : "cerrar"} la votación: ${e.message}`;
+  } finally {
+    cambiandoVotacion = false;
+    pintarVotacion();
+  }
+  actualizar(true);
+}
+
+async function nuevaRonda() {
+  if (!confirm("¿Empezar una nueva ronda para esta pregunta? El gráfico parte de cero (las respuestas anteriores quedan en la hoja). Para el sorteo solo cuenta la ronda nueva: quienes ya respondieron deben volver a responderla. Los celulares con la página abierta la reabren solos en un par de minutos; quien la cerró debe volver a abrir el enlace.")) return;
+  try {
+    if (!await apiProfesor({ accion: "ronda", q: clase.p[i].id })) return;
+    votosSorteo = null; // los votos leídos para el sorteo ya no son los vigentes
+    $("zona").dataset.clave = "";
+    actualizar(true);
+  } catch (e) {
+    $("error").textContent = e.message;
+  }
+}
+/* ---------- Sorteo de la tanda ---------- */
+// Cada celular tiene un código (letra + 5 dígitos) que vale para todas las preguntas de la tanda.
+// Aquí se hace UNA lectura de Google con los votos de toda la tanda y se corrige en el navegador:
+// la alternativa correcta la marca el profesor en este momento y no se guarda en el JSON ni en la hoja.
+const LARGO_CODIGO = DIGITOS_CODIGO + 1; // la letra y los dígitos
+$("sorteoCodigo").maxLength = LARGO_CODIGO;
+$("sorteoCodigo").placeholder = "K" + "48271827".slice(0, DIGITOS_CODIGO);
+const corregibles = () => clase.p.filter(p => p.tipo === "alt" || p.tipo === "num" || p.tipo === "esc"); // la abierta no tiene "correcta"
+// Alternativas y número siempre llevan correcta. En escala es opcional: sin marcarla, esa pregunta no cuenta.
+const calificables = sel => corregibles().filter(p => p.tipo !== "esc" || sel[p.id] !== "");
+const minimoBuenas = (total, pct) => Math.max(1, Math.ceil(total * pct / 100 - 1e-9)); // "50 % o más" de 3 preguntas = 2
+const claveSel = () => "sorteo-" + nombreClase;
+let votosSorteo = null;      // { votos: [[código, pregunta, respuesta]], invalidos } de la última lectura
+let resultadoSorteo = null;  // un objeto por código, con sus buenas y si queda premiado
+let sorteoArmado = false;
+
+function armarSorteo() {
+  const cont = $("sorteoPreguntas");
+  cont.innerHTML = "";
+  let guardadas = {};
+  try { guardadas = JSON.parse(localStorage.getItem(claveSel())) || {}; } catch (e) {}
+  const pregs = corregibles();
+  if (!pregs.length) { cont.innerHTML = '<p class="vacio">Esta tanda no tiene preguntas con respuesta correcta (alternativas, número o escala).</p>'; $("btnCalcular").disabled = true; return; }
+  pregs.forEach(p => {
+    const fs = document.createElement("fieldset");
+    fs.dataset.id = p.id;
+    const lg = document.createElement("legend");
+    lg.textContent = `${clase.p.indexOf(p) + 1}. ${p.texto}`;
+    fs.appendChild(lg);
+    const g = guardadas[p.id];
+    if (p.tipo === "num") {
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.inputMode = "decimal"; inp.placeholder = "Respuesta correcta (número)";
+      if (typeof g === "string") inp.value = g;
+      fs.appendChild(inp);
+    } else if (p.tipo === "esc") {
+      const fila = document.createElement("div");
+      fila.className = "escalaCorr";
+      const opciones = [["", "Sin correcta (no cuenta)"]];
+      for (let v = p.min; v <= p.max; v++) {
+        let t = String(v);
+        if (v === p.min && p.etqMin) t += ` (${p.etqMin})`;
+        if (v === p.max && p.etqMax) t += ` (${p.etqMax})`;
+        opciones.push([String(v), t]);
+      }
+      opciones.forEach(([valor, texto]) => {
+        const l = document.createElement("label");
+        const c = document.createElement("input");
+        c.type = "radio";
+        c.name = "corr-" + p.id;
+        c.value = valor;
+        c.checked = valor === (typeof g === "string" ? g : "");
+        l.append(c, document.createTextNode(texto));
+        fila.appendChild(l);
+      });
+      fs.appendChild(fila);
+    } else {
+      p.opciones.forEach(op => {
+        const l = document.createElement("label");
+        const c = document.createElement("input");
+        c.type = p.multi ? "checkbox" : "radio";
+        c.name = "corr-" + p.id;
+        c.value = op;
+        c.checked = p.multi ? Array.isArray(g) && g.includes(op) : g === op;
+        l.append(c, document.createTextNode(op));
+        fs.appendChild(l);
+      });
+    }
+    cont.appendChild(fs);
+  });
+  $("btnCalcular").disabled = false;
+  actualizarMinimo();
+}
+
+// Muestra cuántas buenas equivalen al porcentaje elegido, con las preguntas que hoy cuentan
+function actualizarMinimo() {
+  const pct = Number($("sorteoPct").value), total = calificables(leerSeleccion()).length;
+  $("sorteoMinTexto").textContent = total && pct >= 1 && pct <= 100 ? `(al menos ${minimoBuenas(total, pct)} de ${total})` : "";
+}
+
+// Lo marcado en pantalla: texto (una alternativa o un número), o lista de textos si se podía marcar varias
+function leerSeleccion() {
+  const sel = {};
+  $("sorteoPreguntas").querySelectorAll("fieldset").forEach(fs => {
+    const p = clase.p.find(x => x.id === fs.dataset.id);
+    if (p.tipo === "num") sel[p.id] = fs.querySelector("input").value.trim();
+    else if (p.multi) sel[p.id] = [...fs.querySelectorAll("input:checked")].map(c => c.value);
+    else { const c = fs.querySelector("input:checked"); sel[p.id] = c ? c.value : ""; }
+  });
+  return sel;
+}
+
+const seleccionCompleta = (p, v) => p.tipo === "num" ? aNumero(v) !== null : p.tipo === "esc" ? true : (p.multi ? v.length > 0 : v !== "");
+
+function esBuena(p, resp, sel) {
+  if (p.tipo === "num") { const x = aNumero(resp), c = aNumero(sel); return x !== null && c !== null && Math.abs(x - c) < 1e-9; }
+  if (p.tipo === "esc") { const x = aNumero(resp); return x !== null && x === Number(sel); }
+  if (p.multi) { const a = new Set(resp.split(SEP)), b = new Set(sel); return a.size === b.size && [...a].every(x => b.has(x)); }
+  return resp === sel;
+}
+
+function evaluarSorteo(votos, sel, minimo) {
+  const porCodigo = new Map(); // código -> Map(pregunta -> respuestas distintas que llegaron con ese código)
+  votos.forEach(([c, q, r]) => {
+    if (!porCodigo.has(c)) porCodigo.set(c, new Map());
+    const m = porCodigo.get(c);
+    if (!m.has(q)) m.set(q, new Set());
+    m.get(q).add(r);
+  });
+  const pregs = calificables(sel);
+  return [...porCodigo].map(([codigo, m]) => {
+    let buenas = 0, repetido = false;
+    pregs.forEach(p => {
+      const rs = m.get(p.id);
+      if (!rs) return;
+      if (rs.size > 1) repetido = true; // respuestas distintas con el mismo código: lo usaron dos personas
+      else if (esBuena(p, [...rs][0], sel[p.id])) buenas++;
+    });
+    return { codigo, buenas, repetido, premiado: !repetido && buenas >= minimo };
+  }).sort((a, b) => a.codigo.localeCompare(b.codigo));
+}
+
+async function calcularSorteo(refrescar) {
+  const error = $("sorteoError");
+  error.textContent = "";
+  const pregs = corregibles();
+  const sel = leerSeleccion();
+  const faltan = pregs.filter(p => !seleccionCompleta(p, sel[p.id])).map(p => clase.p.indexOf(p) + 1);
+  if (faltan.length) { error.textContent = `Falta marcar la respuesta correcta de la pregunta ${faltan.join(", ")}.`; return; }
+  const pct = Number($("sorteoPct").value);
+  if (!(pct >= 1 && pct <= 100)) { error.textContent = "El porcentaje debe estar entre 1 y 100."; return; }
+  const total = calificables(sel).length;
+  if (!total) { error.textContent = "Marca la respuesta correcta de al menos una pregunta."; return; }
+  const minimo = minimoBuenas(total, pct);
+  try { localStorage.setItem(claveSel(), JSON.stringify(sel)); } catch (e) {}
+
+  if (refrescar || !votosSorteo) {
+    $("btnCalcular").disabled = $("btnRefrescar").disabled = true;
+    $("sorteoMsg").textContent = "Leyendo los votos de la tanda…";
+    try {
+      const r = await apiProfesor({ accion: "sorteo", qs: pregs.map(p => p.id).join(",") });
+      if (!r) return; // canceló el acceso
+      votosSorteo = r;
+    } catch (e) {
+      error.textContent = e.message;
+      return;
+    } finally {
+      $("btnCalcular").disabled = $("btnRefrescar").disabled = false;
+      $("sorteoMsg").textContent = "";
+    }
+  }
+  $("btnRefrescar").hidden = false;
+  $("sorteoDetalle").open = false; // se pliegan las preguntas para que los códigos premiados queden a la vista
+  resultadoSorteo = { filas: evaluarSorteo(votosSorteo.votos, sel, minimo), minimo, total, pct };
+  pintarSorteo();
+  verificarCodigo();
+}
+
+function pintarSorteo() {
+  const { filas, minimo, total, pct } = resultadoSorteo;
+  const premiados = filas.filter(f => f.premiado), repetidos = filas.filter(f => f.repetido);
+  const cont = $("sorteoResultado");
+  cont.innerHTML = "";
+  const linea = (t) => { const el = document.createElement("p"); el.textContent = t; cont.appendChild(el); return el; };
+  if (!filas.length) {
+    linea("Todavía no hay votos con código en esta tanda. Los códigos aparecen cuando los estudiantes pulsan «Responder» en su celular; después pulsa «Actualizar votos».");
+  } else {
+    linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
+    if (premiados.length) {
+      const div = document.createElement("div");
+      div.className = "premiados";
+      premiados.forEach(f => { const s = document.createElement("span"); s.textContent = f.codigo; div.appendChild(s); });
+      cont.appendChild(div);
+    }
+    if (repetidos.length) linea(`Revisar: lo usaron dos personas (respuestas distintas con el mismo código): ${repetidos.map(f => f.codigo).join(", ")}.`).className = "error";
+  }
+  if (votosSorteo.invalidos) linea(`${votosSorteo.invalidos} voto(s) con código inválido: se ignoraron.`).className = "ayuda";
+}
+
+function verificarCodigo() {
+  const c = $("sorteoCodigo").value.trim().toUpperCase();
+  const out = $("sorteoVerif");
+  if (c.length < LARGO_CODIGO) { out.textContent = ""; return; }
+  if (!resultadoSorteo) { out.textContent = "Primero calcula los premiados."; return; }
+  const f = resultadoSorteo.filas.find(x => x.codigo === c);
+  const { total } = resultadoSorteo;
+  out.textContent = !f ? "Ese código no aparece entre los votos de esta tanda."
+    : f.repetido ? "Código repetido: lo usaron dos personas. Pídeles que muestren su celular."
+    : f.premiado ? `✔ Premiado: ${f.buenas} de ${total} buenas.`
+    : `Sin premio: ${f.buenas} de ${total} buenas.`;
+}
+
+function abrirSorteo() {
+  if (!nombreClase) return;
+  if (!sorteoArmado) { armarSorteo(); sorteoArmado = true; }
+  $("dlgSorteo").showModal();
+}
+
+function alternarQR() {
+  const oc = document.body.classList.toggle("oculto-qr");
+  $("btnQR").textContent = oc ? "Mostrar QR" : "Ocultar QR";
+}
+function pantallaCompleta() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+$("btnAnterior").onclick = () => ir(-1);
+$("btnSiguiente").onclick = () => ir(1);
+$("btnOcultar").onclick = alternarOcultar;
+$("btnVista").onclick = alternarVista;
+$("btnRonda").onclick = nuevaRonda;
+$("btnVotacion").onclick = alternarVotacion;
+$("btnSorteo").onclick = abrirSorteo;
+$("btnCalcular").onclick = () => calcularSorteo(false);
+$("btnRefrescar").onclick = () => calcularSorteo(true);
+$("btnCerrarSorteo").onclick = () => $("dlgSorteo").close();
+$("sorteoCodigo").oninput = verificarCodigo;
+$("sorteoPreguntas").addEventListener("change", () => { try { localStorage.setItem(claveSel(), JSON.stringify(leerSeleccion())); } catch (e) {} actualizarMinimo(); });
+$("sorteoPct").oninput = actualizarMinimo;
+$("btnQR").onclick = alternarQR;
+$("btnPantalla").onclick = pantallaCompleta;
+document.addEventListener("keydown", e => {
+  if (!clase) return;
+  if (document.querySelector("dialog[open]") || (e.target.closest && e.target.closest("input, select, textarea"))) return; // en el sorteo y el acceso se escribe: las teclas no son atajos
+  const k = e.key.toLowerCase();
+  if (e.key === "ArrowRight") ir(1);
+  else if (e.key === "ArrowLeft") ir(-1);
+  else if (k === "h") alternarOcultar();
+  else if (k === "w") alternarVista();
+  else if (k === "r") nuevaRonda();
+  else if (k === "s") abrirSorteo();
+  else if (k === "v") alternarVotacion();
+  else if (k === "q") alternarQR();
+  else if (k === "f") pantallaCompleta();
+});
+</script>
+</body>
+</html>

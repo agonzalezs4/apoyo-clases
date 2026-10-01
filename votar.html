@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responder</title>
+<link rel="stylesheet" href="estilos.css">
+<script src="config.js"></script>
+<script src="repo.js"></script>
+<style>
+  main { max-width: 560px; margin: 0 auto; padding: 28px 20px 48px; }
+  h1 { font-size: 24px; line-height: 1.3; margin: 0 0 22px; }
+  h1.largo { font-size: 18px; font-weight: 600; line-height: 1.35; } /* enunciado largo: que la respuesta quepa sobre la barra inferior */
+  .opciones { display: grid; gap: 12px; }
+  .opcion {
+    text-align: left; font-size: 20px; padding: 16px 18px; min-height: 60px;
+    background: #fff; border: 2px solid var(--riel); border-radius: 6px;
+  }
+  .opcion[aria-pressed="true"], .opcion.elegida { background: var(--barra); border-color: var(--barra); color: #fff; }
+  .opcion:disabled:not(.elegida) { opacity: .5; cursor: default; }
+  .escala { display: grid; grid-template-columns: repeat(auto-fit, minmax(46px, 1fr)); gap: 8px; }
+  .escala .opcion { text-align: center; padding: 14px 0; }
+  .extremos { display: flex; justify-content: space-between; color: var(--suave); margin-top: 8px; font-size: 16px; }
+  textarea, input {
+    width: 100%; font: inherit; font-size: 20px; padding: 12px 14px; color: var(--tinta);
+    border: 2px solid var(--riel); border-radius: 6px; background: #fff;
+  }
+  textarea:focus, input:focus { outline: none; border-color: var(--barra); }
+  .numero { display: flex; gap: 10px; align-items: center; font-size: 20px; }
+  .enviar {
+    margin-top: 14px; width: 100%; font-size: 20px; padding: 14px; border: 0; border-radius: 6px;
+    background: var(--barra); color: #fff;
+  }
+  .enviar:disabled { opacity: .5; cursor: default; }
+  .cuenta { text-align: right; color: var(--suave); font-size: 14px; margin-top: 4px; }
+  #mensaje { font-size: 18px; color: var(--suave); margin-top: 20px; }
+  #codigo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 18px; padding: 8px 14px; background: #fff; border: 2px dashed var(--riel); border-radius: 6px; color: var(--suave); font-size: 15px; line-height: 1.3; }
+  #codigo[hidden] { display: none; }
+  #codigo small { display: block; font-size: 13px; }
+  #codigo b { color: var(--tinta); font-size: 32px; letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+  html, body { overscroll-behavior-x: none; }
+  body { overflow-x: hidden; }
+  #nav { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 28px; padding: 10px 0; background: var(--papel); }
+  #nav button { width: auto; margin: 0; padding: 12px 18px; min-width: 56px; touch-action: manipulation; }
+  #pos { color: var(--suave); font-size: 16px; }
+  .resumen { display: grid; gap: 10px; }
+  .fila { width: 100%; text-align: left; font-size: 17px; line-height: 1.3; padding: 12px 14px; background: #fff; border: 2px solid var(--riel); border-radius: 6px; }
+  .fila span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .fila small { display: block; margin-top: 4px; font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+  .fila small.falta { color: var(--aviso); }
+  .fila:disabled { opacity: 1; cursor: default; }
+  .opcion, .fila, .enviar { touch-action: manipulation; } /* sin zoom por doble toque en iOS */
+  /* «Responder» siempre a la vista en la pantalla final, justo sobre la barra ‹ › */
+  .resumen + .enviar { position: sticky; bottom: var(--alto-nav, 73px); box-shadow: 0 12px 0 var(--papel), 0 -12px 0 var(--papel); }
+  .resumen + .enviar:disabled { opacity: 1; background: var(--uss-azul-50); }
+  /* Votación cerrada: ni las preguntas ni la navegación a la vista */
+  .en-espera #nav, .en-espera #pagina { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <div id="codigo" hidden><span>Tu código para el sorteo<small>Vale para toda la tanda</small></span><b></b></div>
+  <h1 id="pregunta">Cargando…</h1>
+  <div id="zona"></div>
+  <p id="mensaje" aria-live="polite"></p>
+  <p id="error" class="error"></p>
+</main>
+
+<script>
+let p = null;               // pregunta en pantalla (null en la pantalla final "Revisa y responde")
+let tanda = [];             // todas las preguntas de la tanda
+let clase = null, claseNombre = "", idx = 0, tEstado = 0;
+let enviando = false;       // hay un envío de la tanda en marcha
+let ultEstado = 0;          // cuándo se consultaron las rondas por última vez
+let avisoBlancas = 0;       // cuándo se avisó que quedan preguntas en blanco (0 = sin aviso); pintar() lo reinicia
+let ultToque = { k: "", t: 0 }, tIr = 0; // para que el 2.º toque de un doble toque no quite lo recién marcado ni elija en la pantalla recién abierta
+let abiertas = null;        // qué preguntas abrió el profesor, según el servidor (null = aún no se sabe)
+let vioAbierta = false;     // en esta visita ya se vio la votación abierta: si se cierra, el aviso es «se cerró», no «espera»
+let consultando = false;    // hay una consulta de rondas en marcha
+let tSondeo = 0, sondeoRapido = null;
+const CERRADA = "Votación cerrada"; // el mismo texto que CERRADA en apps-script/Codigo.gs
+const mem = {};             // respaldo si el navegador no deja usar localStorage
+const LISTO = "Tus respuestas quedaron registradas. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
+const pref = () => claseNombre ? claseNombre + "/" : "";
+const claveVoto = (id, r) => `voto-${pref()}${id}-${r}`;  // lo ya enviado de esa pregunta en esa ronda
+const claveRonda = id => `ronda-${pref()}${id}`;
+const claveBorr = id => `borr-${pref()}${id}`;            // lo marcado pero todavía sin enviar
+const claveNum = () => `num-${claseNombre}`;  // los dígitos que este celular eligió para la tanda
+const claveCod = () => `cod-${claseNombre}`;  // el código completo (letra + dígitos), cuando el servidor lo devolvió
+const claveLote = () => `v-${pref()}lote`;    // el último envío intentado y aún sin confirmar
+const claveVio = () => `vio-${pref()}`;       // ya llegó alguna vez a la pantalla final
+const espera = ms => new Promise(res => setTimeout(res, ms));
+const leer = k => { try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {} return k in mem ? mem[k] : null; };
+const guardar = (k, v) => { mem[k] = String(v); try { localStorage.setItem(k, v); } catch (e) {} };
+const olvidar = k => { delete mem[k]; try { localStorage.removeItem(k); } catch (e) {} };
+
+const rondaDe = id => leer(claveRonda(id));
+const enviada = q => leer(claveVoto(q.id, rondaDe(q.id)));  // lo enviado en la ronda vigente, o null
+const borrador = q => leer(claveBorr(q.id)) || "";
+const hayResumen = () => tanda.length > 1;                   // la pantalla final solo tiene sentido con varias preguntas
+const ultimo = () => hayResumen() ? tanda.length : tanda.length - 1;
+const enResumen = () => !p;
+// Mientras el profesor no abra la votación, las preguntas pendientes no se muestran (y el servidor no las acepta)
+const abiertaTanda = () => abiertas !== null && tanda.every(q => abiertas[q.id] !== false);
+// (un envío sin confirmar se puede reintentar igual: si llegó antes del cierre, el servidor lo reconoce y no lo rechaza)
+const esperando = () => !abiertaTanda() && pendientes().length > 0 && !lotePendiente();
+
+// Lo marcado de una pregunta, si está listo para enviarse; null si falta o no vale
+function respuestaDe(q) {
+  const v = borrador(q).trim();
+  if (!v) return null;
+  if (q.tipo === "num") return aNumero(v) === null ? null : v;
+  if (q.tipo === "esc") { const x = Number(v); return Number.isInteger(x) && x >= q.min && x <= q.max ? v : null; }
+  if (q.tipo === "alt") { const s = v.split(SEP); return s.every(o => q.opciones.includes(o)) && (q.multi || s.length === 1) ? v : null; }
+  return v;
+}
+const pendientes = () => tanda.filter(q => enviada(q) === null);
+// Lo enviado se guarda tal cual; "" = el estudiante pulsó «Responder» dejando esa pregunta en blanco (queda cerrada en esa ronda)
+const numeros = qs => qs.map(q => tanda.indexOf(q) + 1).join(", ");
+const malEscrita = q => q.tipo === "num" && borrador(q).trim() !== "" && respuestaDe(q) === null;
+const AVISO_NUM = "Escribe solo un número (por ejemplo 12,5).";
+const textoResp = (q, r) => q.tipo === "alt" ? r.split(SEP).join(", ") : r;
+const botonEnvio = () => $("zona").querySelector(":scope > .enviar");
+// Errores con los que reintentar no sirve (p. ej. el Apps Script publicado es la versión anterior, sin accion=lote)
+const FIJOS = /^(Falta el identificador de la pregunta|Acción desconocida|Envío inválido|No hay respuestas que guardar|Respuesta vacía)$/;
+
+// Envío ya intentado y sin confirmar (recarga durante «Enviando…» o sin señal): es definitivo, y reenviarlo igual
+// reutiliza el mismo "v", así el servidor no lo duplica (si cambiara, el código quedaría «repetido» en el sorteo)
+function lotePendiente() {
+  try {
+    const o = JSON.parse(leer(claveLote())), it = o && o.d ? JSON.parse(o.d) : null;
+    return Array.isArray(it) && it.length && it.every(x => Array.isArray(x) && tanda.some(q => q.id === x[0] && enviada(q) === null)) ? it : null;
+  } catch (e) { return null; }
+}
+const enLote = q => { const l = lotePendiente(); return l ? l.find(x => x[0] === q.id) || null : null; };
+
+// Un solo código por celular y por tanda (clase-##-#): se elige aquí, sin consultar al servidor. La letra la agrega el servidor.
+function digitosTanda() {
+  let n = leer(claveNum());
+  const base = 10 ** (DIGITOS_CODIGO - 1); // sin cero a la izquierda: 5 dígitos van de 10000 a 99999
+  if (!new RegExp(`^[1-9]\\d{${DIGITOS_CODIGO - 1}}$`).test(n || "")) { n = String(base + Math.floor(Math.random() * 9 * base)); guardar(claveNum(), n); }
+  return n;
+}
+function mostrarCodigo() {
+  let c = claseNombre ? leer(claveCod()) : null;
+  if (c && c.length !== DIGITOS_CODIGO + 1) c = null; // un código guardado con otro largo (versión anterior) ya no vale
+  $("codigo").hidden = !c;
+  if (c) $("codigo").querySelector("b").textContent = c;
+}
+
+// Igual que api(), pero con tiempo máximo: si el servidor no responde, se reintenta en vez de quedar colgado
+async function llamar(params, ms = 15000) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  try {
+    const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params) + "&_=" + Date.now(), { signal: ac.signal });
+    const d = await r.json();
+    if (d.error) throw Object.assign(new Error(d.error), { servidor: true });
+    return d;
+  } finally { clearTimeout(t); }
+}
+
+// Un corte breve de la red del aula no debe mostrar "enlace no válido"
+async function cargarConReintento(nombre) {
+  let ultimo;
+  for (let k = 0; k < 4; k++) {
+    try { return await cargarClase(nombre); }
+    catch (e) {
+      ultimo = e;
+      if (!(e instanceof TypeError) && k >= 1) break; // 404 o archivo dañado: no tiene sentido insistir
+      if (k < (e instanceof TypeError ? 3 : 1)) { $("pregunta").textContent = "Cargando… la conexión está lenta"; await espera(600 * (k + 1) + Math.random() * 600); }
+    }
+  }
+  throw ultimo;
+}
+
+// lz-string solo hace falta en el modo antiguo (pregunta dentro del enlace); así no bloquea la carga normal
+function cargarLZ() {
+  return new Promise((ok, mal) => {
+    if (typeof LZString !== "undefined") return ok();
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js";
+    s.onload = ok;
+    s.onerror = () => mal(new TypeError("lz-string"));
+    document.head.appendChild(s);
+  });
+}
+
+// El gráfico embebido avisa su alto: así se ve completo, sin una segunda barra de desplazamiento dentro de la pregunta
+addEventListener("message", e => {
+  const f = document.getElementById("pagina");
+  if (!f || e.source !== f.contentWindow || !e.data || e.data.tipo !== "alto-widget") return;
+  const h = Number(e.data.alto);
+  if (h > 100 && h < 5000) f.style.height = h + "px";
+});
+
+iniciar();
+
+async function iniciar() {
+  const qs = new URLSearchParams(location.search);
+  let fallaRed = false;
+  try {
+    if (qs.get("clase")) {
+      claseNombre = qs.get("clase");
+      clase = await cargarConReintento(claseNombre);
+      tanda = clase.p;
+      const k = tanda.findIndex(x => x.id === qs.get("q"));
+      idx = k >= 0 ? k : Math.min(Math.max(0, (Number(qs.get("p")) || 1) - 1), ultimo());
+    } else {
+      await cargarLZ();
+      const unica = desempaquetar(location.hash.slice(1));
+      tanda = unica ? [unica] : [];
+    }
+  } catch (e) { tanda = []; fallaRed = e instanceof TypeError; }
+  if (!tanda.length) {
+    $("pregunta").textContent = fallaRed
+      ? "No se pudo cargar la pregunta. Revisa tu conexión y vuelve a abrir el enlace."
+      : "Este enlace no es válido. Vuelve a escanear el QR.";
+    return;
+  }
+  if (hayResumen()) armarNavegacion();
+  mostrarPregunta(0); // mientras no se sepa si la votación está abierta, muestra «Cargando…»
+  estado();
+  document.addEventListener("visibilitychange", () => setTimeout(() => estadoSiToca(esperando() ? 3000 : 45000), Math.random() * 2000));
+  // al volver la red, toda la sala vuelve a la vez: más azar para repartir la carga
+  addEventListener("online", () => setTimeout(() => estadoSiToca(esperando() ? 3000 : 45000), Math.random() * 15000));
+  // Otra pestaña con la misma tanda (QR escaneado dos veces) envió o vio una nueva ronda: poner esta al día
+  let tSync = 0;
+  addEventListener("storage", e => {
+    if (e.key) delete mem[e.key]; // si llegó el evento, localStorage funciona y manda sobre el respaldo en memoria
+    if (e.key && !["voto-" + pref(), "ronda-" + pref(), "cod-"].some(k => e.key.startsWith(k))) return;
+    clearTimeout(tSync); tSync = setTimeout(() => { if (!enviando) pintar(); }, 150); // el voto y su ronda llegan por separado
+  });
+  addEventListener("pageshow", e => { if (e.persisted && !enviando) pintar(); });
+}
+
+function armarNavegacion() {
+  $("error").insertAdjacentHTML("afterend",
+    `<div id="nav">
+       <button id="ant" class="enviar" aria-label="Pregunta anterior">‹</button>
+       <span id="pos" aria-live="polite"></span>
+       <button id="sig" class="enviar" aria-label="Pregunta siguiente">›</button>
+     </div>`);
+  $("ant").onclick = () => ir(-1);
+  $("sig").onclick = () => ir(1);
+  engancharSwipe(document);
+  document.documentElement.style.setProperty("--alto-nav", $("nav").offsetHeight + "px");
+  document.addEventListener("keydown", e => {
+    if (e.target.closest("input, textarea")) return;
+    if (e.key === "ArrowRight") ir(1);
+    if (e.key === "ArrowLeft") ir(-1);
+  });
+}
+
+// Deslizar a la izquierda = siguiente, a la derecha = anterior. También se engancha dentro del iframe.
+function engancharSwipe(doc) {
+  let x0 = 0, y0 = 0, anula = false;
+  doc.addEventListener("touchstart", e => {
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    const w = doc.defaultView.innerWidth;
+    // dos dedos (zoom), campos de texto y los bordes (gesto "atrás" del navegador) no cuentan
+    anula = e.touches.length > 1 || !!(e.target.closest && e.target.closest("input, textarea")) || x0 < 24 || x0 > w - 24;
+  }, { passive: true });
+  doc.addEventListener("touchcancel", () => { anula = true; }, { passive: true });
+  doc.addEventListener("touchend", e => {
+    if (anula) return;
+    if (window.visualViewport && window.visualViewport.scale > 1.02) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) ir(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+
+function actualizarNav() {
+  if (!$("nav")) return;
+  $("pos").textContent = enResumen() ? "Revisar" : `${idx + 1} / ${tanda.length}`;
+  $("ant").disabled = idx === 0;
+  $("sig").disabled = idx === ultimo();
+  $("sig").setAttribute("aria-label", idx === tanda.length - 1 ? "Revisar y responder" : "Pregunta siguiente");
+}
+
+function mostrarPregunta(dir) {
+  p = tanda[idx] || null; // fuera de la tanda = pantalla final
+  $("pregunta").textContent = p ? p.texto : "Revisa y responde";
+  $("pregunta").classList.toggle("largo", !!p && p.texto.length > 160);
+  const actual = document.getElementById("pagina");
+  if (!p || !p.pagina) { if (actual) actual.remove(); }
+  else if (!actual || actual.getAttribute("src") !== p.pagina) {
+    if (actual) actual.remove();
+    const f = document.createElement("iframe");
+    f.id = "pagina";
+    f.style.cssText = "width:100%;height:min(45vh,340px);border:0;margin-bottom:16px";
+    f.onload = () => { try { engancharSwipe(f.contentDocument); } catch (e) {} };
+    f.src = p.pagina;
+    $("pregunta").after(f);
+  }
+  $("error").textContent = "";
+  pintar(); // las opciones aparecen ya, sin esperar al servidor
+  actualizarNav();
+  const main = document.querySelector("main");
+  if (dir && main.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+    main.animate([{ transform: `translateX(${dir * 36}px)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 180 });
+  clearTimeout(tEstado);
+  // Solo hace falta preguntar por las rondas si ya se envió algo (se espera una nueva); si no, al enviar el servidor las devuelve
+  tEstado = setTimeout(() => estadoSiToca(45000), Math.random() * 4000);
+}
+
+function ir(d) {
+  if (tanda.length < 2 || esperando()) return;
+  const n = idx + d;
+  if (n < 0 || n > ultimo()) return; // en los extremos no pasa nada
+  idx = n;
+  tIr = Date.now();
+  const u = new URL(location.href);
+  u.searchParams.set("p", n + 1);
+  u.searchParams.delete("q");
+  history.replaceState(null, "", u);
+  window.scrollTo(0, 0);
+  mostrarPregunta(Math.sign(d));
+}
+
+function quiereEstado() { return esperando() || tanda.some(q => enviada(q) !== null); }
+// Toda consulta de fondo pasa por aquí: solo con la pestaña visible, si ya se envió algo, y no más seguido que "min" ms
+function estadoSiToca(min) { if (!document.hidden && quiereEstado() && Date.now() - ultEstado > min) estado(); }
+
+// Consulta periódica (detecta si se abre una nueva ronda). Espaciada y con azar para no saturar al servidor.
+// Mientras se espera que el profesor abra (o reabra) la votación, más seguido: cada 5 a 10 s.
+function programarEstado() {
+  clearTimeout(tSondeo);
+  const rapido = sondeoRapido = esperando();
+  tSondeo = setTimeout(() => { estadoSiToca(rapido ? 4000 : 30000); programarEstado(); },
+    rapido ? 5000 + Math.random() * 5000 : 60000 + Math.random() * 30000);
+}
+
+// Una sola consulta trae la ronda de todas las preguntas de la tanda
+async function estado(intento = 0) {
+  if (consultando) return;
+  consultando = true;
+  ultEstado = Date.now();
+  try {
+    const d = await llamar({ accion: "estados", qs: tanda.map(q => q.id).join(",") });
+    if (!d.rondas) return;
+    const primera = abiertas === null, antes = esperando();
+    // Sin "abiertas", el Apps Script publicado es anterior a «Abrir votación»: todo queda abierto, como antes
+    abiertas = d.abiertas || Object.fromEntries(tanda.map(q => [q.id, true]));
+    if (abiertaTanda()) vioAbierta = true;
+    const reab = []; // preguntas que el profesor reabrió con una nueva ronda
+    tanda.forEach(q => {
+      const nueva = d.rondas[q.id], vieja = rondaDe(q.id);
+      if (nueva == null || String(nueva) === String(vieja)) return;
+      if (vieja != null && Number(nueva) < Number(vieja)) return; // respuesta vieja llegada tarde
+      const antes = enviada(q);
+      guardar(claveRonda(q.id), nueva);
+      if (antes !== null && enviada(q) === null) reab.push(q);
+    });
+    if (enviando) return;
+    if (primera || antes !== esperando()) { pintar(); return; } // se abrió o se cerró la votación
+    if (!reab.length) return;
+    // Solo se repinta si cambia lo que se ve; así no se cierra el teclado de quien está escribiendo en otra pregunta
+    if (enResumen() || !hayResumen() || reab.includes(p)) pintar();
+    else $("mensaje").textContent = `Se abrió una nueva ronda en ${reab.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(reab)}: ${reab.length === 1 ? "respóndela" : "respóndelas"} y pulsa «Responder» al final.`;
+  } catch (e) {
+    // Sin saber aún si la votación está abierta, se avisa; el sondeo rápido sigue intentando
+    if (abiertas === null) $("mensaje").textContent = "No se pudo conectar con el servidor. Seguimos intentando…";
+    // consulta de fondo: si falla no se avisa; un solo reintento, y solo si la pestaña sigue a la vista (el sondeo periódico hace el resto)
+    else if (intento < 1) setTimeout(() => { if (!document.hidden) estado(intento + 1); }, 10000 + Math.random() * 10000);
+  } finally {
+    consultando = false;
+  }
+}
+
+// Envía de una vez las respuestas de la tanda: items = [[pregunta, respuesta, texto], ...]
+async function enviarLote(items) {
+  // mismo código en los reintentos, y también si se repite el toque (el servidor ignora el duplicado)
+  const d = JSON.stringify(items);
+  const kv = claveLote();
+  let v = null;
+  try { const o = JSON.parse(leer(kv)); if (o && o.d === d) v = o.v; } catch (e) {}
+  if (!v) { v = Math.random().toString(36).slice(2, 10); guardar(kv, JSON.stringify({ d, v })); }
+  const mostrar = (m, e) => { $("mensaje").textContent = m; $("error").textContent = e || ""; };
+  const lento = () => {
+    mostrar(navigator.onLine === false ? "Sin conexión: seguimos intentando…" : "Enviando… (la conexión está lenta, sigue esperando)");
+    const b = botonEnvio(); if (b) b.textContent = "Enviando… (conexión lenta)";
+  };
+  mostrar("Enviando…");
+  const aviso = setTimeout(lento, 10000);
+  // Plazo largo (30 s): cortar antes no detiene la ejecución en Google y solo suma otra en el peor momento
+  const pausas = [1500, 4000, 8000, 8000, 8000];
+  try {
+    for (let k = 0; k <= pausas.length; k++) {
+      try {
+        const params = { accion: "lote", d, v };
+        if (claseNombre) params.n = digitosTanda(); // en el modo antiguo (pregunta dentro del enlace) no hay tanda ni código
+        const r = await llamar(params, 30000);
+        olvidar(kv);
+        mostrar("");
+        if (r.codigo && claseNombre) guardar(claveCod(), r.codigo);
+        return r;
+      } catch (e) {
+        if (e.servidor && e.message === CERRADA) { // el profesor cerró la votación: no se guardó nada
+          olvidar(kv);
+          abiertas = Object.fromEntries(tanda.map(q => [q.id, false]));
+          vioAbierta = true;
+          mostrar("", "Tus respuestas no alcanzaron a enviarse.");
+          return null;
+        }
+        if (e.servidor && FIJOS.test(e.message)) { // el servidor lo rechazó sin guardar nada: no tiene sentido insistir
+          olvidar(kv);
+          mostrar("", "No se pudieron enviar tus respuestas. Avísale a tu profesor; lo que marcaste sigue guardado aquí.");
+          return null;
+        }
+        if (k < pausas.length) {
+          if (k >= 1) lento();
+          await espera(pausas[k] * (0.5 + Math.random()));
+        }
+      }
+    }
+  } finally { clearTimeout(aviso); }
+  mostrar("", navigator.onLine === false ? "Sin conexión: vuelve a intentarlo cuando tengas señal." : "No se pudieron enviar tus respuestas. Inténtalo de nuevo.");
+  return null;
+}
+
+// Botón "Responder": manda todo lo pendiente de la tanda en una sola consulta.
+// Las preguntas en blanco viajan solo con su id (el servidor no escribe fila; solo devuelve su ronda para cerrarlas aquí)
+async function responder() {
+  if (enviando) return;
+  const pend = pendientes();
+  if (!pend.length) { pintar(); return; } // ya se envió desde otra pestaña: solo poner la pantalla al día
+  let items = lotePendiente();
+  const reintento = !!items; // reenvío del lote fijo: lo marcado después en otra pregunta no va en él
+  if (!items) {
+    const malas = pend.filter(malEscrita);
+    if (malas.length) {
+      $("error").textContent = `Revisa ${malas.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(malas)}: escribe solo un número (por ejemplo 12,5).`;
+      window.scrollTo(0, document.documentElement.scrollHeight); // al fondo: el aviso queda sobre la barra ‹ ›, no detrás
+      return;
+    }
+    const blancas = pend.filter(q => respuestaDe(q) === null);
+    if (blancas.length === pend.length) return;
+    // Confirmación en la página (no confirm(): en el navegador interno de algunos lectores QR no aparece y devuelve "no")
+    if (blancas.length && (!avisoBlancas || Date.now() - avisoBlancas < 700)) {
+      if (avisoBlancas) return; // doble toque accidental: no cuenta como confirmación
+      avisoBlancas = Date.now();
+      const uno = blancas.length === 1, b = botonEnvio();
+      if (b) b.textContent = "Responder igual";
+      $("mensaje").textContent = `${uno ? "La pregunta" : "Las preguntas"} ${numeros(blancas)} ${uno ? "quedará" : "quedarán"} sin responder y ya no podrás ${uno ? "completarla" : "completarlas"}. Si quieres enviar así, toca «Responder igual».`;
+      window.scrollTo(0, document.documentElement.scrollHeight); // al fondo: el aviso queda sobre la barra ‹ ›, no detrás
+      return;
+    }
+    items = pend.map(q => { const r = respuestaDe(q); return r === null ? [q.id] : [q.id, r, q.texto.slice(0, 80)]; });
+  }
+  const antes = {}; // ronda local de cada pregunta al empezar el envío
+  items.forEach(([id]) => { antes[id] = rondaDe(id); });
+  enviando = true;
+  pintar();
+  let d = null;
+  try { d = await enviarLote(items); } finally { enviando = false; }
+  if (d) {
+    if (d.rondas) ultEstado = Date.now(); // el lote ya trajo las rondas: no hace falta preguntarlas de nuevo enseguida
+    items.forEach(([id, r = ""]) => {
+      const nueva = d.rondas && d.rondas[id] != null ? d.rondas[id] : null, vieja = rondaDe(id);
+      guardar(claveVoto(id, nueva != null ? nueva : vieja), r);
+      // Manda la ronda del servidor (es la que usa el sorteo), salvo que DURANTE el envío se haya visto una más nueva:
+      // entonces no se retrocede y esa pregunta queda abierta para la ronda nueva
+      const vioOtra = vieja !== antes[id] && vieja != null && Number(nueva) < Number(vieja);
+      if (nueva != null && !vioOtra) guardar(claveRonda(id), nueva);
+      olvidar(claveBorr(id));
+    });
+    window.scrollTo(0, 0);
+  }
+  pintar(); // si falló, el error ya está en pantalla y lo marcado sigue ahí
+  if (!d) window.scrollTo(0, document.documentElement.scrollHeight); // el error queda junto al botón
+  const faltan = d && reintento ? pendientes().filter(q => respuestaDe(q) !== null) : [];
+  if (faltan.length) {
+    $("mensaje").textContent = `Se envió lo anterior. Falta enviar ${faltan.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(faltan)}: pulsa «Responder».`;
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  }
+}
+
+function boton(texto, clase = "opcion") {
+  const b = document.createElement("button");
+  b.className = clase;
+  b.textContent = texto;
+  return b;
+}
+
+// Cómo debe verse el botón "Responder" y qué aviso lleva (null = no hay nada pendiente: sin botón)
+function estadoEnvio() {
+  const pend = pendientes();
+  if (!pend.length) return null;
+  if (enviando) return { texto: "Enviando…", off: true, msg: null };
+  if (lotePendiente()) {
+    const despues = pend.filter(q => !enLote(q) && respuestaDe(q) !== null); // marcadas después (p. ej. una pregunta reabierta)
+    return { texto: "Reintentar envío", off: false, msg: "Tu envío anterior no se confirmó. Pulsa «Reintentar envío»: se mandan las mismas respuestas."
+      + (despues.length ? ` ${despues.length === 1 ? "La pregunta" : "Las preguntas"} ${numeros(despues)} ${despues.length === 1 ? "se envía" : "se envían"} después, con «Responder».` : "") };
+  }
+  const blancas = pend.filter(q => respuestaDe(q) === null && !malEscrita(q));
+  if (blancas.length === pend.length) {
+    const yaEnvio = tanda.some(q => rondaDe(q.id) !== null); // ya envió antes: lo pendiente es una nueva ronda
+    return { texto: "Responder", off: true, msg: !hayResumen() ? (yaEnvio ? "Se abrió una nueva ronda: puedes responder de nuevo." : "")
+      : yaEnvio ? `Se abrió una nueva ronda: responde ${pend.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(pend)} y pulsa «Responder».`
+      : "Marca al menos una respuesta para poder enviar." };
+  }
+  const uno = blancas.length === 1;
+  return { texto: "Responder", off: false, msg: (blancas.length ? `Sin responder: ${uno ? "pregunta" : "preguntas"} ${numeros(blancas)}. Puedes volver a ${uno ? "ella" : "ellas"} o enviar así. ` : "")
+    + "Después de pulsar «Responder» ya no podrás cambiar " + (pend.length > 1 ? "tus respuestas." : "tu respuesta.") };
+}
+
+// Botón "Responder" con su aviso; va en la pantalla final (o bajo la pregunta si la tanda es de una sola)
+function panelEnvio() {
+  const e = estadoEnvio();
+  if (!e) return;
+  const env = boton(e.texto, "enviar");
+  env.disabled = e.off;
+  env.onclick = () => { if (Date.now() - tIr >= 400) responder(); }; // el 2.º toque de un doble toque en «Revisar y responder ›» no envía
+  $("zona").appendChild(env);
+  if (e.msg !== null) $("mensaje").textContent = e.msg;
+}
+
+// Tanda de una sola pregunta (número o abierta): al escribir se actualiza el botón sin repintar, para no cerrar el teclado
+function refrescarEnvio() {
+  if (hayResumen()) return;
+  const b = botonEnvio(), e = estadoEnvio();
+  if (!b || !e) return;
+  b.textContent = e.texto;
+  b.disabled = e.off;
+  if (e.msg !== null) $("mensaje").textContent = e.msg;
+}
+
+function pintar() {
+  avisoBlancas = 0;
+  $("zona").innerHTML = "";
+  $("mensaje").textContent = "";
+  const espera = esperando();
+  document.body.classList.toggle("en-espera", espera);
+  if (espera) pintarEspera();
+  else if (enResumen()) pintarResumen(); else pintarPregunta();
+  if (enviando) { $("mensaje").textContent = "Enviando…"; $("zona").querySelectorAll("button, input, textarea").forEach(c => c.disabled = true); }
+  mostrarCodigo();
+  if (espera !== sondeoRapido) programarEstado(); // al empezar o terminar la espera cambia el ritmo de las consultas
+}
+
+// Votación cerrada (aún no se abre, o el profesor la cerró): no se muestran las preguntas pendientes
+function pintarEspera() {
+  const h = $("pregunta");
+  h.classList.remove("largo");
+  if (abiertas === null) { h.textContent = "Cargando…"; return; }
+  const guardado = tanda.some(q => enviada(q) === null && borrador(q).trim());
+  h.textContent = vioAbierta ? "La votación está cerrada" : "Espera a que tu profesor abra la votación";
+  $("mensaje").textContent = (vioAbierta ? "Si tu profesor la vuelve a abrir, podrás responder aquí mismo." : "Las preguntas aparecerán aquí solas apenas se abra: deja esta página abierta.")
+    + (guardado ? " Lo que ya marcaste sigue guardado." : "");
+}
+
+// Pantalla final: lo que se marcó en cada pregunta (se puede tocar para corregir) y el botón "Responder"
+function pintarResumen() {
+  guardar(claveVio(), 1);
+  const zona = $("zona");
+  const listo = !pendientes().length;
+  $("pregunta").textContent = listo ? "Tus respuestas quedaron registradas" : "Revisa y responde";
+  const lista = document.createElement("div");
+  lista.className = "resumen";
+  tanda.forEach((q, i) => {
+    const ya = enviada(q), lp = ya === null ? enLote(q) : null;
+    const r = ya !== null ? ya || null : lp ? lp[1] || null : respuestaDe(q);
+    const fija = ya !== null || !!lp; // enviada (o enviándose): ya no se corrige desde aquí
+    const b = document.createElement("button");
+    b.className = "fila";
+    const t = document.createElement("span");
+    t.textContent = `${i + 1}. ${q.texto}`;
+    const a = document.createElement("small");
+    a.textContent = r !== null ? textoResp(q, r) : !fija && malEscrita(q) ? "Número no válido: tócala para corregirlo" : "Sin responder";
+    if (ya !== null && !listo) a.textContent += " · ya enviada";
+    if (!fija && r === null) a.className = "falta";
+    b.append(t, a);
+    if (fija) b.disabled = true;
+    else b.onclick = () => { if (Date.now() - tIr >= 400) ir(i - idx); };
+    lista.appendChild(b);
+  });
+  zona.appendChild(lista);
+  if (listo) $("mensaje").textContent = "Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
+  else panelEnvio();
+}
+
+function pintarPregunta() {
+  $("pregunta").textContent = p.texto; // por si venía de la pantalla de espera
+  $("pregunta").classList.toggle("largo", p.texto.length > 160);
+  const zona = $("zona");
+  const ya = enviada(p), lp = ya === null ? enLote(p) : null;
+  const cur = ya !== null ? ya : lp ? lp[1] || "" : borrador(p);
+  const editable = ya === null && !lp;
+  if (lp) $("mensaje").textContent = hayResumen() ? "Tu envío anterior no se confirmó: pulsa «Reintentar envío» al final." : "";
+  else if (ya === "") $("mensaje").textContent = "Enviaste la tanda sin responder esta pregunta. Si se abre una nueva ronda, podrás responderla aquí mismo.";
+  else if (ya !== null) $("mensaje").textContent = hayResumen() ? LISTO : "Tu respuesta quedó registrada. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
+  else if (hayResumen()) $("mensaje").textContent = "Nada se envía hasta que pulses «Responder» al final; hasta entonces puedes cambiar tus respuestas."
+    + (respuestaDe(p) !== null && (p.tipo === "alt" || p.tipo === "esc") ? " Para quitar la que marcaste, tócala de nuevo." : "");
+  // Tocar → se guarda y se repinta; el foco vuelve al mismo botón (lectores de pantalla)
+  const marcar = (v, i) => {
+    if (v) guardar(claveBorr(p.id), v); else olvidar(claveBorr(p.id));
+    pintar();
+    const o = $("zona").querySelectorAll(".opcion")[i];
+    if (o) o.focus({ preventScroll: true });
+  };
+  // Un doble toque rápido no debe marcar y desmarcar, ni elegir algo en la pantalla que se acaba de abrir
+  const rebote = (k, quita) => {
+    const ahora = Date.now(), r = ahora - tIr < 400 || (quita && ultToque.k === p.id + "|" + k && ahora - ultToque.t < 450);
+    if (!r) ultToque = { k: p.id + "|" + k, t: ahora };
+    return r;
+  };
+
+  if (p.tipo === "alt") {
+    const cont = document.createElement("div");
+    cont.className = "opciones";
+    const elegidas = cur ? cur.split(SEP) : [];
+    p.opciones.forEach((op, i) => {
+      const b = boton(op);
+      const esta = elegidas.includes(op);
+      if (esta) b.classList.add("elegida");
+      b.setAttribute("aria-pressed", esta ? "true" : "false");
+      if (!editable) b.disabled = true;
+      else if (p.multi) b.onclick = () => { if (!rebote(op, esta)) marcar(p.opciones.filter(o => o === op ? !esta : elegidas.includes(o)).join(SEP), i); };
+      else b.onclick = () => { if (!rebote(op, esta)) marcar(esta ? "" : op, i); }; // tocar de nuevo la elegida la quita
+      cont.appendChild(b);
+    });
+    zona.appendChild(cont);
+  }
+
+  if (p.tipo === "esc") {
+    const cont = document.createElement("div");
+    cont.className = "opciones escala";
+    for (let v = p.min; v <= p.max; v++) {
+      const b = boton(String(v));
+      const esta = cur === String(v);
+      if (esta) b.classList.add("elegida");
+      b.setAttribute("aria-pressed", esta ? "true" : "false");
+      if (!editable) b.disabled = true;
+      else b.onclick = () => { if (!rebote(v, esta)) marcar(esta ? "" : String(v), v - p.min); };
+      cont.appendChild(b);
+    }
+    zona.appendChild(cont);
+    if (p.etqMin || p.etqMax) {
+      const ext = document.createElement("div");
+      ext.className = "extremos";
+      ext.innerHTML = "<span></span><span></span>";
+      ext.children[0].textContent = p.etqMin || "";
+      ext.children[1].textContent = p.etqMax || "";
+      zona.appendChild(ext);
+    }
+  }
+
+  if (p.tipo === "num") {
+    const fila = document.createElement("div");
+    fila.className = "numero";
+    const inp = document.createElement("input");
+    inp.inputMode = "decimal";
+    inp.placeholder = "Escribe un número";
+    inp.value = cur;
+    if (!editable) inp.disabled = true;
+    else {
+      inp.oninput = () => {
+        guardar(claveBorr(p.id), inp.value);
+        $("error").textContent = malEscrita(p) && !/^[-+.,]$/.test(inp.value.trim()) ? AVISO_NUM : ""; // sin parpadeo al empezar «-5»
+        refrescarEnvio();
+      };
+      if (malEscrita(p)) $("error").textContent = AVISO_NUM;
+    }
+    fila.appendChild(inp);
+    if (p.unidad) { const u = document.createElement("span"); u.textContent = p.unidad; fila.appendChild(u); }
+    zona.appendChild(fila);
+  }
+
+  if (p.tipo === "abi") {
+    const ta = document.createElement("textarea");
+    ta.rows = 3;
+    ta.maxLength = 200;
+    ta.placeholder = "Escribe tu respuesta";
+    ta.value = cur;
+    const cuenta = document.createElement("div");
+    cuenta.className = "cuenta";
+    cuenta.textContent = ta.value.length + " / 200";
+    if (!editable) ta.disabled = true;
+    else ta.oninput = () => { cuenta.textContent = ta.value.length + " / 200"; guardar(claveBorr(p.id), ta.value); refrescarEnvio(); };
+    zona.append(ta, cuenta);
+  }
+
+  // Si la tanda es de una sola, el botón "Responder" va aquí mismo. Si no, la última pregunta (y cualquiera por
+  // corregir, una vez que se conoce la pantalla final) lleva directo a "Revisa y responde"
+  if (!hayResumen()) panelEnvio();
+  else if (idx === tanda.length - 1 || (leer(claveVio()) && editable)) {
+    const rev = boton("Revisar y responder ›", "enviar");
+    rev.onclick = () => { if (Date.now() - tIr >= 400) ir(tanda.length - idx); };
+    zona.appendChild(rev);
+  }
+}
+</script>
+</body>
+</html>

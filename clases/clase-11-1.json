@@ -1,0 +1,41 @@
+{
+  "nombre": "clase-11-1",
+  "p": [
+    {
+      "id": "af8l1e",
+      "tipo": "alt",
+      "texto": "¿Cuál es la tasa de mortalidad por neumonía en Comuna Valle en 2025?",
+      "opciones": [
+        "5 por cada 100 casos",
+        "12,5 por cada 100 muertes",
+        "75 por cada 100.000 habitantes",
+        "750 por cada 100.000 habitantes"
+      ],
+      "multi": false
+    },
+    {
+      "id": "abu6of",
+      "tipo": "alt",
+      "texto": "El 12,5% de las muertes en Comuna Valle en 2025 se debieron a neumonía. ¿Qué indica esta cifra?",
+      "opciones": [
+        "Qué parte de las muertes se debió a neumonía",
+        "Qué fracción de los enfermos de neumonía murió",
+        "Qué riesgo de morir por neumonía tuvo la población",
+        "Qué fracción de la población enfermó de neumonía"
+      ],
+      "multi": false
+    },
+    {
+      "id": "40qq98",
+      "tipo": "alt",
+      "texto": "El equipo de farmacia clínica del hospital quiere saber qué tan grave es la neumonía en las personas que ya la tienen. ¿Qué medida responde esa pregunta?",
+      "opciones": [
+        "Tasa de mortalidad general",
+        "Tasa de mortalidad por neumonía",
+        "Mortalidad proporcional por neumonía",
+        "Letalidad de la neumonía"
+      ],
+      "multi": false
+    }
+  ]
+}

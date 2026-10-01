@@ -1,0 +1,46 @@
+{
+  "nombre": "clase-12-2",
+  "p": [
+    {
+      "id": "c122-af8l1e",
+      "tipo": "alt",
+      "texto": "Con este diseño, ¿qué medida de asociación corresponde calcular?",
+      "opciones": [
+        "Riesgo relativo",
+        "Razón de prevalencias",
+        "Diferencia de riesgos",
+        "Odds ratio"
+      ],
+      "multi": false
+    },
+    {
+      "id": "c122-abu6of",
+      "tipo": "alt",
+      "texto": "¿Cuál es el valor del odds ratio?",
+      "opciones": [
+        "1,0",
+        "0,33",
+        "3,0",
+        "2,0"
+      ],
+      "multi": false
+    },
+    {
+      "id": "c122-40qq98",
+      "tipo": "alt",
+      "texto": "¿Qué frase interpreta correctamente el resultado?",
+      "opciones": [
+        "Los casos tuvieron odds de uso tres veces la de los controles",
+        "El 50% de quienes usaban benzodiacepinas sufrió una fractura",
+        "Las benzodiacepinas triplicaron las fracturas de cadera",
+        "La prevalencia de uso fue tres veces mayor en la población"
+      ],
+      "multi": false
+    },
+    {
+      "id": "c122-42zndu",
+      "tipo": "abi",
+      "texto": "En una encuesta de un solo día a 200 clientes de una farmacia, 30 de los 100 que usan 3 o más medicamentos declararon mareos en el último mes, frente a 15 de los 100 que usan menos de 3. Nombra y calcula la medida de asociación adecuada, interprétala en una frase y explica por qué no corresponde llamarla riesgo relativo."
+    }
+  ]
+}
