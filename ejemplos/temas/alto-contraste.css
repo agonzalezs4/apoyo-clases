@@ -1,0 +1,16 @@
+/* Tema de ejemplo: alto contraste para salas con mucha luz o proyectores débiles.
+   Para usarlo, copia este archivo sobre tema.css. */
+:root {
+  --color-principal:        #000000;
+  --color-sobre-principal:  #FFFFFF;
+  --color-acento:           #FFB000;
+  --color-fondo:            #FFFFFF;
+  --color-superficie:       #FFFFFF;
+  --color-texto:            #000000;
+  --color-texto-suave:      #333333;
+  --color-borde:            #666666;
+  --color-error:            #B00020;
+  --fuente: "Atkinson Hyperlegible", system-ui, Arial, sans-serif;
+  --fuente-cifras: var(--fuente);
+  --radio: 0px;
+}

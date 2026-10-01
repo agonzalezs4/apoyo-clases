@@ -1,43 +1,23 @@
-// Pega aquí la URL de la aplicación web de Apps Script (termina en /exec)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS4JLMcGJLLN6mSAQxQYbNolY0fpp0BKnBY4A8GH84Ai9keizha_hT2hqho7mvPPDg/exec";
+/* =====================================================================
+   config.js — la configuración del sitio. Es lo único que hay que editar
+   (o genera este archivo con configurar.html y reemplázalo).
+   ===================================================================== */
+const CONFIG = {
+  // Dónde se guardan las respuestas. Pega la dirección que te entregó la instalación (docs/INSTALACION.md):
+  //  - Servidor propio (Docker):         "/api"  → la misma dirección donde están estas páginas
+  //  - Google Apps Script:               "https://script.google.com/macros/s/…/exec"
+  //  - Office Scripts + Power Automate:  la dirección del desencadenador HTTP (muy larga, con sig=…)
+  API_URL: "/api",
 
-/* ----- No es necesario editar lo que sigue ----- */
-async function api(params) {
-  if (SCRIPT_URL.startsWith("PEGA")) throw new Error("falta pegar SCRIPT_URL en config.js");
-  const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params) + "&_=" + Date.now());
-  const d = await r.json();
-  if (d.error) throw new Error(d.error);
-  return d;
-}
+  // Textos que aparecen en las páginas (vacío = no se muestra)
+  INSTITUCION: "",   // p. ej. "Universidad de Ejemplo"
+  CURSO: "",         // p. ej. "Epidemiología 2026"
 
-const $ = id => document.getElementById(id);
-const SEP = " ‖ "; // separa alternativas cuando se marcan varias
-const DIGITOS_CODIGO = 5; // dígitos del código de sorteo, tras la letra (igual que DIGITOS en apps-script/Codigo.gs)
-const TIPOS = { alt: "Alternativas", esc: "Escala", abi: "Abierta", num: "Número" };
+  // Enlace corto que los estudiantes pueden escribir a mano (opcional; vacío = se muestra la dirección completa).
+  // Con "tinyurl.com/mi-curso/" la pantalla dice «tinyurl.com/mi-curso/10-1» para la clase «clase-10-1»
+  // (ver docs/PERSONALIZACION.md para crear ese enlace).
+  ENLACE_CORTO: "",
+  PREFIJO_CLASE: "clase-",  // parte del nombre de la clase que se omite en el enlace corto
 
-// Las preguntas viajan dentro del enlace, comprimidas
-function empaquetar(obj) { return LZString.compressToEncodedURIComponent(JSON.stringify(obj)); }
-function desempaquetar(s) {
-  try { return JSON.parse(LZString.decompressFromEncodedURIComponent(s)); } catch (e) { return null; }
-}
-
-// Solo lo que necesita el celular del estudiante (QR más liviano)
-function paraVotar(p) {
-  const o = { id: p.id, tipo: p.tipo, texto: p.texto };
-  if (p.tipo === "alt") { o.opciones = p.opciones; if (p.multi) o.multi = 1; }
-  if (p.tipo === "esc") { o.min = p.min; o.max = p.max; if (p.etqMin) o.etqMin = p.etqMin; if (p.etqMax) o.etqMax = p.etqMax; }
-  if (p.tipo === "num" && p.unidad) o.unidad = p.unidad;
-  return o;
-}
-
-function aNumero(s) {
-  const t = String(s).trim().replace(/\s/g, "").replace(/%$/, "").replace(",", "."); // «10,5 %» vale 10,5
-  if (t === "") return null;
-  const x = Number(t);
-  return Number.isFinite(x) ? x : null;
-}
-function formatear(x, dec = 1) { return x.toLocaleString("es-CL", { maximumFractionDigits: dec }); }
-function mediana(v) {
-  const s = [...v].sort((a, b) => a - b), m = Math.floor(s.length / 2);
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-}
+  DIGITOS_CODIGO: 5,        // dígitos del código de sorteo tras la letra (igual que en el backend)
+};

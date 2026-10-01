@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Presentar</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fuentes/fuentes.css">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="estilos.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="lib/lz-string.min.js"></script>
+<script src="lib/qrcode.js"></script>
 <script src="config.js"></script>
-<script src="repo.js"></script>
+<script src="comun.js"></script>
+<script src="clases.js"></script>
 <script src="profesor.js"></script>
 <style>
   body {
@@ -47,10 +47,10 @@
   .nube span { font-weight: 700; }
   .nube .repetida { color: var(--barra); }
   .lista { columns: 3 260px; column-gap: 16px; max-height: 62vh; overflow: auto; }
-  .lista p { break-inside: avoid; margin: 0 0 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; font-size: clamp(16px, 1.6vw, 22px); }
+  .lista p { break-inside: avoid; margin: 0 0 12px; padding: 12px 14px; background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; font-size: clamp(16px, 1.6vw, 22px); }
 
   /* QR */
-  #qrpanel { text-align: center; background: #fff; padding: 16px; border: 1px solid var(--riel); }
+  #qrpanel { text-align: center; background: var(--superficie); padding: 16px; border: 1px solid var(--riel); }
   #qrpanel img { width: clamp(170px, 21vw, 320px); height: auto; image-rendering: pixelated; display: block; }
   #qrpanel p { margin: 8px 0 0; font-size: 17px; color: var(--suave); }
   .oculto-qr #qrpanel { display: none; }
@@ -59,16 +59,16 @@
 
   /* Sorteo de la tanda */
   dialog { width: min(920px, 94vw); max-height: 90vh; overflow: auto; padding: clamp(16px, 2.4vw, 32px); background: var(--papel); color: var(--tinta); border: 1px solid var(--riel); border-radius: 6px; }
-  dialog::backdrop { background: rgba(16, 43, 66, .55); }
+  dialog::backdrop { background: rgba(0, 0, 0, .55); }
   dialog h2 { margin: 0 0 6px; font-size: clamp(22px, 2.4vw, 32px); }
   dialog p { margin: 0 0 12px; }
   dialog .ayuda { color: var(--suave); }
-  dialog button { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  dialog button { font-size: 16px; padding: 8px 14px; background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; }
   dialog button:hover { border-color: var(--suave); }
-  dialog button.principal { background: var(--barra); border-color: var(--barra); color: #fff; }
+  dialog button.principal { background: var(--barra); border-color: var(--barra); color: var(--sobre-barra); }
   dialog button:disabled { opacity: .5; cursor: default; }
-  dialog input[type=text], dialog input[type=number] { font: inherit; padding: 6px 10px; border: 1px solid var(--riel); border-radius: 4px; background: #fff; color: var(--tinta); }
-  dialog fieldset { margin: 0 0 12px; padding: 10px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  dialog input[type=text], dialog input[type=number] { font: inherit; padding: 6px 10px; border: 1px solid var(--riel); border-radius: 4px; background: var(--superficie); color: var(--tinta); }
+  dialog fieldset { margin: 0 0 12px; padding: 10px 14px; background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; }
   dialog legend { float: left; width: 100%; padding: 0; margin: 0 0 6px; font-weight: 700; } /* como un título normal, sin que el borde lo atraviese */
   dialog legend + * { clear: both; }
   dialog summary { cursor: pointer; font-weight: 700; margin-bottom: 10px; }
@@ -77,14 +77,14 @@
   .escalaCorr { display: flex; flex-wrap: wrap; gap: 2px 20px; }
   .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
   .premiados { display: flex; flex-wrap: wrap; gap: 10px 14px; margin: 10px 0 18px; }
-  .premiados span { padding: 4px 16px; border: 3px solid var(--barra); border-radius: 6px; background: #fff; font-family: var(--uss-fuente-cifras); font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; letter-spacing: .08em; }
+  .premiados span { padding: 4px 16px; border: 3px solid var(--barra); border-radius: 6px; background: var(--superficie); font-family: var(--fuente-cifras); font-size: clamp(30px, 4.4vw, 64px); font-weight: 700; letter-spacing: .08em; }
   #sorteoVerif { font-size: 18px; margin-top: 8px; }
 
   footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  footer button, footer a { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; text-decoration: none; color: var(--tinta); }
+  footer button, footer a { font-size: 16px; padding: 8px 14px; background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; text-decoration: none; color: var(--tinta); }
   footer button:hover, footer a:hover { border-color: var(--suave); }
   footer #btnVotacion { font-weight: 700; }
-  footer #btnVotacion.cerrada { background: var(--barra); border-color: var(--barra); color: #fff; } /* a la vista: la tanda espera que la abras */
+  footer #btnVotacion.cerrada { background: var(--barra); border-color: var(--barra); color: var(--sobre-barra); } /* a la vista: la tanda espera que la abras */
   footer button:disabled { opacity: .5; cursor: default; }
   #estado { margin-left: auto; color: var(--suave); font-size: 15px; }
   @media (max-width: 720px) {
@@ -97,6 +97,7 @@
 </head>
 <body>
   <header>
+    <p class="marca"></p>
     <p id="meta">Cargando…</p>
     <h1 id="pregunta"></h1>
   </header>
@@ -125,7 +126,7 @@
 <dialog id="dlgSorteo" aria-labelledby="sorteoTitulo">
   <h2 id="sorteoTitulo">Sorteo de la tanda</h2>
   <p id="sorteoAbierta" class="error" hidden>La votación sigue abierta: ciérrala antes de mostrar las respuestas correctas, para que nadie responda después de verlas.</p>
-  <p class="ayuda">Marca la respuesta correcta de cada pregunta (en las de escala solo si tienen una; si no, no cuentan). Los votos de toda la tanda se leen de Google <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
+  <p class="ayuda">Marca la respuesta correcta de cada pregunta (en las de escala solo si tienen una; si no, no cuentan). Los votos de toda la tanda se leen del servidor <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
   <details id="sorteoDetalle" open>
     <summary>Respuestas correctas</summary>
     <div id="sorteoPreguntas"></div>
@@ -133,7 +134,7 @@
   <p>Premiar a los códigos con <input id="sorteoPct" type="number" min="1" max="100" value="50" inputmode="numeric"> % o más de las preguntas buenas <b id="sorteoMinTexto"></b></p>
   <div class="acciones">
     <button id="btnCalcular" class="principal">Calcular premiados</button>
-    <button id="btnRefrescar" hidden title="Vuelve a leer los votos de Google (por si llegaron más)">Actualizar votos</button>
+    <button id="btnRefrescar" hidden title="Vuelve a leer los votos del servidor (por si llegaron más)">Actualizar votos</button>
     <button id="btnCerrarSorteo">Cerrar</button>
   </div>
   <p id="sorteoMsg" class="ayuda" aria-live="polite"></p>
@@ -155,6 +156,7 @@ let cambiandoVotacion = false;
 iniciar();
 
 async function iniciar() {
+  pintarMarca();
   try {
     if (nombreClase) {
       clase = await cargarClase(nombreClase);
@@ -191,7 +193,7 @@ function mostrar() {
     // dentro de votar.html. Así no vuelve a cargar la página (ni a caer en otro navegador) en cada pregunta.
     url = new URL(`votar.html?clase=${c}`, location.href).href;
     $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b><br><small>Una sola vez: sirve para toda la tanda.<br>Al final, pulsa «Responder»</small>";
-    $("corto").querySelector("b").textContent = "tinyurl.com/epi-uss/" + nombreClase.replace(/^clase-/, "");
+    $("corto").querySelector("b").textContent = enlaceParaEscribir(nombreClase); // enlace corto de config.js o la dirección completa
   } else {
     history.replaceState(null, "", `?i=${i}#${datosClase}`);
     url = new URL("votar.html#" + empaquetar(paraVotar(p)), location.href).href;
@@ -234,8 +236,8 @@ async function actualizar(forzar) {
     } else {
       ({ alt: dibujarAlt, esc: dibujarEsc, abi: dibujarAbi, num: dibujarNum })[p.tipo](p, d.respuestas);
     }
-    // Sin "version" 3, el Apps Script publicado es anterior: sin accion=lote (2) los celulares no podrían enviar; sin "abrir" (3), no se puede abrir la votación
-    $("error").textContent = d.version >= 3 ? "" : "El Apps Script publicado es una versión anterior" + (d.version >= 2 ? " (sin «Abrir votación»)" : ": los celulares no podrán enviar") + ". Pega el Codigo.gs nuevo, ejecuta «autorizar» y luego Implementar › Administrar implementaciones › (lápiz) › Versión: Nueva versión › Implementar.";
+    // Sin "version" 3, el backend publicado es anterior: sin accion=lote (2) los celulares no podrían enviar; sin "abrir" (3), no se puede abrir la votación
+    $("error").textContent = d.version >= 3 ? "" : "El backend publicado es una versión anterior" + (d.version >= 2 ? " (sin «Abrir votación»)" : ": los celulares no podrán enviar") + ". Actualízalo con la versión de este sitio (docs/INSTALACION.md); en Apps Script: pega el Codigo.gs nuevo, ejecuta «configurar» e implementa una Nueva versión.";
     $("estado").textContent = "Actualizado " + new Date().toLocaleTimeString("es-CL");
   } catch (e) {
     $("error").textContent = "No pude leer las respuestas: " + e.message;

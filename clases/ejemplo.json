@@ -1,0 +1,32 @@
+{
+  "nombre": "ejemplo",
+  "p": [
+    {
+      "id": "ej-alt1",
+      "tipo": "alt",
+      "texto": "¿Qué parte de la clase anterior te costó más?",
+      "opciones": ["Los conceptos", "Los ejercicios", "La lectura", "Nada en particular"],
+      "multi": true
+    },
+    {
+      "id": "ej-abi1",
+      "tipo": "abi",
+      "texto": "Escribe en una palabra lo primero que asocias con el tema de hoy."
+    },
+    {
+      "id": "ej-esc1",
+      "tipo": "esc",
+      "texto": "¿Qué tan preparado o preparada llegas a esta clase?",
+      "min": 1,
+      "max": 5,
+      "etqMin": "Nada",
+      "etqMax": "Totalmente"
+    },
+    {
+      "id": "ej-num1",
+      "tipo": "num",
+      "texto": "¿Cuántas horas dedicaste a este curso la semana pasada?",
+      "unidad": "horas"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+/* =====================================================================
+   tema.css — colores, letra y forma del sitio.
+   Es el ÚNICO archivo de estilo que hace falta tocar para dejarlo con la
+   imagen de tu curso o universidad. También lo genera configurar.html.
+   Hay temas de ejemplo en ejemplos/temas/.
+   ===================================================================== */
+:root {
+  /* ---- Colores ---- */
+  --color-principal:    #1F4E79;  /* barras de resultados, botones principales, títulos */
+  --color-sobre-principal: #FFFFFF; /* texto que va encima del color principal (botones) */
+  --color-acento:       #C9A227;  /* contorno del foco (teclado) y subrayado de enlaces */
+  --color-fondo:        #F4F6F8;  /* fondo de las páginas */
+  --color-superficie:   #FFFFFF;  /* tarjetas, botones, cuadros de texto */
+  --color-texto:        #14213D;
+  --color-texto-suave:  #55637A;  /* ayudas, metadatos, textos secundarios */
+  --color-borde:        #CBD3DD;  /* bordes y rieles de las barras */
+  --color-error:        #9A3B1B;
+
+  /* ---- Letra ----
+     "Atkinson Hyperlegible" viene incluida (fuentes/). Para usar solo la letra del sistema, deja
+     la lista a partir de system-ui. Para otra fuente, ver docs/PERSONALIZACION.md. */
+  --fuente: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fuente-cifras: var(--fuente);  /* números: conteos, porcentajes y códigos del sorteo (p. ej. una condensada) */
+
+  /* ---- Forma ---- */
+  --radio: 6px;  /* redondeo de botones y tarjetas (0 = esquinas rectas) */
+}

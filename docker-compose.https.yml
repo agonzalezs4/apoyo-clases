@@ -1,0 +1,34 @@
+# Igual que docker-compose.yml, pero expuesto a internet con HTTPS automático (Caddy pide el certificado solo).
+# Necesitas un dominio que apunte a este servidor y los puertos 80 y 443 abiertos. En .env agrega DOMINIO=clases.midominio.cl
+#   docker compose -f docker-compose.https.yml up -d
+services:
+  recolector:
+    build: .
+    image: recolector-respuestas
+    container_name: recolector
+    env_file:
+      - .env
+    volumes:
+      - ./datos:/app/datos
+      - ./clases:/app/clases
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: recolector-caddy
+    depends_on:
+      - recolector
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMINIO=${DOMINIO:?Falta DOMINIO en .env}
+    command: caddy reverse-proxy --from "${DOMINIO}" --to recolector:8080
+    volumes:
+      - caddy_datos:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy_datos:
+  caddy_config:

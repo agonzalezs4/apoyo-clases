@@ -4,25 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Preguntas de la clase</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fuentes/fuentes.css">
+<link rel="stylesheet" href="tema.css">
 <link rel="stylesheet" href="estilos.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="lib/lz-string.min.js"></script>
+<script src="lib/qrcode.js"></script>
 <script src="config.js"></script>
-<script src="repo.js"></script>
+<script src="comun.js"></script>
+<script src="clases.js"></script>
 <script src="profesor.js"></script>
 <script>
-// Solo el profesor: la clave la comprueba el Apps Script (con límite de intentos), no esta página
+// Solo el profesor: la clave la comprueba el backend (con límite de intentos), no esta página
 protegerPagina();
 </script>
 <style>
   main { max-width: 820px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 34px; margin: 0 0 6px; }
   .titulo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  .titulo .botones { display: flex; gap: 8px; flex-wrap: wrap; }
   h2 { font-size: 24px; margin: 0 0 12px; }
   .ayuda { color: var(--suave); font-size: 18px; margin: 0 0 24px; line-height: 1.4; }
-  .panel { background: #fff; border: 1px solid var(--riel); border-radius: 6px; padding: 18px 20px; margin-bottom: 28px; }
+  .panel { background: var(--superficie); border: 1px solid var(--riel); padding: 18px 20px; margin-bottom: 28px; }
   .panel ol { padding-left: 1.3em; line-height: 1.5; font-size: 17px; }
   .panel li { margin-bottom: 8px; overflow-wrap: anywhere; }
   .clase { border-top: 1px solid var(--riel); padding: 10px 0; }
@@ -31,7 +33,7 @@ protegerPagina();
   .fila-clase .links { margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   .enlaces { margin: 10px 0 0; }
   .enlaces .txt { display: block; color: var(--suave); font-size: 15px; }
-  .tarjeta { background: #fff; border: 1px solid var(--riel); border-radius: 6px; padding: 18px 20px; margin-bottom: 16px; }
+  .tarjeta { background: var(--superficie); border: 1px solid var(--riel); padding: 18px 20px; margin-bottom: 16px; }
   .cabeza { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
   .cabeza .num { font-weight: 700; font-size: 22px; }
   .cabeza .tipo { color: var(--suave); }
@@ -45,7 +47,7 @@ protegerPagina();
   textarea:focus, input:focus { outline: 2px solid var(--barra); outline-offset: 0; }
   .fila4 { display: grid; grid-template-columns: 90px 90px 1fr 1fr; gap: 12px; }
   .nota { color: var(--suave); margin: 10px 0 0; }
-  button { font-size: 15px; padding: 7px 12px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+  button { font-size: 15px; padding: 7px 12px; background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; }
   button:hover:not(:disabled) { border-color: var(--suave); }
   button:disabled { opacity: .4; cursor: default; }
   .nombre-clase { margin: 0 0 20px; }
@@ -53,28 +55,44 @@ protegerPagina();
   .agregar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 20px 0 32px; }
   .agregar span { margin-right: 4px; }
   .acciones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
-  .principal { background: var(--barra); border-color: var(--barra); color: #fff; font-size: 18px; padding: 10px 20px; }
+  .principal { background: var(--barra); border-color: var(--barra); color: var(--sobre-barra); font-size: 18px; padding: 10px 20px; }
   .principal:hover:not(:disabled) { border-color: var(--tinta); }
   #aviso { color: var(--suave); font-size: 17px; }
   #aviso:empty { display: none; }
+  #panelQR .qr-botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  #qrZona { text-align: center; margin-top: 18px; }
+  #qrImg { width: 260px; max-width: 100%; image-rendering: pixelated; }
+  #qrTexto { font-size: 18px; overflow-wrap: anywhere; margin: 8px 0 0; }
+  #qrZona:fullscreen { background: var(--superficie); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #qrZona:fullscreen #qrImg { width: min(75vh, 90vw); }
+  #qrZona:fullscreen #qrTexto { font-size: 4vh; color: var(--tinta); }
   @media (max-width: 620px) { .fila4 { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
 <body>
 <main>
-  <div class="titulo"><h1>Preguntas de la clase</h1><button id="btnSalir" title="Cierra la sesión de profesor en este navegador">Cerrar sesión</button></div>
-  <p class="ayuda">Arma las preguntas aquí y publícalas en el repositorio. Cada clase publicada tiene su propia dirección,
-    y cada pregunta, su propio enlace para proyectarla. La hoja de cálculo solo recibe las respuestas.</p>
+  <p class="marca"></p>
+  <div class="titulo">
+    <h1>Preguntas de la clase</h1>
+    <span class="botones">
+      <button id="btnExportar" hidden title="Descarga todas las respuestas guardadas en el servidor, en una planilla CSV">Descargar respuestas (CSV)</button>
+      <button id="btnSalir" title="Cierra la sesión de profesor en este navegador">Cerrar sesión</button>
+    </span>
+  </div>
+  <p class="ayuda">Arma las preguntas aquí y publícalas. Cada clase publicada tiene su propia dirección, y cada pregunta,
+    su propio enlace para proyectarla. El servidor solo recibe las respuestas.
+    <a href="configurar.html" title="Colores, letra, textos y dirección del backend">Configurar el sitio</a></p>
 
   <section class="panel">
     <h2>Clases publicadas</h2>
     <div id="clases">Cargando…</div>
   </section>
+
   <!-- ===== Generador de QR ===== -->
   <section class="panel" id="panelQR">
     <h2>Generar un QR</h2>
     <label>Enlace
-      <input id="qrEnlace" value="https://tinyurl.com/epi-uss/" placeholder="https://tinyurl.com/epi-uss/10-1" autocomplete="off">
+      <input id="qrEnlace" placeholder="https://…" autocomplete="off">
     </label>
     <div class="qr-botones">
       <button id="qrCrear" class="principal">Crear QR</button>
@@ -86,53 +104,7 @@ protegerPagina();
       <p id="qrTexto"></p>
     </div>
   </section>
-  <style>
-    #panelQR .qr-botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    #qrZona { text-align: center; margin-top: 18px; }
-    #qrImg { width: 260px; max-width: 100%; image-rendering: pixelated; }
-    #qrTexto { font-size: 18px; overflow-wrap: anywhere; margin: 8px 0 0; }
-    #qrZona:fullscreen { background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    #qrZona:fullscreen #qrImg { width: min(75vh, 90vw); }
-    #qrZona:fullscreen #qrTexto { font-size: 4vh; color: var(--tinta); }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-  <script>
-  (() => {
-    const el = id => document.getElementById(id);
-    let nombre = "qr";
-    function crear() {
-      let t = el("qrEnlace").value.trim();
-      if (!t) return;
-      if (!/^[a-z]+:\/\//i.test(t) && /^\S+\.\S+$/.test(t)) t = "https://" + t;
-      const qr = qrcode(0, "M");
-      qr.addData(unescape(encodeURIComponent(t)));
-      qr.make();
-      el("qrImg").src = qr.createDataURL(16, 4);
-      el("qrTexto").textContent = t.replace(/^https?:\/\//, "");
-      el("qrZona").hidden = false;
-      el("qrDescargar").disabled = el("qrGrande").disabled = false;
-      nombre = "qr-" + t.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").slice(0, 60);
-    }
-    el("qrEnlace").addEventListener("focus", e => {
-      const n = e.target.value.length;
-      setTimeout(() => e.target.setSelectionRange(n, n), 0);
-    });
-    el("qrCrear").onclick = crear;
-    el("qrEnlace").addEventListener("keydown", e => { if (e.key === "Enter") crear(); });
-    el("qrDescargar").onclick = () => {
-      const img = el("qrImg"), c = document.createElement("canvas");
-      c.width = img.naturalWidth; c.height = img.naturalHeight;
-      const ctx = c.getContext("2d");
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, 0, 0);
-      const a = document.createElement("a");
-      a.href = c.toDataURL("image/png");
-      a.download = nombre + ".png";
-      a.click();
-    };
-    el("qrGrande").onclick = () => el("qrZona").requestFullscreen?.();
-  })();
-  </script>
+
   <h2>Editor</h2>
   <label class="nombre-clase">Nombre de la clase (se usa en la dirección; por ejemplo clase-05)
     <input id="nombre" placeholder="clase-05" autocomplete="off"></label>
@@ -148,7 +120,7 @@ protegerPagina();
   </div>
 
   <div class="acciones">
-    <button id="btnPublicar" class="principal">Publicar en el repositorio</button>
+    <button id="btnPublicar" class="principal">Publicar</button>
     <button id="btnPresentar">Probar sin publicar</button>
     <button id="btnNueva">Empezar clase nueva</button>
   </div>
@@ -156,17 +128,25 @@ protegerPagina();
 
   <section id="panelPublicar" class="panel" hidden>
     <h2>Publicar «<span id="pubNombre"></span>»</h2>
-    <ol id="conGithub">
+    <!-- Servidor propio: se guarda directamente -->
+    <div id="conServidor" hidden>
+      <p>Se guarda como <b>clases/<span class="pubN"></span>.json</b> en el servidor y queda disponible al instante.
+        Si ya existía, se reemplaza.</p>
+      <p><button id="btnGuardarServidor" class="principal">Guardar en el servidor</button></p>
+    </div>
+    <!-- GitHub Pages: GitHub abre el archivo listo para confirmar -->
+    <ol id="conGithub" hidden>
       <li><a id="lnkNuevo" target="_blank" rel="noopener">Abrir GitHub con el archivo listo</a>.
         Revisa que el nombre del archivo diga <b>clases/<span class="pubN"></span>.json</b> y pulsa <b>Commit changes</b>.</li>
       <li>Si esta clase ya estaba publicada y la cambiaste, GitHub no te dejará crearla de nuevo. En ese caso
         <a id="lnkEditar" target="_blank" rel="noopener">abre el archivo existente</a>, borra su contenido,
         pega el nuevo con el botón de abajo y pulsa <b>Commit changes</b>.</li>
-      <li>En uno o dos minutos queda disponible. Presentar desde la primera pregunta:
-        <a id="lnkPresentar" target="_blank" rel="noopener"></a></li>
+      <li>En uno o dos minutos queda disponible.</li>
     </ol>
-    <p id="sinGithub" hidden>Abre este editor desde tu página de GitHub Pages para obtener los enlaces directos.
-      Mientras tanto, crea en GitHub el archivo <b>clases/<span class="pubN"></span>.json</b> y pega el contenido.</p>
+    <!-- Cualquier otro sitio estático: a mano -->
+    <p id="sinGithub" hidden>Crea el archivo <b>clases/<span class="pubN"></span>.json</b> en la carpeta <b>clases/</b> de tu sitio
+      (junto a estas páginas) y pega el contenido, o descárgalo y súbelo.</p>
+    <p id="pubPresentar" hidden>Presentar desde la primera pregunta: <a id="lnkPresentar" target="_blank" rel="noopener"></a></p>
     <button id="btnCopiarJSON">Copiar contenido del archivo</button>
     <button id="btnDescargar">Descargar archivo</button>
   </section>
@@ -177,6 +157,7 @@ const ALMACEN = "menti-clase";
 const qs = new URLSearchParams(location.search);
 const GH = repoGithub();
 let rama = "main";
+let modo = "manual"; // "servidor" (guarda en el backend), "github" (GitHub Pages) o "manual" (copiar el archivo)
 let clase = null;
 
 function aviso(t) { $("aviso").textContent = t; }
@@ -196,18 +177,20 @@ function nueva(tipo) {
   return p;
 }
 
+// Una clase de muestra para empezar (sirve para cualquier curso)
 function ejemplo() {
   const a = nueva("alt");
-  a.texto = "En un estudio de cohorte, ¿qué medida compara el riesgo entre expuestos y no expuestos?";
-  a.opciones = ["Odds ratio", "Riesgo relativo", "Prevalencia", "Tasa de mortalidad"];
+  a.texto = "¿Qué parte de la clase anterior te costó más?";
+  a.opciones = ["Los conceptos", "Los ejercicios", "La lectura", "Nada en particular"];
+  a.multi = true;
   const b = nueva("abi");
-  b.texto = "¿Qué palabra se te viene a la mente con «sesgo de selección»?";
+  b.texto = "Escribe en una palabra lo primero que asocias con el tema de hoy.";
   const c = nueva("esc");
-  c.texto = "¿Qué tan seguro te sientes calculando un riesgo relativo?";
+  c.texto = "¿Qué tan preparado o preparada llegas a esta clase?";
   c.etqMin = "Nada"; c.etqMax = "Totalmente";
   const d = nueva("num");
-  d.texto = "¿Qué porcentaje de adultos en Chile crees que fuma a diario?";
-  d.unidad = "%";
+  d.texto = "¿Cuántas horas dedicaste a este curso la semana pasada?";
+  d.unidad = "horas";
   return { nombre: "prueba", p: [a, b, c, d] };
 }
 
@@ -237,7 +220,7 @@ function tarjeta(p, idx) {
       <label>Texto del máximo<input data-campo="etqMax" value="${esc(p.etqMax)}" placeholder="Totalmente"></label>
     </div>`;
   if (p.tipo === "num") extra = `
-    <label>Unidad (opcional)<input data-campo="unidad" value="${esc(p.unidad)}" placeholder="%, años, casos por 100.000…"></label>`;
+    <label>Unidad (opcional)<input data-campo="unidad" value="${esc(p.unidad)}" placeholder="%, años, horas…"></label>`;
   if (p.tipo === "abi") extra = `
     <p class="nota">Texto libre. Cada estudiante envía una respuesta por ronda, junto con el resto de la tanda al pulsar «Responder». Para recoger otra tanda de respuestas, usa «Nueva ronda». Se muestra como nube o como lista.</p>`;
 
@@ -251,7 +234,7 @@ function tarjeta(p, idx) {
       </span>
     </div>
     <label>Pregunta<textarea data-campo="texto" rows="2" placeholder="Escribe la pregunta">${esc(p.texto)}</textarea></label>
-    <label>Página (opcional)<input data-campo="pagina" value="${esc(p.pagina)}" placeholder="policonsumo_prevalencia_vs_tasa.html"></label>
+    <label>Página que se muestra junto a la pregunta (opcional: un archivo .html de este sitio, p. ej. un gráfico interactivo)<input data-campo="pagina" value="${esc(p.pagina)}" placeholder="grafico.html"></label>
     ${extra}`;
 
   d.addEventListener("input", e => {
@@ -291,22 +274,24 @@ function revisar() {
     if (p.tipo === "alt" && p.opciones.length < 2) return `${n} necesita al menos dos alternativas.`;
     if (p.tipo === "alt" && p.opciones.some(o => o.includes("‖"))) return `${n} tiene el carácter ‖, que está reservado.`;
     if (p.tipo === "esc" && !(p.max > p.min && p.max - p.min <= 10)) return `${n}: la escala debe ir de menor a mayor y tener como máximo 11 valores.`;
+    if (p.pagina && !/^[\w./-]+\.html?$/i.test(p.pagina.trim())) return `${n}: la página debe ser un archivo .html de este sitio (p. ej. grafico.html), sin https://.`;
   }
   return "";
 }
 
 /* ---------- Publicar ---------- */
-function contenidoArchivo() {
-  return JSON.stringify({ nombre: clase.nombre, p: clase.p.map(({ idOrig, ...p }) => p) }, null, 2); // idOrig es solo del editor
+function objetoArchivo() {
+  return { nombre: clase.nombre, p: clase.p.map(({ idOrig, ...p }) => { if (p.pagina) p.pagina = p.pagina.trim(); else delete p.pagina; return p; }) }; // idOrig es solo del editor
 }
+function contenidoArchivo() { return JSON.stringify(objetoArchivo(), null, 2); }
 
 function publicar() {
   const error = revisar() || (!clase.nombre ? "Ponle un nombre a la clase antes de publicarla." : "");
   if (error) { aviso(error); return; }
   aviso("");
-  // Cada nombre de clase tiene sus propios ids: con los mismos ids, el Apps Script mezclaría respuestas, rondas y
+  // Cada nombre de clase tiene sus propios ids: con los mismos ids, el backend mezclaría respuestas, rondas y
   // códigos del sorteo de dos tandas. idsDe = nombre con que estos ids se publicaron por primera vez (o se abrieron
-  // del repositorio); con otro nombre se derivan de forma fija, así volver al nombre original recupera los ids publicados
+  // de las clases publicadas); con otro nombre se derivan de forma fija, así volver al nombre original recupera los ids publicados
   if (!clase.idsDe) clase.idsDe = clase.nombre;
   clase.p.forEach(p => { p.idOrig = p.idOrig || p.id; p.id = clase.nombre === clase.idsDe ? p.idOrig : idPara(p.idOrig, clase.nombre); });
   guardar();
@@ -316,36 +301,50 @@ function publicar() {
   const pres = new URL("presentar.html?clase=" + encodeURIComponent(clase.nombre), location.href).href;
   $("lnkPresentar").href = pres;
   $("lnkPresentar").textContent = pres.replace(/^https?:\/\//, "");
-  if (GH) {
+  if (modo === "github") {
     $("lnkNuevo").href = `https://github.com/${GH.usuario}/${GH.repo}/new/${rama}` +
       `?filename=${encodeURIComponent(ruta)}&value=${encodeURIComponent(contenidoArchivo())}`;
     $("lnkEditar").href = `https://github.com/${GH.usuario}/${GH.repo}/edit/${rama}/${ruta}`;
   }
-  $("conGithub").hidden = !GH;
-  $("sinGithub").hidden = !!GH;
+  $("conServidor").hidden = modo !== "servidor";
+  $("conGithub").hidden = modo !== "github";
+  $("sinGithub").hidden = modo !== "manual";
+  $("pubPresentar").hidden = modo === "servidor"; // en el servidor aparece cuando ya se guardó
+  $("btnGuardarServidor").disabled = false;
   $("panelPublicar").hidden = false;
   $("panelPublicar").scrollIntoView({ behavior: "smooth" });
 }
 
-/* ---------- Lista de clases del repositorio ---------- */
+// Servidor propio: la clase se guarda con la sesión del profesor y queda publicada al instante
+async function guardarEnServidor() {
+  const b = $("btnGuardarServidor");
+  b.disabled = true;
+  aviso("");
+  try {
+    const r = await apiProfesor({ accion: "guardarClase", nombre: clase.nombre, d: JSON.stringify(objetoArchivo()) });
+    if (!r) return; // el profesor canceló el acceso
+    $("pubPresentar").hidden = false;
+    aviso(`«${clase.nombre}» quedó publicada.`);
+    listarClases();
+  } catch (e) {
+    aviso("No pude guardar la clase: " + e.message);
+  } finally {
+    b.disabled = false;
+  }
+}
+
+/* ---------- Lista de clases publicadas ---------- */
 async function listarClases() {
   const cont = $("clases");
-  if (!GH) { cont.textContent = "La lista aparece cuando abres esta página desde GitHub Pages."; return; }
   try {
-    const info = await fetch(`https://api.github.com/repos/${GH.usuario}/${GH.repo}`).then(r => r.ok ? r.json() : null);
-    if (info && info.default_branch) rama = info.default_branch;
-    const r = await fetch(`https://api.github.com/repos/${GH.usuario}/${GH.repo}/contents/clases?ref=${rama}`);
-    if (r.status === 404) { cont.textContent = "Todavía no hay clases publicadas."; return; }
-    if (!r.ok) throw new Error("GitHub respondió " + r.status);
-    const nombres = (await r.json())
-      .filter(a => a.type === "file" && a.name.endsWith(".json"))
-      .map(a => a.name.slice(0, -5))
-      .sort((a, b) => a.localeCompare(b, "es", { numeric: true }));
+    const r = await listarClasesPublicadas(modo, GH);
+    if (!r) { cont.textContent = "La lista aparece cuando el sitio se sirve desde el servidor propio o desde GitHub Pages. Los enlaces directos (presentar.html?clase=…) funcionan igual."; return; }
+    if (r.rama) rama = r.rama;
     cont.innerHTML = "";
-    if (!nombres.length) { cont.textContent = "Todavía no hay clases publicadas."; return; }
-    nombres.forEach(n => cont.appendChild(filaClase(n)));
+    if (!r.nombres.length) { cont.textContent = "Todavía no hay clases publicadas."; return; }
+    r.nombres.forEach(n => cont.appendChild(filaClase(n)));
   } catch (e) {
-    cont.textContent = "No pude leer la lista desde GitHub (" + e.message + "). Los enlaces directos siguen funcionando.";
+    cont.textContent = "No pude leer la lista (" + e.message + "). Los enlaces directos siguen funcionando.";
   }
 }
 
@@ -399,10 +398,70 @@ function filaClase(n) {
   return d;
 }
 
+/* ---------- Generador de QR ---------- */
+(() => {
+  let nombre = "qr";
+  function crear() {
+    let t = $("qrEnlace").value.trim();
+    if (!t) return;
+    if (!/^[a-z]+:\/\//i.test(t) && /^\S+\.\S+$/.test(t)) t = "https://" + t;
+    const qr = qrcode(0, "M");
+    qr.addData(t);
+    qr.make();
+    $("qrImg").src = qr.createDataURL(16, 4);
+    $("qrTexto").textContent = t.replace(/^https?:\/\//, "");
+    $("qrZona").hidden = false;
+    $("qrDescargar").disabled = $("qrGrande").disabled = false;
+    nombre = "qr-" + t.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").slice(0, 60);
+  }
+  // Parte con el enlace corto configurado o con la dirección de este sitio
+  const corto = CONFIG.ENLACE_CORTO ? (/^https?:\/\//.test(CONFIG.ENLACE_CORTO) ? CONFIG.ENLACE_CORTO : "https://" + CONFIG.ENLACE_CORTO) : new URL(".", location.href).href;
+  $("qrEnlace").value = corto;
+  $("qrEnlace").addEventListener("focus", e => {
+    const n = e.target.value.length;
+    setTimeout(() => e.target.setSelectionRange(n, n), 0);
+  });
+  $("qrCrear").onclick = crear;
+  $("qrEnlace").addEventListener("keydown", e => { if (e.key === "Enter") crear(); });
+  $("qrDescargar").onclick = () => {
+    const img = $("qrImg"), c = document.createElement("canvas");
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 0, 0);
+    const a = document.createElement("a");
+    a.href = c.toDataURL("image/png");
+    a.download = nombre + ".png";
+    a.click();
+  };
+  $("qrGrande").onclick = () => $("qrZona").requestFullscreen?.();
+})();
+
+/* ---------- Descargar respuestas (solo el servidor propio) ---------- */
+async function exportar() {
+  const token = sesionGuardada() || await entrar("Para descargar las respuestas, entra como profesor.");
+  if (!token) return;
+  aviso("Preparando la descarga…");
+  try {
+    const r = await fetch(urlApi({ accion: "exportar", token }), { cache: "no-store" });
+    if ((r.headers.get("content-type") || "").includes("json")) { const d = await r.json(); throw new Error(d.error || "Respuesta inesperada"); }
+    if (!r.ok) throw new Error("El servidor respondió " + r.status);
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `respuestas-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    aviso("");
+  } catch (e) {
+    if (sesionVencida(e)) olvidarSesion();
+    aviso("No pude descargar las respuestas: " + e.message);
+  }
+}
+
 /* ---------- Eventos ---------- */
 $("nombre").addEventListener("input", e => {
-  const limpio = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
+  const limpio = limpiarNombreClase(e.target.value);
   if (limpio !== e.target.value) e.target.value = limpio;
   clase.nombre = limpio;
   $("panelPublicar").hidden = true;
@@ -415,6 +474,7 @@ document.querySelectorAll(".agregar button").forEach(b => b.onclick = () => {
   $("lista").lastElementChild.querySelector("textarea").focus();
 });
 $("btnPublicar").onclick = publicar;
+$("btnGuardarServidor").onclick = guardarEnServidor;
 $("btnPresentar").onclick = () => {
   const error = revisar();
   if (error) { aviso(error); return; }
@@ -433,8 +493,9 @@ $("btnSalir").onclick = async () => {
   await salirProfesor();
   location.reload();
 };
+$("btnExportar").onclick = exportar;
 $("btnCopiarJSON").onclick = async () => {
-  try { await navigator.clipboard.writeText(contenidoArchivo()); aviso("Contenido copiado. Pégalo en GitHub y pulsa Commit changes."); }
+  try { await navigator.clipboard.writeText(contenidoArchivo()); aviso("Contenido copiado."); }
   catch (e) { aviso("No pude copiar; usa Descargar archivo."); }
 };
 $("btnDescargar").onclick = () => {
@@ -447,13 +508,17 @@ $("btnDescargar").onclick = () => {
 
 /* ---------- Inicio ---------- */
 async function iniciar() {
+  pintarMarca();
+  const info = await infoBackend();
+  modo = info.clases ? "servidor" : GH ? "github" : "manual";
+  $("btnExportar").hidden = !info.exportar;
   if (qs.get("clase")) {
     try {
       clase = await cargarClase(qs.get("clase"));
       clase.nombre = clase.nombre || qs.get("clase");
       clase.idsDe = clase.nombre; // ids de esta clase publicada (ver publicar)
       clase.p.forEach(p => { p.idOrig = p.id; });
-      aviso(`Editando «${clase.nombre}». Cuando termines, pulsa Publicar para guardar los cambios en el repositorio.`);
+      aviso(`Editando «${clase.nombre}». Cuando termines, pulsa Publicar para guardar los cambios.`);
     } catch (e) { aviso(e.message); }
   }
   if (!clase) clase = desempaquetar(location.hash.slice(1));

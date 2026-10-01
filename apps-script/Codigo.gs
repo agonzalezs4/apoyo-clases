@@ -1,76 +1,62 @@
 /**
- * Recolector de respuestas (Menti casero) — versión para muchos estudiantes a la vez
- * No define preguntas: solo guarda lo que llega y devuelve lo guardado.
+ * Recolector de respuestas — backend en Google Apps Script (hoja de cálculo de Google)
+ * No define preguntas: solo guarda lo que llega y devuelve lo guardado. El contrato de la API está en docs/API.md.
  *
- * Instalación: Hoja de cálculo > Extensiones > Apps Script > pegar este código.
- * 1) Cambia CLAVE y SECRETO.  2) Ejecuta "autorizar" una vez.
- * 3) Implementar > Administrar implementaciones > (lápiz) > Versión: Nueva versión > Implementar.
- *    Así la URL /exec NO cambia y no hay que tocar config.js.
+ * INSTALACIÓN (detalle en docs/INSTALACION.md)
+ *  1) Crea una hoja de cálculo de Google → Extensiones › Apps Script → borra lo que haya y pega este archivo.
+ *  2) Configuración del proyecto (engranaje) › Propiedades del script › Agregar propiedad:
+ *        CLAVE_NUEVA = la clave de profesor que quieras (12 o más caracteres).
+ *     Si no agregas nada, el paso 3 genera una clave al azar y te la manda por correo.
+ *  3) En el editor elige la función «configurar» y pulsa Ejecutar. Acepta los permisos (hoja y correo).
+ *     Guarda SOLO un hash de la clave y borra CLAVE_NUEVA: la clave no queda escrita en ninguna parte.
+ *  4) Implementar › Nueva implementación › tipo «Aplicación web» › Ejecutar como: yo · Acceso: cualquier persona › Implementar.
+ *     Copia la URL que termina en /exec y pégala en config.js (API_URL).
+ *  Para actualizar el código más adelante: pega el nuevo, ejecuta «configurar» y luego
+ *  Implementar › Administrar implementaciones › (lápiz) › Versión: Nueva versión › Implementar (así la URL no cambia).
  *
- * Qué cambió respecto a la versión anterior:
- *  - Ya no se usa LockService: appendRow() es atómico, y el candado hacía que los votos se
- *    guardaran de a uno (con 100 niños a la vez, los últimos esperaban más de 15 s y fallaban).
- *  - La ronda de cada pregunta se guarda en CacheService (rápido) además de PropertiesService.
- *  - Se ignoran los envíos repetidos con el mismo código "v" (reintentos del celular).
- *  - "leer" (la pantalla del profesor) se guarda 2 s en caché: no recorre toda la hoja en cada consulta.
+ * SEGURIDAD
+ *  - La clave nunca está en este código ni en las páginas: solo su hash (SHA-256 con sal, 5000 iteraciones) en las
+ *    propiedades del script, que solo ve el dueño de la hoja. Para cambiarla: CLAVE_NUEVA + «configurar» otra vez.
+ *  - Tras INTENTOS_MAX fallos seguidos, «entrar» queda bloqueado MINUTOS_BLOQUEO minutos (y te llega un correo).
+ *  - Con CODIGO_POR_CORREO, además de la clave hace falta un código de 6 dígitos que llega a tu correo.
+ *  - Las acciones del profesor (abrir la votación, nueva ronda, sorteo) exigen una sesión que vence en HORAS_SESION.
+ *  - Funciones útiles desde el editor: «cerrarSesiones» (si usaste un PC ajeno) y «desbloquearAcceso».
  *
- * Código de sorteo (nuevo):
- *  - Cada celular elige 5 dígitos al azar y los envía con cada voto ("n"). Aquí se les antepone una
- *    letra verificadora que solo se puede calcular con SECRETO, y el código completo (ej. K48271) se
- *    guarda en la columna F y se devuelve al celular. Cero llamadas extra: viaja en el mismo "enviar".
- *  - "sorteo" lee la hoja UNA vez para todas las preguntas de la tanda y devuelve (código, pregunta,
- *    respuesta). La corrección la hace la pantalla del profesor: la alternativa correcta nunca sale de ahí.
- *  - En la hoja "Respuestas" agrega el encabezado "codigo" en la celda F1 (solo es una etiqueta).
- *
- * Envío por tanda (nuevo):
- *  - El celular ya no envía cada pregunta al tocarla: el estudiante puede cambiar sus alternativas y,
- *    al final, pulsa "Responder". "lote" recibe TODAS las respuestas en una sola consulta (d = JSON con
- *    [pregunta, respuesta, texto]) y devuelve el código y la ronda de cada pregunta. No es obligatorio
- *    responder todas: las que quedan en blanco viajan solo con su id y no generan fila en la hoja.
- *  - "estados" devuelve las rondas de toda la tanda en una sola consulta (antes era una por pregunta).
- *  - "enviar" y "estado" siguen existiendo por si algún celular tiene abierta la versión anterior.
- *  - Mientras un lote se escribe queda marcado "en curso": si el celular reintenta (la red cortó o
- *    Google tardó), el reintento no vuelve a escribir las filas. Si el lote falló a medias, el
- *    reintento sigue desde la primera fila que faltaba.
- *  - IMPORTANTE: implementa esta versión (Nueva versión; no basta con Guardar) ANTES de publicar el
- *    votar.html nuevo. Si presentar.html avisa «El Apps Script publicado es la versión anterior», falta ese paso.
- *
- * Apertura de la votación y acceso del profesor (nuevo):
- *  - Una tanda parte CERRADA: "lote" (y "enviar") rechazan las respuestas de las preguntas que no estén abiertas.
- *    El profesor la abre y la cierra con el botón «Abrir votación» de presentar.html ("abrir").
- *    "estados" devuelve también qué preguntas están abiertas, y así votar.html sabe cuándo mostrarlas.
- *  - La CLAVE ya no viaja en cada acción ni se guarda en el navegador: "entrar" la comprueba UNA vez y entrega
- *    una sesión (un token al azar) que vence en HORAS_SESION. "abrir", "ronda" y "sorteo" exigen esa sesión.
- *  - Fuerza bruta: tras INTENTOS_MAX fallos seguidos, "entrar" queda bloqueado MINUTOS_BLOQUEO minutos para
- *    todos (y te llega un correo de aviso). Una sesión ya abierta sigue funcionando durante el bloqueo.
- *  - Segundo paso (CODIGO_POR_CORREO): con la clave correcta, te llega al correo un código de 6 dígitos que
- *    vence en 10 minutos. Sin tu correo no se puede entrar, aunque alguien conozca la clave.
- *  - Tras pegar esta versión: ejecuta "autorizar" otra vez (pide el permiso para enviar correos) e implementa
- *    una Nueva versión. Funciones útiles desde el editor: "cerrarSesiones" (si usaste un PC ajeno y no
- *    cerraste sesión) y "desbloquearAcceso" (si te bloqueaste tú).
+ * CÓMO FUNCIONA
+ *  - appendRow() es atómico, así que no se usa LockService para los votos (con 100 celulares a la vez, un candado
+ *    los serializaba y los últimos esperaban más de 15 s). La ronda de cada pregunta va en CacheService y PropertiesService.
+ *  - "lote": todas las respuestas de la tanda en una consulta; los reintentos con el mismo "v" no duplican filas.
+ *  - Código de sorteo: el celular elige DIGITOS dígitos y aquí se antepone una letra verificadora (HMAC con SECRETO),
+ *    así nadie puede inventar un código. "sorteo" devuelve los votos de la tanda y el navegador del profesor corrige.
+ *  - Una tanda parte CERRADA: "lote" y "enviar" rechazan respuestas hasta que el profesor pulse «Abrir votación».
  */
 
-const CLAVE = "PON_AQUI_TU_CLAVE"; // la del acceso del profesor. Mejor larga (12 o más caracteres) y que no uses en otro sitio
-const SECRETO = "PON_AQUI_TU_SECRETO"; // solo tú lo sabes: de él sale la letra verificadora del código
+/* ---------- Ajustes (se pueden cambiar) ---------- */
 const CODIGO_POR_CORREO = true; // segundo paso al entrar: un código de 6 dígitos al correo (false = solo la clave)
-const CORREO_PROFESOR = ""; // adónde llega el código; vacío = el correo dueño de este script
-const HORAS_SESION = 12; // cuánto dura la sesión del profesor en un navegador
-const INTENTOS_MAX = 5; // fallos seguidos (clave o código) antes de bloquear el acceso
+const CORREO_PROFESOR = "";     // adónde llegan el código y los avisos; vacío = el correo dueño de este script
+const HORAS_SESION = 12;        // cuánto dura la sesión del profesor en un navegador
+const INTENTOS_MAX = 5;         // fallos seguidos (clave o código) antes de bloquear el acceso
 const MINUTOS_BLOQUEO = 15;
-const SIN_SESION = "Sesión vencida: vuelve a entrar"; // presentar.html e index.html reconocen este texto
+const DIGITOS = 5;              // largo de la parte numérica del código (igual que DIGITOS_CODIGO en config.js)
+
+/* ---------- No hace falta tocar lo que sigue ---------- */
+const VERSION = 4; // 2 = "lote"; 3 = "abrir" y "entrar"; 4 = "info" y clave con hash en las propiedades
+const ITERACIONES = 5000;
+const SIN_SESION = "Sesión vencida: vuelve a entrar"; // profesor.js reconoce este texto
 const CERRADA = "Votación cerrada"; // votar.html reconoce este texto
 const HOJA = "Respuestas";
-const DIGITOS = 5; // largo de la parte numérica del código (debe coincidir con DIGITOS_CODIGO en config.js)
 const LETRAS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // sin I ni O: se confunden con 1 y 0
 const RE_DIGITOS = new RegExp("^[1-9]\\d{" + (DIGITOS - 1) + "}$");
 const RE_CODIGO = new RegExp("^[" + LETRAS + "]\\d{" + DIGITOS + "}$");
 
 function doGet(e) {
-  const p = e.parameter;
+  const p = (e && e.parameter) || {};
   let out;
   try {
-    if (p.accion === "sorteo") {
-      out = sorteo_(p.qs, p.token); // recibe varias preguntas (qs), no una sola (q)
+    if (p.accion === "info") {
+      out = { version: VERSION, backend: "apps-script", clases: false, exportar: false, segundoPaso: CODIGO_POR_CORREO ? "correo" : "" };
+    } else if (p.accion === "sorteo") {
+      out = sorteo_(p.qs, p.token);
     } else if (p.accion === "entrar") {
       out = entrar_(p.clave, p.codigo);
     } else if (p.accion === "sesion") {
@@ -81,7 +67,7 @@ function doGet(e) {
     } else if (p.accion === "abrir") {
       out = abrir_(p.qs, p.abrir === "1", p.token);
     } else if (p.accion === "lote") {
-      out = lote_(p.d, p.v, p.n); // todas las respuestas de la tanda en una consulta
+      out = lote_(p.d, p.v, p.n);
     } else if (p.accion === "estados") {
       out = estados_(p.qs);
     } else {
@@ -102,11 +88,61 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-/* Ejecutar UNA vez desde el editor para dar permisos y crear la pestaña */
-function autorizar() {
+/* ====================== Configuración (ejecutar desde el editor) ====================== */
+
+/* Ejecutar UNA vez al instalar y cada vez que pegues una versión nueva o quieras cambiar la clave.
+   Crea la pestaña de respuestas, pide los permisos, genera el SECRETO y guarda el hash de la clave. */
+function configurar() {
+  const props = PropertiesService.getScriptProperties();
   hoja_();
-  MailApp.getRemainingDailyQuota(); // pide el permiso para enviar el código de acceso por correo
+  if (!props.getProperty("SECRETO")) props.setProperty("SECRETO", (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, ""));
+  const nueva = props.getProperty("CLAVE_NUEVA");
+  let aviso;
+  if (nueva) {
+    if (nueva.length < 8) throw new Error("CLAVE_NUEVA es muy corta: usa 8 caracteres o más (mejor 12) y vuelve a ejecutar configurar.");
+    props.setProperty("CLAVE_HASH", hashClave_(nueva));
+    props.deleteProperty("CLAVE_NUEVA"); // la clave en claro no queda guardada
+    aviso = "Clave guardada (solo su hash) y CLAVE_NUEVA borrada.";
+  } else if (!props.getProperty("CLAVE_HASH")) {
+    const generada = claveAlAzar_();
+    props.setProperty("CLAVE_HASH", hashClave_(generada));
+    MailApp.sendEmail(correo_(), "Tu clave de profesor (preguntas de la clase)",
+      "Se configuró el recolector de respuestas. Tu clave de profesor es:\n\n    " + generada +
+      "\n\nGuárdala en tu gestor de contraseñas. Para cambiarla: en Apps Script, Configuración del proyecto › Propiedades del script, " +
+      "agrega CLAVE_NUEVA con la clave que quieras y ejecuta «configurar» otra vez.");
+    aviso = "No había CLAVE_NUEVA: se generó una clave al azar y se envió a " + correo_() + ".";
+  } else {
+    aviso = "La clave ya estaba configurada (para cambiarla, agrega la propiedad CLAVE_NUEVA y ejecuta configurar otra vez).";
+  }
+  desbloquearAcceso();
+  if (CODIGO_POR_CORREO) MailApp.getRemainingDailyQuota(); // pide el permiso de correo si falta
+  Logger.log(aviso + "\nAhora: Implementar › Nueva implementación (o Administrar implementaciones › Nueva versión). Luego pega la URL /exec en config.js.");
 }
+
+/* Compatibilidad con las instrucciones antiguas */
+function autorizar() { configurar(); }
+
+/* Ejecutar desde el editor: cierra la sesión en todos los navegadores (p. ej. si dejaste abierta la del PC de la sala) */
+function cerrarSesiones() {
+  const props = PropertiesService.getScriptProperties();
+  Object.keys(props.getProperties()).forEach(k => { if (k.indexOf("ses_") === 0) props.deleteProperty(k); });
+}
+
+/* Ejecutar desde el editor si el bloqueo por intentos fallidos te dejó fuera a ti */
+function desbloquearAcceso() {
+  const props = PropertiesService.getScriptProperties();
+  ["acceso_bloqueado_hasta", "acceso_fallos", "acceso_codigo"].forEach(k => props.deleteProperty(k));
+}
+
+function claveAlAzar_() {
+  const abc = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
+  let s = "";
+  for (let i = 0; i < 14; i++) s += abc.charAt(parseInt(bytes.substr(i * 2, 2), 16) % abc.length);
+  return s;
+}
+
+/* ====================== Hoja y rondas ====================== */
 
 function hoja_() {
   const ss = SpreadsheetApp.getActive();
@@ -128,19 +164,25 @@ function ronda_(q) {
   return r;
 }
 
+/* ====================== Código de sorteo ====================== */
+
+function secreto_() {
+  const s = PropertiesService.getScriptProperties().getProperty("SECRETO");
+  if (!s) throw new Error("Falta ejecutar «configurar» en el Apps Script");
+  return s;
+}
+
 /* Letra verificadora: sale de los dígitos y de SECRETO (HMAC). Sin el secreto no se puede escribir a mano un código que el servidor no emitió */
 function letra_(digitos) {
-  const firma = Utilities.computeHmacSha256Signature(String(digitos), SECRETO);
+  const firma = Utilities.computeHmacSha256Signature(String(digitos), secreto_());
   return LETRAS.charAt((firma[0] & 255) % LETRAS.length);
 }
 
-function codigo_(digitos) {
-  return letra_(digitos) + digitos;
-}
+function codigo_(digitos) { return letra_(digitos) + digitos; }
 
-function codigoValido_(c) {
-  return RE_CODIGO.test(c) && letra_(c.slice(1)) === c.charAt(0);
-}
+function codigoValido_(c) { return RE_CODIGO.test(c) && letra_(c.slice(1)) === c.charAt(0); }
+
+/* ====================== Votos ====================== */
 
 function enviar_(q, r, t, v, n) {
   r = String(r || "").trim().slice(0, 500);
@@ -158,8 +200,7 @@ function enviar_(q, r, t, v, n) {
   }
   if (!estadoTanda_([q]).abiertas[q]) throw new Error(CERRADA);
   const ronda = ronda_(q);
-  // appendRow es atómico: no hace falta candado (y el candado serializaba a todos los estudiantes)
-  // El apóstrofo obliga a guardar como texto (evita fórmulas y conversiones a número/fecha)
+  // appendRow es atómico: no hace falta candado. El apóstrofo obliga a guardar como texto (evita fórmulas y conversiones)
   hoja_().appendRow([new Date(), "'" + q, ronda, "'" + t, "'" + r, codigo ? "'" + codigo : ""]);
   if (claveV) cache.put(claveV, String(ronda), 21600);
   return conCodigo_({ ok: true, ronda: ronda }, codigo);
@@ -205,7 +246,6 @@ function lote_(d, v, n) {
   let i = 0;
   try {
     const h = hoja_();
-    // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
     for (; i < items.length; i++) {
       const it = items[i];
       // lo ya escrito conserva la ronda con que quedó en la hoja (aunque luego se abriera una nueva ronda)
@@ -222,10 +262,8 @@ function lote_(d, v, n) {
   return out;
 }
 
-/* Rondas vigentes de toda la tanda en una sola consulta */
-function estados_(qs) {
-  return estadoTanda_(ids_(qs));
-}
+/* Rondas vigentes y apertura de toda la tanda en una sola consulta */
+function estados_(qs) { return estadoTanda_(ids_(qs)); }
 
 function ids_(qs) {
   const ids = String(qs || "").split(",").map(s => s.trim().slice(0, 40)).filter(Boolean).slice(0, 30);
@@ -258,9 +296,7 @@ function estadoTanda_(ids) {
   return { rondas: rondas, abiertas: abiertas };
 }
 
-function abierta_(q) {
-  return estadoTanda_([q]).abiertas[q];
-}
+function abierta_(q) { return estadoTanda_([q]).abiertas[q]; }
 
 /* Abre o cierra toda la tanda de una vez (solo el profesor) */
 function abrir_(qs, abrir, token) {
@@ -291,10 +327,9 @@ function leer_(q) {
   const respuestas = filas
     .filter(f => String(f[0]) === q && Number(f[1]) === ronda)
     .map(f => String(f[3]));
-  // version: presentar.html la usa para avisar si el Apps Script publicado es anterior (2 = "lote"; 3 = "abrir" y "entrar")
-  const out = { ronda: ronda, respuestas: respuestas, abierta: abierta_(q), version: 3 };
+  const out = { ronda: ronda, respuestas: respuestas, abierta: abierta_(q), version: VERSION };
   const s = JSON.stringify(out);
-  if (s.length < 90000) cache.put("leer_" + q, s, 2);
+  if (s.length < 90000) cache.put("leer_" + q, s, 2); // 2 s: el proyector consulta cada 3 s y no recorre la hoja cada vez
   return out;
 }
 
@@ -330,20 +365,21 @@ function nuevaRonda_(q, token) {
   return { ok: true, ronda: r };
 }
 
-/* ---------- Acceso del profesor ---------- */
-// La clave se comprueba solo aquí (nunca en la página, que es pública) y con límite de intentos.
+/* ====================== Acceso del profesor ====================== */
+// La clave se comprueba solo aquí (nunca en la página, que es pública), contra su hash y con límite de intentos.
 // Las propiedades "acceso_*" y "ses_*" viven en PropertiesService: sobreviven a la caché y son las mismas para todos.
 
 function entrar_(clave, codigo) {
-  if (CLAVE === "PON_AQUI_TU_CLAVE") throw new Error("Falta cambiar CLAVE en el Apps Script");
+  const props = PropertiesService.getScriptProperties();
+  const guardado = props.getProperty("CLAVE_HASH");
+  if (!guardado) throw new Error("Falta ejecutar «configurar» en el Apps Script (ver docs/INSTALACION.md)");
   const lock = LockService.getScriptLock(); // los intentos se atienden de a uno: no se pueden lanzar miles en paralelo
   if (!lock.tryLock(20000)) throw new Error("El servidor está ocupado: inténtalo de nuevo");
   try {
-    const props = PropertiesService.getScriptProperties();
     const ahora = Date.now();
     const hasta = Number(props.getProperty("acceso_bloqueado_hasta")) || 0;
     if (hasta > ahora) throw new Error("Demasiados intentos fallidos. Espera " + Math.ceil((hasta - ahora) / 60000) + " min y vuelve a intentarlo.");
-    if (!iguales_(String(clave || ""), CLAVE)) { fallo_(props); throw new Error("Clave incorrecta"); }
+    if (!verificarClave_(String(clave || ""), guardado)) { fallo_(props); throw new Error("Clave incorrecta"); }
     if (CODIGO_POR_CORREO) {
       codigo = String(codigo || "").replace(/\D/g, "");
       if (!codigo) return enviarCodigo_(props, ahora);
@@ -374,7 +410,8 @@ function fallo_(props) {
   try {
     MailApp.sendEmail(correo_(), "Acceso bloqueado por intentos fallidos",
       "Hubo " + INTENTOS_MAX + " intentos fallidos seguidos de entrar como profesor. El acceso queda bloqueado " + MINUTOS_BLOQUEO +
-      " minutos (las sesiones ya abiertas siguen funcionando).\n\nSi no fuiste tú, alguien está probando claves: conviene cambiar CLAVE en el Apps Script e implementar una nueva versión.");
+      " minutos (las sesiones ya abiertas siguen funcionando).\n\nSi no fuiste tú, alguien está probando claves: conviene cambiarla " +
+      "(propiedad CLAVE_NUEVA + ejecutar «configurar») e implementar una nueva versión.");
   } catch (err) {} // sin permiso de correo el bloqueo funciona igual
 }
 
@@ -386,7 +423,7 @@ function enviarCodigo_(props, ahora) {
   const codigo = String(parseInt(Utilities.getUuid().replace(/-/g, "").slice(0, 12), 16) % 1000000).padStart(6, "0");
   props.setProperty("acceso_codigo", JSON.stringify({ h: hash_(codigo), exp: ahora + 10 * 60000, t: ahora, n: 0 }));
   MailApp.sendEmail(correo, codigo + " es tu código de acceso (clases)",
-    "Código para entrar como profesor: " + codigo + "\n\nVence en 10 minutos. Si no lo pediste tú, alguien conoce tu clave: cámbiala en el Apps Script.");
+    "Código para entrar como profesor: " + codigo + "\n\nVence en 10 minutos. Si no lo pediste tú, alguien conoce tu clave: cámbiala (CLAVE_NUEVA + «configurar»).");
   return { paso: "codigo", correo: enmascarar_(correo) };
 }
 
@@ -412,18 +449,6 @@ function salir_(token) {
   return { ok: true };
 }
 
-/* Ejecutar desde el editor: cierra la sesión en todos los navegadores (p. ej. si dejaste abierta la del PC de la sala) */
-function cerrarSesiones() {
-  const props = PropertiesService.getScriptProperties();
-  Object.keys(props.getProperties()).forEach(k => { if (k.indexOf("ses_") === 0) props.deleteProperty(k); });
-}
-
-/* Ejecutar desde el editor si el bloqueo por intentos fallidos te dejó fuera a ti */
-function desbloquearAcceso() {
-  const props = PropertiesService.getScriptProperties();
-  ["acceso_bloqueado_hasta", "acceso_fallos", "acceso_codigo"].forEach(k => props.deleteProperty(k));
-}
-
 function correo_() {
   return CORREO_PROFESOR || Session.getEffectiveUser().getEmail();
 }
@@ -433,9 +458,30 @@ function enmascarar_(correo) {
   return m ? m[1] + "…" + m[2] : "tu correo";
 }
 
+/* ====================== Hashes ====================== */
+
 function hash_(s) {
-  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(s), Utilities.Charset.UTF_8)
-    .map(b => ("0" + (b & 255).toString(16)).slice(-2)).join("");
+  return aHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(s), Utilities.Charset.UTF_8));
+}
+
+function aHex_(bytes) {
+  return bytes.map(b => ("0" + (b & 255).toString(16)).slice(-2)).join("");
+}
+
+/* Hash de la clave: SHA-256 con sal al azar, repetido ITERACIONES veces. Formato: sha256i$iteraciones$sal$hash */
+function hashClave_(clave, sal, iteraciones) {
+  sal = sal || Utilities.getUuid().replace(/-/g, "");
+  iteraciones = iteraciones || ITERACIONES;
+  const salBytes = Utilities.newBlob(sal).getBytes();
+  let h = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, sal + String(clave), Utilities.Charset.UTF_8);
+  for (let i = 1; i < iteraciones; i++) h = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, h.concat(salBytes));
+  return "sha256i$" + iteraciones + "$" + sal + "$" + aHex_(h);
+}
+
+function verificarClave_(clave, guardado) {
+  const partes = String(guardado).split("$");
+  if (partes.length !== 4 || partes[0] !== "sha256i") return false;
+  return iguales_(hashClave_(clave, partes[2], Number(partes[1])), guardado);
 }
 
 /* Comparación de largo fijo: no revela por el tiempo de respuesta cuántos caracteres coinciden */

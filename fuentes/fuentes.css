@@ -1,0 +1,8 @@
+/* Fuentes locales (sin descargas de Google ni de otros servidores).
+   Atkinson Hyperlegible — Braille Institute of America, licencia SIL OFL 1.1 (LICENCIA-OFL.txt).
+   Solo el subconjunto latino, que alcanza para español: 4 archivos de unos 18 KB. El navegador descarga
+   únicamente los que la página usa. Para traer otra fuente: node herramientas/fuente.js "Nombre" (docs/PERSONALIZACION.md). */
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url("atkinson-hyperlegible-latin-400.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url("atkinson-hyperlegible-latin-700.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: italic; font-weight: 400; font-display: swap; src: url("atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-style: italic; font-weight: 700; font-display: swap; src: url("atkinson-hyperlegible-latin-700-italic.woff2") format("woff2"); }

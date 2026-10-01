@@ -1,0 +1,17 @@
+# Servidor propio en un contenedor. Antes: copia .env.ejemplo como .env y pon tu clave.
+#   docker compose up -d        → http://localhost:8080  (en la sala: http://IP-de-tu-computador:8080)
+#   docker compose logs -f      → ver qué pasa
+#   docker compose down         → apagar (las respuestas y las clases quedan en ./datos y ./clases)
+services:
+  recolector:
+    build: .
+    image: recolector-respuestas
+    container_name: recolector
+    ports:
+      - "${PUERTO_PUBLICO:-8080}:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./datos:/app/datos      # respuestas, estado y secretos
+      - ./clases:/app/clases    # clases publicadas desde el editor
+    restart: unless-stopped

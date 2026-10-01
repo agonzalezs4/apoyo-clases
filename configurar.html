@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurar el sitio</title>
+<link rel="stylesheet" href="fuentes/fuentes.css">
+<link rel="stylesheet" href="tema.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="config.js"></script>
+<style>
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 32px; margin: 0 0 6px; }
+  h2 { font-size: 22px; margin: 0 0 12px; }
+  .intro { color: var(--suave); font-size: 18px; max-width: 70ch; margin: 0 0 24px; }
+  .columnas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .panel { background: var(--superficie); border: 1px solid var(--riel); padding: 18px 20px; margin-bottom: 20px; }
+  label { display: block; font-size: 15px; color: var(--suave); margin-top: 12px; }
+  label.linea { display: flex; align-items: center; gap: 10px; color: var(--tinta); margin-top: 6px; }
+  input[type=text], input[type=url], input[type=number], textarea, select {
+    display: block; width: 100%; margin-top: 4px; font: inherit; font-size: 17px; color: var(--tinta);
+    padding: 8px 10px; border: 1px solid var(--riel); border-radius: 4px; background: var(--papel);
+  }
+  textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.4; }
+  .colores { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px 16px; }
+  .color { display: grid; grid-template-columns: 44px 1fr; gap: 8px; align-items: center; margin-top: 10px; }
+  .color span { grid-column: 1 / -1; font-size: 14px; color: var(--suave); }
+  .color input[type=color] { width: 44px; height: 36px; padding: 0; border: 1px solid var(--riel); border-radius: 4px; background: none; }
+  .color input[type=text] { margin: 0; font-family: ui-monospace, monospace; }
+  .nota { color: var(--suave); font-size: 15px; margin: 8px 0 0; }
+  button { font-size: 15px; padding: 8px 14px; background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; }
+  button:hover { border-color: var(--suave); }
+  .principal { background: var(--barra); border-color: var(--barra); color: var(--sobre-barra); font-size: 17px; padding: 10px 18px; }
+  .botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .alerta { color: var(--aviso); font-size: 15px; margin: 6px 0 0; }
+  .alerta:empty { display: none; }
+  .pegado { position: sticky; top: 16px; }
+  /* Vista previa: usa SUS propias variables, que se cambian desde el formulario */
+  #previa { padding: 20px; background: var(--p-fondo); color: var(--p-texto); font-family: var(--p-fuente); border: 1px solid var(--p-borde); border-radius: var(--p-radio); }
+  #previa .marca-p { margin: 0 0 4px; color: var(--p-suave); font-size: 13px; text-transform: uppercase; letter-spacing: .02em; }
+  #previa .marca-p:empty { display: none; }
+  #previa h3 { margin: 0 0 14px; font-size: 22px; color: var(--p-principal); line-height: 1.2; }
+  #previa .fila { display: grid; grid-template-columns: 110px 1fr auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+  #previa .riel { background: var(--p-borde); height: 24px; border-radius: 3px; overflow: hidden; }
+  #previa .relleno { background: var(--p-principal); height: 100%; }
+  #previa .valor { font-family: var(--p-cifras); font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right; }
+  #previa .meta { color: var(--p-suave); font-size: 14px; margin: 10px 0 14px; }
+  #previa .opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  #previa .opcion { padding: 10px 12px; background: var(--p-superficie); border: 2px solid var(--p-borde); border-radius: var(--p-radio); color: var(--p-texto); font: inherit; text-align: left; }
+  #previa .opcion.elegida { background: var(--p-principal); border-color: var(--p-principal); color: var(--p-sobre); }
+  #previa .btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  #previa .b1 { padding: 8px 14px; background: var(--p-principal); border: 1px solid var(--p-principal); color: var(--p-sobre); border-radius: var(--p-radio); font: inherit; }
+  #previa .b2 { padding: 8px 14px; background: var(--p-superficie); border: 1px solid var(--p-borde); color: var(--p-texto); border-radius: var(--p-radio); font: inherit; }
+  #previa .codigo { font-family: var(--p-cifras); font-size: 28px; letter-spacing: .08em; font-weight: 700; padding: 2px 12px; border: 3px solid var(--p-principal); border-radius: var(--p-radio); background: var(--p-superficie); }
+  #previa .err { color: var(--p-error); font-size: 14px; margin: 10px 0 0; }
+  #previa a { color: var(--p-principal); text-decoration-color: var(--p-acento); }
+  @media (max-width: 860px) { .columnas { grid-template-columns: 1fr; } .pegado { position: static; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Configurar el sitio</h1>
+  <p class="intro">Completa el formulario y descarga los dos archivos que genera: <b>config.js</b> (dónde se guardan las respuestas y los textos)
+    y <b>tema.css</b> (colores y letra). Reemplaza con ellos los que vienen en la carpeta del sitio y listo. Nada de lo que escribas aquí sale de tu navegador.</p>
+
+  <div class="columnas">
+    <div>
+      <section class="panel">
+        <h2>1. Dónde se guardan las respuestas</h2>
+        <label class="linea"><input type="radio" name="backend" value="servidor" checked> Servidor propio (Docker o <code>npm start</code>)</label>
+        <label class="linea"><input type="radio" name="backend" value="google"> Google Apps Script (hoja de cálculo de Google)</label>
+        <label class="linea"><input type="radio" name="backend" value="office"> Office Scripts + Power Automate (Excel de Microsoft 365)</label>
+        <label class="linea"><input type="radio" name="backend" value="otro"> Otro backend que siga el contrato de docs/API.md</label>
+        <label id="lblUrl">Dirección del backend
+          <input type="url" id="apiUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+        <p class="nota" id="notaUrl"></p>
+      </section>
+
+      <section class="panel">
+        <h2>2. Textos</h2>
+        <label>Institución (opcional)<input type="text" id="institucion" placeholder="Universidad de Ejemplo"></label>
+        <label>Curso (opcional)<input type="text" id="curso" placeholder="Epidemiología 2026"></label>
+        <label>Enlace corto para escribir a mano (opcional)<input type="text" id="enlaceCorto" placeholder="tinyurl.com/mi-curso/"></label>
+        <p class="nota">Si lo pones, el proyector muestra «tinyurl.com/mi-curso/10-1» para la clase «clase-10-1». Cómo crearlo: docs/PERSONALIZACION.md. Si lo dejas vacío, muestra la dirección completa.</p>
+        <label>Prefijo de las clases que se omite en el enlace corto<input type="text" id="prefijo" value="clase-"></label>
+      </section>
+
+      <section class="panel">
+        <h2>3. Colores</h2>
+        <div class="botones">
+          <span style="align-self:center;color:var(--suave)">Partir de:</span>
+          <button type="button" data-preset="azul">Azul</button>
+          <button type="button" data-preset="uss">USS</button>
+          <button type="button" data-preset="verde">Verde</button>
+          <button type="button" data-preset="vino">Vino</button>
+          <button type="button" data-preset="contraste">Alto contraste</button>
+        </div>
+        <div class="colores" id="colores"></div>
+        <p class="alerta" id="contraste"></p>
+      </section>
+
+      <section class="panel">
+        <h2>4. Letra y forma</h2>
+        <label class="linea"><input type="radio" name="fuente" value="atkinson" checked> Atkinson Hyperlegible (viene incluida, muy legible en proyector)</label>
+        <label class="linea"><input type="radio" name="fuente" value="sistema"> La letra del sistema (no descarga nada)</label>
+        <label class="linea"><input type="radio" name="fuente" value="otra"> Otra: <input type="text" id="otraFuente" placeholder="Montserrat" style="display:inline;width:14em;margin:0"></label>
+        <p class="nota">Para «otra», tráela al sitio con <code>node herramientas/fuente.js "Montserrat"</code> (deja los archivos en fuentes/ y el CSS que este tema importa). Si no la traes, se usa la que tenga instalada cada computador o la del sistema.</p>
+        <label>Letra para los números (opcional; p. ej. una condensada)<input type="text" id="fuenteCifras" placeholder="igual que el texto"></label>
+        <label>Redondeo de botones y tarjetas (px)<input type="number" id="radio" min="0" max="24" value="6"></label>
+      </section>
+    </div>
+
+    <div class="pegado">
+      <section class="panel">
+        <h2>Vista previa</h2>
+        <div id="previa">
+          <p class="marca-p" id="pMarca"></p>
+          <h3>¿Qué parte de la clase anterior te costó más?</h3>
+          <div class="fila"><span>Los conceptos</span><div class="riel"><div class="relleno" style="width:62%"></div></div><span class="valor">13 <small>62%</small></span></div>
+          <div class="fila"><span>Los ejercicios</span><div class="riel"><div class="relleno" style="width:29%"></div></div><span class="valor">6 <small>29%</small></span></div>
+          <div class="fila"><span>La lectura</span><div class="riel"><div class="relleno" style="width:10%"></div></div><span class="valor">2 <small>10%</small></span></div>
+          <p class="meta">Pregunta 1 de 4, ronda 1, 21 respuestas · votación abierta · <a href="#" onclick="return false">enlace</a></p>
+          <div class="opciones"><button class="opcion elegida">Marcada</button><button class="opcion">Sin marcar</button></div>
+          <div class="btns"><button class="b1">Abrir votación</button><button class="b2">Nueva ronda</button><span class="codigo">K48271</span></div>
+          <p class="err">Así se ven los avisos de error.</p>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Archivos generados</h2>
+        <div class="botones">
+          <button type="button" class="principal" id="btnDescargarAmbos">Descargar config.js y tema.css</button>
+          <button type="button" id="btnCopiarConfig">Copiar config.js</button>
+          <button type="button" id="btnCopiarTema">Copiar tema.css</button>
+        </div>
+        <label>config.js<textarea id="outConfig" rows="12" readonly spellcheck="false"></textarea></label>
+        <label>tema.css<textarea id="outTema" rows="14" readonly spellcheck="false"></textarea></label>
+        <p class="nota">Después de reemplazar los archivos, recarga las páginas (con Ctrl+F5 si no ves el cambio). En Docker basta con reemplazarlos en la carpeta y recargar; en GitHub Pages, súbelos al repositorio.</p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const COLORES = [
+  ["principal", "Principal: barras, botones, títulos"],
+  ["sobre-principal", "Texto sobre el color principal"],
+  ["acento", "Acento: foco y subrayados"],
+  ["fondo", "Fondo de la página"],
+  ["superficie", "Tarjetas y botones"],
+  ["texto", "Texto"],
+  ["texto-suave", "Texto secundario"],
+  ["borde", "Bordes y rieles"],
+  ["error", "Avisos de error"],
+];
+const PRESETS = {
+  azul:      { principal: "#1F4E79", "sobre-principal": "#FFFFFF", acento: "#C9A227", fondo: "#F4F6F8", superficie: "#FFFFFF", texto: "#14213D", "texto-suave": "#55637A", borde: "#CBD3DD", error: "#9A3B1B" },
+  uss:       { principal: "#102B42", "sobre-principal": "#FFFFFF", acento: "#CFB47C", fondo: "#F3F4F6", superficie: "#FFFFFF", texto: "#102B42", "texto-suave": "#586B7B", borde: "#CFD5D9", error: "#9A3B1B" },
+  verde:     { principal: "#1B5E3B", "sobre-principal": "#FFFFFF", acento: "#E0A526", fondo: "#F5F7F4", superficie: "#FFFFFF", texto: "#1C2A22", "texto-suave": "#5B6B61", borde: "#CBD5CE", error: "#A33A2A" },
+  vino:      { principal: "#6B1F2A", "sobre-principal": "#FFFFFF", acento: "#D9A441", fondo: "#F8F5F3", superficie: "#FFFFFF", texto: "#2B1A1E", "texto-suave": "#6E5A5F", borde: "#D9CDD0", error: "#8F2D1A" },
+  contraste: { principal: "#000000", "sobre-principal": "#FFFFFF", acento: "#FFB000", fondo: "#FFFFFF", superficie: "#FFFFFF", texto: "#000000", "texto-suave": "#333333", borde: "#666666", error: "#B00020" },
+};
+const NOTAS_URL = {
+  servidor: "Con el servidor propio las páginas y el backend viven en la misma dirección: se deja «/api». No hay que cambiar nada.",
+  google: "Pega la URL de la implementación de Apps Script (Implementar › Administrar implementaciones): termina en /exec.",
+  office: "Pega la URL HTTP del desencadenador «Cuando se recibe una solicitud HTTP» del flujo de Power Automate (muy larga, con sig=…).",
+  otro: "Cualquier dirección que responda a las acciones de docs/API.md.",
+};
+const ALMACEN = "configurador";
+
+/* ---- construir el formulario de colores ---- */
+const cont = $("colores");
+COLORES.forEach(([clave, texto]) => {
+  const d = document.createElement("div");
+  d.className = "color";
+  d.innerHTML = `<span>${texto}</span><input type="color" data-c="${clave}"><input type="text" data-t="${clave}" maxlength="7" spellcheck="false">`;
+  cont.appendChild(d);
+});
+
+/* ---- estado del formulario ---- */
+function leerTemaActual() {
+  // Parte de los valores del tema.css que carga esta página
+  const cs = getComputedStyle(document.documentElement);
+  const o = {};
+  COLORES.forEach(([k]) => { const v = cs.getPropertyValue("--color-" + k).trim(); o[k] = aHex(v) || PRESETS.azul[k]; });
+  return o;
+}
+function aHex(v) {
+  if (/^#[0-9a-f]{6}$/i.test(v)) return v.toUpperCase();
+  if (/^#[0-9a-f]{3}$/i.test(v)) return ("#" + [...v.slice(1)].map(c => c + c).join("")).toUpperCase();
+  const m = v.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (m) return "#" + [m[1], m[2], m[3]].map(n => Number(n).toString(16).padStart(2, "0")).join("").toUpperCase();
+  return null;
+}
+function valores() {
+  const f = {
+    backend: document.querySelector("[name=backend]:checked").value,
+    apiUrl: $("apiUrl").value.trim(),
+    institucion: $("institucion").value.trim(),
+    curso: $("curso").value.trim(),
+    enlaceCorto: $("enlaceCorto").value.trim(),
+    prefijo: $("prefijo").value,
+    fuente: document.querySelector("[name=fuente]:checked").value,
+    otraFuente: $("otraFuente").value.trim(),
+    fuenteCifras: $("fuenteCifras").value.trim(),
+    radio: Math.max(0, Math.min(24, Number($("radio").value) || 0)),
+    colores: {},
+  };
+  COLORES.forEach(([k]) => { f.colores[k] = $("colores").querySelector(`[data-t="${k}"]`).value.toUpperCase(); });
+  return f;
+}
+function poner(f) {
+  document.querySelector(`[name=backend][value="${f.backend}"]`).checked = true;
+  $("apiUrl").value = f.apiUrl;
+  $("institucion").value = f.institucion; $("curso").value = f.curso; $("enlaceCorto").value = f.enlaceCorto; $("prefijo").value = f.prefijo;
+  document.querySelector(`[name=fuente][value="${f.fuente}"]`).checked = true;
+  $("otraFuente").value = f.otraFuente; $("fuenteCifras").value = f.fuenteCifras; $("radio").value = f.radio;
+  ponerColores(f.colores);
+}
+function ponerColores(c) {
+  COLORES.forEach(([k]) => {
+    const v = c[k] || PRESETS.azul[k];
+    $("colores").querySelector(`[data-c="${k}"]`).value = v;
+    $("colores").querySelector(`[data-t="${k}"]`).value = v;
+  });
+}
+
+/* ---- salida ---- */
+const pila = f => {
+  const base = `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+  if (f.fuente === "atkinson") return `"Atkinson Hyperlegible", ${base}`;
+  if (f.fuente === "otra" && f.otraFuente) return `"${f.otraFuente.replace(/"/g, "")}", "Atkinson Hyperlegible", ${base}`;
+  return base;
+};
+const slug = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const js = s => JSON.stringify(s);
+
+function generarConfig(f) {
+  const url = f.backend === "servidor" ? "/api" : f.apiUrl;
+  return `/* =====================================================================
+   config.js — la configuración del sitio. Generado con configurar.html.
+   Es lo único que hay que editar; para volver a generarlo abre configurar.html.
+   ===================================================================== */
+const CONFIG = {
+  // Dónde se guardan las respuestas (docs/INSTALACION.md):
+  //  - Servidor propio (Docker):         "/api"
+  //  - Google Apps Script:               "https://script.google.com/macros/s/…/exec"
+  //  - Office Scripts + Power Automate:  la dirección del desencadenador HTTP
+  API_URL: ${js(url)},
+
+  // Textos que aparecen en las páginas (vacío = no se muestra)
+  INSTITUCION: ${js(f.institucion)},
+  CURSO: ${js(f.curso)},
+
+  // Enlace corto que los estudiantes pueden escribir a mano (vacío = la dirección completa; docs/PERSONALIZACION.md)
+  ENLACE_CORTO: ${js(f.enlaceCorto)},
+  PREFIJO_CLASE: ${js(f.prefijo)},  // parte del nombre de la clase que se omite en el enlace corto
+
+  DIGITOS_CODIGO: 5,        // dígitos del código de sorteo tras la letra (igual que en el backend)
+};
+`;
+}
+
+function generarTema(f) {
+  const c = f.colores;
+  const importa = f.fuente === "otra" && f.otraFuente ? `@import url("fuentes/${slug(f.otraFuente)}.css"); /* la crea: node herramientas/fuente.js ${js(f.otraFuente)} */\n` : "";
+  const cifras = f.fuenteCifras ? `"${f.fuenteCifras.replace(/"/g, "")}", var(--fuente)` : "var(--fuente)";
+  return `${importa}/* =====================================================================
+   tema.css — colores, letra y forma del sitio. Generado con configurar.html.
+   Es el ÚNICO archivo de estilo que hace falta tocar para dejarlo con la
+   imagen de tu curso o universidad. Hay temas de ejemplo en ejemplos/temas/.
+   ===================================================================== */
+:root {
+  /* ---- Colores ---- */
+  --color-principal:    ${c.principal};  /* barras de resultados, botones principales, títulos */
+  --color-sobre-principal: ${c["sobre-principal"]}; /* texto que va encima del color principal (botones) */
+  --color-acento:       ${c.acento};  /* contorno del foco (teclado) y subrayado de enlaces */
+  --color-fondo:        ${c.fondo};  /* fondo de las páginas */
+  --color-superficie:   ${c.superficie};  /* tarjetas, botones, cuadros de texto */
+  --color-texto:        ${c.texto};
+  --color-texto-suave:  ${c["texto-suave"]};  /* ayudas, metadatos, textos secundarios */
+  --color-borde:        ${c.borde};  /* bordes y rieles de las barras */
+  --color-error:        ${c.error};
+
+  /* ---- Letra ---- */
+  --fuente: ${pila(f)};
+  --fuente-cifras: ${cifras};  /* números: conteos, porcentajes y códigos del sorteo */
+
+  /* ---- Forma ---- */
+  --radio: ${f.radio}px;  /* redondeo de botones y tarjetas (0 = esquinas rectas) */
+}
+`;
+}
+
+/* ---- contraste (WCAG) ---- */
+function luminancia(hex) {
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function contraste(a, b) { const [x, y] = [luminancia(a), luminancia(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); }
+function revisarContraste(c) {
+  const avisos = [];
+  const par = (a, b, que, min) => { const r = contraste(c[a], c[b]); if (r < min) avisos.push(`${que} (${r.toFixed(1)}:1; se recomienda ${min}:1 o más)`); };
+  par("texto", "fondo", "Poco contraste entre el texto y el fondo", 4.5);
+  par("texto", "superficie", "Poco contraste entre el texto y las tarjetas", 4.5);
+  par("sobre-principal", "principal", "Poco contraste del texto sobre el color principal", 4.5);
+  par("texto-suave", "fondo", "El texto secundario se lee poco sobre el fondo", 3);
+  par("principal", "fondo", "Las barras se distinguen poco del fondo", 3);
+  $("contraste").textContent = avisos.join(" · ");
+}
+
+/* ---- aplicar a la vista previa y a la salida ---- */
+function actualizar() {
+  const f = valores();
+  const p = $("previa");
+  Object.entries({ principal: "p-principal", "sobre-principal": "p-sobre", acento: "p-acento", fondo: "p-fondo", superficie: "p-superficie", texto: "p-texto", "texto-suave": "p-suave", borde: "p-borde", error: "p-error" })
+    .forEach(([k, v]) => p.style.setProperty("--" + v, f.colores[k]));
+  p.style.setProperty("--p-fuente", pila(f));
+  p.style.setProperty("--p-cifras", f.fuenteCifras ? `"${f.fuenteCifras}", ${pila(f)}` : pila(f));
+  p.style.setProperty("--p-radio", f.radio + "px");
+  $("pMarca").textContent = [f.institucion, f.curso].filter(Boolean).join(" · ");
+  $("notaUrl").textContent = NOTAS_URL[f.backend];
+  $("apiUrl").disabled = f.backend === "servidor";
+  if (f.backend === "servidor") $("apiUrl").value = "/api";
+  else if ($("apiUrl").value === "/api") $("apiUrl").value = "";
+  $("outConfig").value = generarConfig(valores());
+  $("outTema").value = generarTema(f);
+  revisarContraste(f.colores);
+  try { localStorage.setItem(ALMACEN, JSON.stringify(valores())); } catch (e) {}
+}
+
+document.querySelectorAll("input").forEach(el => el.addEventListener("input", e => {
+  if (e.target.dataset.c) $("colores").querySelector(`[data-t="${e.target.dataset.c}"]`).value = e.target.value.toUpperCase();
+  if (e.target.dataset.t && /^#[0-9a-f]{6}$/i.test(e.target.value)) $("colores").querySelector(`[data-c="${e.target.dataset.t}"]`).value = e.target.value;
+  actualizar();
+}));
+document.querySelectorAll("[data-preset]").forEach(b => b.onclick = () => { ponerColores(PRESETS[b.dataset.preset]); actualizar(); });
+
+function descargar(nombre, contenido, tipo) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  a.download = nombre;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$("btnDescargarAmbos").onclick = () => { descargar("config.js", $("outConfig").value, "text/javascript"); setTimeout(() => descargar("tema.css", $("outTema").value, "text/css"), 300); };
+$("btnCopiarConfig").onclick = async () => { try { await navigator.clipboard.writeText($("outConfig").value); $("btnCopiarConfig").textContent = "Copiado"; } catch (e) { $("outConfig").select(); } };
+$("btnCopiarTema").onclick = async () => { try { await navigator.clipboard.writeText($("outTema").value); $("btnCopiarTema").textContent = "Copiado"; } catch (e) { $("outTema").select(); } };
+
+/* ---- inicio: lo guardado en este navegador, o lo que ya tiene el sitio ---- */
+(function iniciar() {
+  let f = null;
+  try { f = JSON.parse(localStorage.getItem(ALMACEN)); } catch (e) {}
+  if (!f || !f.colores) {
+    const cfg = typeof CONFIG !== "undefined" ? CONFIG : {};
+    const url = cfg.API_URL || "/api";
+    f = {
+      backend: url === "/api" ? "servidor" : /script\.google\.com/.test(url) ? "google" : /logic\.azure\.com|powerautomate|flow\.microsoft/.test(url) ? "office" : "otro",
+      apiUrl: url, institucion: cfg.INSTITUCION || "", curso: cfg.CURSO || "", enlaceCorto: cfg.ENLACE_CORTO || "", prefijo: cfg.PREFIJO_CLASE ?? "clase-",
+      fuente: "atkinson", otraFuente: "", fuenteCifras: "", radio: parseInt(getComputedStyle(document.documentElement).getPropertyValue("--radio")) || 6,
+      colores: leerTemaActual(),
+    };
+    const fuenteActual = getComputedStyle(document.documentElement).getPropertyValue("--fuente");
+    if (!/Atkinson/.test(fuenteActual)) { const m = fuenteActual.match(/"([^"]+)"/); if (m) { f.fuente = "otra"; f.otraFuente = m[1]; } else f.fuente = "sistema"; }
+  }
+  poner(f);
+  actualizar();
+})();
+</script>
+</body>
+</html>

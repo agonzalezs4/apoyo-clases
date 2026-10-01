@@ -332,3 +332,17 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
 [56] 2026-10-01 09:53 · agonzalezs4
      Merge pull request #6 from agonzalezs4/claude/sweet-hawking-z7lloc
      Votación autorizada por el profesor y acceso seguro con límite de intentos
+
+[57] 2026-10-01 · Claude
+     Versión autocontenida y reutilizable (rama claude/dazzling-volta-w9ipd0)
+     - Sin servicios externos: lz-string, qrcode-generator y la fuente Atkinson
+       Hyperlegible viajan con el sitio (lib/, fuentes/).
+     - Configuración separada del código: config.js (backend, textos, enlace
+       corto) y tema.css (colores, letra); asistente configurar.html que los genera.
+     - Tres backends intercambiables con el mismo contrato (docs/API.md):
+       servidor propio en Node sin dependencias (Docker), Google Apps Script y
+       Office Scripts + Power Automate.
+     - Clave del profesor nunca en el código: hash scrypt / SHA-256 con sal en el
+       backend, segundo paso con app autenticadora (servidor) o correo (Google).
+     - Las clases y el tema del curso de Epidemiología pasan a ejemplos/.
+     - Manuales en docs/ y pruebas automáticas (API, backends simulados, navegador).

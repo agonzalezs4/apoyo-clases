@@ -1,0 +1,8 @@
+# Respuestas, estado y secretos del servidor propio
+datos/
+# Clave y configuración local de Docker
+.env
+# Varios
+node_modules/
+*.tmp
+.DS_Store

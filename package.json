@@ -1,0 +1,15 @@
+{
+  "name": "recolector-respuestas",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Preguntas en vivo para la sala de clases (tipo Mentimeter), autoalojable y sin dependencias: páginas estáticas + un backend a elección (servidor propio en Docker, Google Apps Script u Office Scripts).",
+  "scripts": {
+    "start": "node servidor/servidor.js",
+    "configurar": "node servidor/configurar.js",
+    "test": "node --test servidor/servidor.test.js",
+    "fuente": "node herramientas/fuente.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

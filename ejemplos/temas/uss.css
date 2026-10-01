@@ -1,0 +1,53 @@
+/* =====================================================================
+   Tema de ejemplo: Universidad San Sebastián (Chile)
+   Aproximación a la «Guía de uso básico» de su Dirección General de Marketing:
+   azul corporativo (Pantone 2965 C) y dorado (Pantone 466 C).
+   Para usarlo, copia este archivo sobre tema.css. Si tu equipo tiene Montserrat
+   instalada la usa; si no, Atkinson Hyperlegible (incluida) o la letra del sistema.
+   ===================================================================== */
+:root {
+  --color-principal:        #102B42;  /* azul USS */
+  --color-sobre-principal:  #FFFFFF;
+  --color-acento:           #CFB47C;  /* dorado USS */
+  --color-fondo:            #F3F4F6;
+  --color-superficie:       #FFFFFF;
+  --color-texto:            #102B42;
+  --color-texto-suave:      #586B7B;  /* azul al 70 % */
+  --color-borde:            #CFD5D9;  /* azul al 20 % */
+  --color-error:            #9A3B1B;
+
+  --fuente: "Montserrat", "Gotham", "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fuente-cifras: "Suiza Condensed", "Roboto Condensed", "Arial Narrow", "Helvetica Neue Condensed", var(--fuente);
+  --radio: 4px;
+
+  /* Paleta completa, por si otras páginas del sitio la necesitan */
+  --uss-azul: #102B42; --uss-azul-80: #405568; --uss-azul-70: #586B7B; --uss-azul-50: #8895A1; --uss-azul-20: #CFD5D9; --uss-azul-05: #F3F4F6;
+  --uss-dorado: #CFB47C; --uss-dorado-80: #D9C396; --uss-dorado-70: #DDCBA3; --uss-dorado-50: #E7DABE; --uss-dorado-20: #F5F0E5; --uss-dorado-metalico: #84754E;
+}
+
+/* ---- Componentes opcionales para otras páginas del curso (guías, apuntes) ---- */
+.uss-cabecera { background: var(--uss-azul); color: #fff; padding: 18px clamp(16px, 4vw, 48px); border-bottom: 4px solid var(--uss-dorado); display: flex; align-items: center; gap: 20px; }
+.uss-cabecera h1, .uss-cabecera h2 { color: #fff; margin: 0; }
+.uss-cabecera img { height: 56px; width: auto; }
+.uss-titulo-banda { display: inline-block; background: var(--uss-azul); color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; padding: .15em .6em; }
+.uss-banda { background: var(--uss-azul); color: #fff; padding: 24px clamp(16px, 4vw, 48px); }
+.uss-banda h1, .uss-banda h2, .uss-banda h3, .uss-banda a { color: #fff; }
+.uss-banda-dorada { background: var(--uss-dorado); color: var(--uss-azul); padding: 24px clamp(16px, 4vw, 48px); }
+.uss-linea { border: 0; height: 3px; background: var(--uss-dorado); margin: 24px 0; }
+.uss-linea-azul { border: 0; height: 8px; background: var(--uss-azul); margin: 24px 0; }
+.uss-contenido { max-width: 72ch; margin: 0 auto; padding: 32px 20px; }
+.uss-tarjeta { background: #fff; border: 1px solid var(--uss-azul-20); border-top: 4px solid var(--uss-azul); padding: 18px 20px; }
+.uss-btn { display: inline-block; background: var(--uss-azul); color: #fff; border: 2px solid var(--uss-azul); border-radius: 4px; padding: 10px 20px; font-weight: 600; text-decoration: none; }
+.uss-btn:hover { background: var(--uss-azul-80); border-color: var(--uss-azul-80); }
+.uss-btn-secundario { display: inline-block; background: #fff; color: var(--uss-azul); border: 2px solid var(--uss-azul); border-radius: 4px; padding: 10px 20px; font-weight: 600; text-decoration: none; }
+.uss-btn-dorado { display: inline-block; background: var(--uss-dorado); color: var(--uss-azul); border: 2px solid var(--uss-dorado); border-radius: 4px; padding: 10px 20px; font-weight: 700; text-decoration: none; }
+.uss-cifra { font-family: var(--fuente-cifras); font-weight: 700; font-size: clamp(40px, 6vw, 80px); line-height: 1; color: var(--uss-azul); font-variant-numeric: tabular-nums; }
+.uss-tabla { border-collapse: collapse; width: 100%; font-size: 15px; }
+.uss-tabla caption { text-align: left; font-weight: 700; padding-bottom: 8px; color: var(--uss-azul); }
+.uss-tabla th, .uss-tabla td { padding: 6px 10px; text-align: left; }
+.uss-tabla thead th { border-top: 2px solid var(--uss-azul); border-bottom: 1px solid var(--uss-azul); }
+.uss-tabla tbody tr:last-child td { border-bottom: 2px solid var(--uss-azul); }
+.uss-tabla td.num, .uss-tabla th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.uss-etiqueta { display: inline-block; background: var(--uss-dorado-20); color: var(--uss-azul); border-left: 3px solid var(--uss-dorado); padding: 2px 10px; font-size: .9em; }
+.uss-nota { background: var(--uss-azul-05); border-left: 4px solid var(--uss-azul); padding: 12px 16px; }
+.uss-pie { border-top: 8px solid var(--uss-azul); color: var(--uss-azul-70); font-size: 14px; padding: 16px clamp(16px, 4vw, 48px); }

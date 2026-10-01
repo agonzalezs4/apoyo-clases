@@ -1,6 +1,7 @@
-// Acceso del profesor (lo usan index.html y presentar.html; necesita config.js)
+// Acceso del profesor (lo usan index.html y presentar.html; necesita config.js y comun.js)
 // La clave NO se comprueba aquí: esta página es pública y cualquiera puede leer su código. La comprueba el
-// Apps Script, con límite de intentos y (si está activado) un código que llega al correo. A cambio entrega una
+// backend (Apps Script, servidor propio u Office Scripts; ver docs/SEGURIDAD.md), con límite de intentos y,
+// si está activado, un segundo paso (código al correo o de una app autenticadora). A cambio entrega una
 // sesión que vence sola; la clave nunca se guarda en el navegador.
 
 const SESION = "menti-sesion";
@@ -53,7 +54,7 @@ function entrar(motivo) {
       paso = p;
       el("accesoLblClave").hidden = p !== "clave";
       el("accesoLblCodigo").hidden = p !== "codigo";
-      el("accesoOtro").hidden = p !== "codigo";
+      el("accesoOtro").hidden = p !== "codigo" || !!el("accesoOtro").dataset.sin;
       el("accesoTexto").textContent = texto;
       (p === "clave" ? clave : codigo).focus();
     };
@@ -68,7 +69,9 @@ function entrar(motivo) {
         const r = await api({ accion: "entrar", clave: clave.value, codigo: paso === "codigo" ? codigo.value.trim() : "" });
         if (r.paso === "codigo") {
           codigo.value = "";
-          mostrarPaso("codigo", `Te enviamos un código de 6 dígitos a ${r.correo}. Escríbelo aquí (vence en 10 minutos).`);
+          el("accesoOtro").dataset.sin = r.reenvio === false ? "1" : ""; // con una app autenticadora no hay «otro código» que pedir
+          // El backend puede traer su propio texto (p. ej. «Escribe el código de tu app autenticadora»)
+          mostrarPaso("codigo", r.texto || `Te enviamos un código de 6 dígitos a ${r.correo}. Escríbelo aquí (vence en 10 minutos).`);
           return;
         }
         try { localStorage.setItem(SESION, JSON.stringify({ token: r.token, expira: r.expira })); } catch (e) {}
@@ -96,17 +99,17 @@ function dialogoAcceso() {
   const estilo = document.createElement("style");
   estilo.textContent = `
     #dlgAcceso { visibility: visible; width: min(420px, 92vw); padding: 24px; background: var(--papel); color: var(--tinta); border: 1px solid var(--riel); border-radius: 6px; font-size: 17px; }
-    #dlgAcceso::backdrop { background: rgba(16, 43, 66, .55); }
+    #dlgAcceso::backdrop { background: rgba(0, 0, 0, .55); }
     #dlgAcceso [hidden] { display: none; }
     #dlgAcceso h2 { margin: 0 0 8px; font-size: 24px; }
     #dlgAcceso p { margin: 0 0 14px; }
     #dlgAcceso .ayuda { color: var(--suave); }
     #dlgAcceso label { display: block; margin: 0 0 14px; color: var(--suave); font-size: 16px; }
-    #dlgAcceso input { display: block; box-sizing: border-box; width: 100%; margin-top: 4px; padding: 8px 12px; font: inherit; font-size: 20px; color: var(--tinta); background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+    #dlgAcceso input { display: block; box-sizing: border-box; width: 100%; margin-top: 4px; padding: 8px 12px; font: inherit; font-size: 20px; color: var(--tinta); background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; }
     #dlgAcceso #accesoCodigo { letter-spacing: .2em; font-variant-numeric: tabular-nums; }
     #dlgAcceso .botones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-    #dlgAcceso button { font: inherit; font-size: 16px; padding: 8px 14px; color: var(--tinta); background: #fff; border: 1px solid var(--riel); border-radius: 4px; cursor: pointer; }
-    #dlgAcceso button.principal { background: var(--barra); border-color: var(--barra); color: #fff; }
+    #dlgAcceso button { font: inherit; font-size: 16px; padding: 8px 14px; color: var(--tinta); background: var(--superficie); border: 1px solid var(--riel); border-radius: 4px; cursor: pointer; }
+    #dlgAcceso button.principal { background: var(--barra); border-color: var(--barra); color: var(--sobre-barra); }
     #dlgAcceso button:disabled { opacity: .5; cursor: default; }
     #dlgAcceso #accesoOtro { margin-right: auto; }`;
   document.head.appendChild(estilo);
@@ -118,7 +121,7 @@ function dialogoAcceso() {
       <h2 id="accesoTitulo">Acceso del profesor</h2>
       <p id="accesoTexto" class="ayuda" aria-live="polite"></p>
       <label id="accesoLblClave">Clave <input id="accesoClave" type="password" autocomplete="current-password"></label>
-      <label id="accesoLblCodigo" hidden>Código del correo <input id="accesoCodigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+      <label id="accesoLblCodigo" hidden>Código <input id="accesoCodigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
       <p id="accesoError" class="error" aria-live="polite"></p>
       <div class="botones">
         <button type="button" id="accesoOtro" hidden>Pedir otro código</button>
