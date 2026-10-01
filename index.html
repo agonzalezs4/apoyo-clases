@@ -251,7 +251,7 @@ function tarjeta(p, idx) {
   if (p.tipo === "num") extra = `
     <label>Unidad (opcional)<input data-campo="unidad" value="${esc(p.unidad)}" placeholder="%, años, casos por 100.000…"></label>`;
   if (p.tipo === "abi") extra = `
-    <p class="nota">Texto libre. Cada estudiante puede enviar más de una respuesta. Se muestra como nube o como lista.</p>`;
+    <p class="nota">Texto libre. Cada estudiante envía una respuesta por ronda, junto con el resto de la tanda al pulsar «Responder». Para recoger otra tanda de respuestas, usa «Nueva ronda». Se muestra como nube o como lista.</p>`;
 
   d.innerHTML = `
     <div class="cabeza">
@@ -316,6 +316,9 @@ function publicar() {
   const error = revisar() || (!clase.nombre ? "Ponle un nombre a la clase antes de publicarla." : "");
   if (error) { aviso(error); return; }
   aviso("");
+  // Una clase abierta desde el repositorio y publicada con otro nombre recibe ids nuevos: con los mismos ids,
+  // el Apps Script mezclaría respuestas, rondas y códigos del sorteo de las dos tandas
+  if (clase.idsDe && clase.idsDe !== clase.nombre) { clase.p.forEach(p => p.id = nuevaId()); clase.idsDe = clase.nombre; guardar(); }
   const ruta = `clases/${clase.nombre}.json`;
   $("pubNombre").textContent = clase.nombre;
   document.querySelectorAll(".pubN").forEach(el => el.textContent = clase.nombre);
@@ -452,6 +455,7 @@ async function iniciar() {
     try {
       clase = await cargarClase(qs.get("clase"));
       clase.nombre = clase.nombre || qs.get("clase");
+      clase.idsDe = clase.nombre; // ids de esta clase publicada (ver publicar)
       aviso(`Editando «${clase.nombre}». Cuando termines, pulsa Publicar para guardar los cambios en el repositorio.`);
     } catch (e) { aviso(e.message); }
   }

@@ -29,6 +29,11 @@
  *    responder todas: las que quedan en blanco viajan solo con su id y no generan fila en la hoja.
  *  - "estados" devuelve las rondas de toda la tanda en una sola consulta (antes era una por pregunta).
  *  - "enviar" y "estado" siguen existiendo por si algún celular tiene abierta la versión anterior.
+ *  - Mientras un lote se escribe queda marcado "en curso": si el celular reintenta (la red cortó o
+ *    Google tardó), el reintento no vuelve a escribir las filas. Si el lote falló a medias, el
+ *    reintento sigue desde la primera fila que faltaba.
+ *  - IMPORTANTE: implementa esta versión (Nueva versión; no basta con Guardar) ANTES de publicar el
+ *    votar.html nuevo. Si presentar.html avisa «El Apps Script publicado es la versión anterior», falta ese paso.
  */
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la piden los botones "Nueva ronda" y "Sortear"
@@ -145,20 +150,34 @@ function lote_(d, v, n) {
   const codigo = RE_DIGITOS.test(n) ? codigo_(n) : "";
   const cache = CacheService.getScriptCache();
   const claveV = v ? "lote_" + v : "";
+  let desde = 0; // un intento anterior que falló a medias ya escribió items[0..desde)
   if (claveV) {
-    // Reintento del celular: se devuelve lo mismo sin volver a escribir en la hoja
     const antes = cache.get(claveV);
-    if (antes !== null) { const o = JSON.parse(antes); o.repetido = true; return o; }
+    // El mismo lote se está escribiendo en otra ejecución (el celular cortó y reintentó): que espere, sin duplicar
+    if (antes === "en-curso") throw new Error("Envío en curso");
+    if (antes !== null) {
+      const o = JSON.parse(antes);
+      if (o.ok) { o.repetido = true; return o; } // reintento de un lote ya guardado: se devuelve lo mismo
+      desde = Number(o.desde) || 0;
+    }
+    cache.put(claveV, "en-curso", 90);
   }
-  const h = hoja_();
   const ahora = new Date();
   const rondas = Object.create(null);
-  // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
-  items.forEach(it => {
-    rondas[it.q] = ronda_(it.q);
-    if (!it.r) return; // en blanco
-    h.appendRow([ahora, "'" + it.q, rondas[it.q], "'" + it.t, "'" + it.r, codigo ? "'" + codigo : ""]);
-  });
+  let i = 0;
+  try {
+    const h = hoja_();
+    // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
+    for (; i < items.length; i++) {
+      const it = items[i];
+      rondas[it.q] = ronda_(it.q);
+      if (i < desde || !it.r) continue; // ya escrita en un intento anterior, o en blanco
+      h.appendRow([ahora, "'" + it.q, rondas[it.q], "'" + it.t, "'" + it.r, codigo ? "'" + codigo : ""]);
+    }
+  } catch (err) {
+    if (claveV) { const k = Math.max(i, desde); if (k) cache.put(claveV, JSON.stringify({ desde: k }), 21600); else cache.remove(claveV); }
+    throw err;
+  }
   const out = conCodigo_({ ok: true, rondas: rondas }, codigo);
   if (claveV) cache.put(claveV, JSON.stringify(out), 21600);
   return out;
@@ -185,11 +204,12 @@ function leer_(q) {
   const ronda = ronda_(q);
   const h = hoja_();
   const n = h.getLastRow();
-  const filas = n > 1 ? h.getRange(2, 1, n - 1, 5).getValues() : [];
+  const filas = n > 1 ? h.getRange(2, 2, n - 1, 4).getValues() : []; // columnas B:E (sin la fecha)
   const respuestas = filas
-    .filter(f => String(f[1]) === q && Number(f[2]) === ronda)
-    .map(f => String(f[4]));
-  const out = { ronda: ronda, respuestas: respuestas };
+    .filter(f => String(f[0]) === q && Number(f[1]) === ronda)
+    .map(f => String(f[3]));
+  // version: presentar.html la usa para avisar si el Apps Script publicado aún no tiene "lote"
+  const out = { ronda: ronda, respuestas: respuestas, version: 2 };
   const s = JSON.stringify(out);
   if (s.length < 90000) cache.put("leer_" + q, s, 2);
   return out;

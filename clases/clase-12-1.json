@@ -2,7 +2,7 @@
   "nombre": "clase-12-1",
   "p": [
     {
-      "id": "af8l1e",
+      "id": "c121-af8l1e",
       "tipo": "alt",
       "texto": "¿Cuál es el riesgo relativo de caída a 6 meses (polifarmacia vs sin polifarmacia)?",
       "opciones": [
@@ -14,7 +14,7 @@
       "multi": false
     },
     {
-      "id": "abu6of",
+      "id": "c121-abu6of",
       "tipo": "alt",
       "texto": "¿Qué frase interpreta correctamente el resultado?",
       "opciones": [
@@ -26,7 +26,7 @@
       "multi": false
     },
     {
-      "id": "40qq98",
+      "id": "c121-40qq98",
       "tipo": "alt",
       "texto": "¿Por qué en este estudio corresponde calcular riesgo relativo?",
       "opciones": [
@@ -38,7 +38,7 @@
       "multi": false
     },
     {
-      "id": "42zndu",
+      "id": "c121-42zndu",
       "tipo": "abi",
       "texto": "Un colega escribe: \"La polifarmacia provoca que los adultos mayores se caigan 2,5 veces más\". Reescribe la frase para que sea correcta en este estudio y explica en una línea qué cambiaste."
     }
