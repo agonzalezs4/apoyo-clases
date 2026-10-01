@@ -179,7 +179,7 @@ function cargarLZ() {
   return new Promise((ok, mal) => {
     if (typeof LZString !== "undefined") return ok();
     const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js";
+    s.src = "lib/lz-string.min.js";
     s.onload = ok;
     s.onerror = () => mal(new TypeError("lz-string"));
     document.head.appendChild(s);

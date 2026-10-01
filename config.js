@@ -15,6 +15,46 @@ const SEP = " ‖ "; // separa alternativas cuando se marcan varias
 const DIGITOS_CODIGO = 5; // dígitos del código de sorteo, tras la letra (igual que DIGITOS en apps-script/Codigo.gs)
 const TIPOS = { alt: "Alternativas", esc: "Escala", abi: "Abierta", num: "Número" };
 
+// Librerías propias (carpeta lib/): ninguna página depende de servidores externos
+function cargarScript(src) {
+  return new Promise((ok, mal) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = ok;
+    s.onerror = () => mal(new TypeError("no pude cargar " + src));
+    document.head.appendChild(s);
+  });
+}
+const cargarQR = () => typeof qrcode !== "undefined" ? Promise.resolve() : cargarScript("lib/qrcode.min.js");
+
+// QR como matriz de módulos: n x n bits (1 = oscuro), por filas, en base64. Necesita lib/qrcode.min.js
+function qrMatriz(texto) {
+  const qr = qrcode(0, "M");
+  qr.addData(texto);
+  qr.make();
+  const n = qr.getModuleCount(), bytes = new Uint8Array(Math.ceil(n * n / 8));
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) { const k = r * n + c; bytes[k >> 3] |= 128 >> (k & 7); }
+  return { n, d: btoa(String.fromCharCode(...bytes)) };
+}
+// Dibuja la matriz como SVG (un solo trazo, nítido a cualquier tamaño). No necesita ninguna librería
+function qrSvg({ n, d }, alt) {
+  const b = atob(d), margen = 2;
+  const oscuro = (r, c) => { const k = r * n + c; return (b.charCodeAt(k >> 3) >> (7 - (k & 7))) & 1; };
+  let ruta = "";
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (!oscuro(r, c)) continue;
+      let e = c;
+      while (e < n && oscuro(r, e)) e++;
+      ruta += `M${c + margen} ${r + margen}h${e - c}v1h${c - e}z`;
+      c = e;
+    }
+  }
+  const t = n + 2 * margen;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${t} ${t}" role="img" aria-label="${alt || "Código QR"}" shape-rendering="crispEdges">` +
+         `<rect width="${t}" height="${t}" fill="#fff"/><path d="${ruta}" fill="#000"/></svg>`;
+}
+
 // Las preguntas viajan dentro del enlace, comprimidas
 function empaquetar(obj) { return LZString.compressToEncodedURIComponent(JSON.stringify(obj)); }
 function desempaquetar(s) {
