@@ -12,6 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="config.js"></script>
 <script src="repo.js"></script>
+<script src="profesor.js"></script>
 <style>
   body {
     min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto;
@@ -82,6 +83,9 @@
   footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   footer button, footer a { font-size: 16px; padding: 8px 14px; background: #fff; border: 1px solid var(--riel); border-radius: 4px; text-decoration: none; color: var(--tinta); }
   footer button:hover, footer a:hover { border-color: var(--suave); }
+  footer #btnVotacion { font-weight: 700; }
+  footer #btnVotacion.cerrada { background: var(--barra); border-color: var(--barra); color: #fff; } /* a la vista: la tanda espera que la abras */
+  footer button:disabled { opacity: .5; cursor: default; }
   #estado { margin-left: auto; color: var(--suave); font-size: 15px; }
   @media (max-width: 720px) {
     main { grid-template-columns: 1fr; }
@@ -113,13 +117,14 @@
     <button id="btnSorteo" title="Tecla S" hidden>Sortear</button>
     <button id="btnQR" title="Tecla Q">Ocultar QR</button>
     <button id="btnPantalla" title="Tecla F">Pantalla completa</button>
-    <a id="btnEditar" href="index.html">Editar preguntas</a>
+    <button id="btnVotacion" title="Tecla V" disabled>Abrir votación</button>
     <span id="estado"></span>
     <p id="error" class="error"></p>
   </footer>
 
 <dialog id="dlgSorteo" aria-labelledby="sorteoTitulo">
   <h2 id="sorteoTitulo">Sorteo de la tanda</h2>
+  <p id="sorteoAbierta" class="error" hidden>La votación sigue abierta: ciérrala antes de mostrar las respuestas correctas, para que nadie responda después de verlas.</p>
   <p class="ayuda">Marca la respuesta correcta de cada pregunta (en las de escala solo si tienen una; si no, no cuentan). Los votos de toda la tanda se leen de Google <b>una sola vez</b>; la corrección se hace aquí, en tu navegador.</p>
   <details id="sorteoDetalle" open>
     <summary>Respuestas correctas</summary>
@@ -143,6 +148,9 @@ const qs = new URLSearchParams(location.search);
 const nombreClase = qs.get("clase");        // clase publicada: presentar.html?clase=clase-05&p=2
 const datosClase = location.hash.slice(1);  // prueba desde el editor: presentar.html?i=0#...
 let clase = null, i = 0, vista = "nube", enCurso = false;
+let votacion;           // si la tanda está abierta, según el servidor (undefined hasta la primera lectura)
+let tVotacion = 0;      // cuándo se abrió o cerró desde aquí: una lectura que salió antes trae el estado viejo
+let cambiandoVotacion = false;
 
 iniciar();
 
@@ -151,11 +159,9 @@ async function iniciar() {
     if (nombreClase) {
       clase = await cargarClase(nombreClase);
       i = (Number(qs.get("p")) || 1) - 1;
-      $("btnEditar").href = "index.html?clase=" + encodeURIComponent(nombreClase);
     } else {
       clase = desempaquetar(datosClase);
       i = Number(qs.get("i")) || 0;
-      $("btnEditar").href = "index.html#" + datosClase;
     }
   } catch (e) {
     $("meta").textContent = "";
@@ -171,7 +177,7 @@ async function iniciar() {
   $("btnSorteo").hidden = !nombreClase; // la tanda (clase-##-#) solo existe en las clases publicadas
   mostrar();
   // Con el proyector en otra pestaña (diapositivas) o el sorteo abierto no se consulta: menos carga para el Apps Script
-  setInterval(() => { if (!document.hidden && !$("dlgSorteo").open) actualizar(); }, 3000);
+  setInterval(() => { if (!document.hidden && !document.querySelector("dialog[open]")) actualizar(); }, 3000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) actualizar(); });
 }
 
@@ -210,21 +216,26 @@ function mostrar() {
 async function actualizar(forzar) {
   if (enCurso && !forzar) return;
   enCurso = true;
-  const p = clase.p[i];
+  const p = clase.p[i], t0 = Date.now();
   try {
     const d = await api({ accion: "leer", q: p.id });
     if (p !== clase.p[i]) return; // se cambió de pregunta mientras cargaba
+    if (typeof d.abierta === "boolean" && t0 > tVotacion) votacion = d.abierta;
+    pintarVotacion();
     const n = d.respuestas.length;
-    $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}, ronda ${d.ronda}, ${n} respuesta${n === 1 ? "" : "s"}`;
+    $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}, ronda ${d.ronda}, ${n} respuesta${n === 1 ? "" : "s"}` +
+      (votacion === true ? " · votación abierta" : votacion === false ? " · votación cerrada" : "");
     if (!n) {
       $("zona").dataset.clave = "";
-      $("zona").innerHTML = '<p class="vacio">Esperando respuestas… escanea el QR para participar.<br><small>Llegan cuando cada estudiante pulsa «Responder»' + (nombreClase && clase.p.length > 1 ? ' al final de la tanda' : '') + '.</small></p>';
+      $("zona").innerHTML = votacion === false
+        ? '<p class="vacio">La votación está cerrada.<br><small>Los estudiantes pueden escanear el QR desde ya, pero verán las preguntas cuando pulses «Abrir votación».</small></p>'
+        : '<p class="vacio">Esperando respuestas… escanea el QR para participar.<br><small>Llegan cuando cada estudiante pulsa «Responder»' + (nombreClase && clase.p.length > 1 ? ' al final de la tanda' : '') + '.</small></p>';
       $("resumen").textContent = "";
     } else {
       ({ alt: dibujarAlt, esc: dibujarEsc, abi: dibujarAbi, num: dibujarNum })[p.tipo](p, d.respuestas);
     }
-    // Sin "version", el Apps Script publicado es el anterior (sin accion=lote): los celulares no podrían enviar
-    $("error").textContent = d.version >= 2 ? "" : "El Apps Script publicado es la versión anterior: los celulares no podrán enviar. En Apps Script: Implementar › Administrar implementaciones › (lápiz) › Versión: Nueva versión › Implementar.";
+    // Sin "version" 3, el Apps Script publicado es anterior: sin accion=lote (2) los celulares no podrían enviar; sin "abrir" (3), no se puede abrir la votación
+    $("error").textContent = d.version >= 3 ? "" : "El Apps Script publicado es una versión anterior" + (d.version >= 2 ? " (sin «Abrir votación»)" : ": los celulares no podrán enviar") + ". Pega el Codigo.gs nuevo, ejecuta «autorizar» y luego Implementar › Administrar implementaciones › (lápiz) › Versión: Nueva versión › Implementar.";
     $("estado").textContent = "Actualizado " + new Date().toLocaleTimeString("es-CL");
   } catch (e) {
     $("error").textContent = "No pude leer las respuestas: " + e.message;
@@ -356,20 +367,40 @@ function alternarVista() {
   $("btnVista").textContent = vista === "nube" ? "Ver como lista" : "Ver como nube";
   actualizar(true);
 }
-const claveProfesor = () => localStorage.getItem("menti-clave") || prompt("Clave de profesor (la que pusiste en Apps Script):");
+/* ---------- Abrir y cerrar la votación ---------- */
+// La tanda parte cerrada: los celulares que ya escanearon el QR esperan, y el servidor rechaza respuestas hasta que la abras
+function pintarVotacion() {
+  const b = $("btnVotacion");
+  b.textContent = votacion === true ? "Cerrar votación" : "Abrir votación";
+  b.classList.toggle("cerrada", votacion === false);
+  b.disabled = votacion === undefined || cambiandoVotacion;
+  $("sorteoAbierta").hidden = votacion !== true;
+}
+async function alternarVotacion() {
+  if (cambiandoVotacion || votacion === undefined) return;
+  const abrir = !votacion;
+  cambiandoVotacion = true;
+  pintarVotacion();
+  try {
+    const r = await apiProfesor({ accion: "abrir", qs: clase.p.map(p => p.id).join(","), abrir: abrir ? 1 : 0 });
+    if (r) { votacion = r.abierta; tVotacion = Date.now(); $("error").textContent = ""; }
+  } catch (e) {
+    $("error").textContent = `No pude ${abrir ? "abrir" : "cerrar"} la votación: ${e.message}`;
+  } finally {
+    cambiandoVotacion = false;
+    pintarVotacion();
+  }
+  actualizar(true);
+}
 
 async function nuevaRonda() {
-  const clave = claveProfesor();
-  if (!clave) return;
   if (!confirm("¿Empezar una nueva ronda para esta pregunta? El gráfico parte de cero (las respuestas anteriores quedan en la hoja). Para el sorteo solo cuenta la ronda nueva: quienes ya respondieron deben volver a responderla. Los celulares con la página abierta la reabren solos en un par de minutos; quien la cerró debe volver a abrir el enlace.")) return;
   try {
-    await api({ accion: "ronda", q: clase.p[i].id, clave });
-    localStorage.setItem("menti-clave", clave);
+    if (!await apiProfesor({ accion: "ronda", q: clase.p[i].id })) return;
     votosSorteo = null; // los votos leídos para el sorteo ya no son los vigentes
     $("zona").dataset.clave = "";
     actualizar(true);
   } catch (e) {
-    localStorage.removeItem("menti-clave");
     $("error").textContent = e.message;
   }
 }
@@ -510,15 +541,13 @@ async function calcularSorteo(refrescar) {
   try { localStorage.setItem(claveSel(), JSON.stringify(sel)); } catch (e) {}
 
   if (refrescar || !votosSorteo) {
-    const clave = claveProfesor();
-    if (!clave) return;
     $("btnCalcular").disabled = $("btnRefrescar").disabled = true;
     $("sorteoMsg").textContent = "Leyendo los votos de la tanda…";
     try {
-      votosSorteo = await api({ accion: "sorteo", qs: pregs.map(p => p.id).join(","), clave });
-      localStorage.setItem("menti-clave", clave);
+      const r = await apiProfesor({ accion: "sorteo", qs: pregs.map(p => p.id).join(",") });
+      if (!r) return; // canceló el acceso
+      votosSorteo = r;
     } catch (e) {
-      if (/clave/i.test(e.message)) localStorage.removeItem("menti-clave");
       error.textContent = e.message;
       return;
     } finally {
@@ -587,6 +616,7 @@ $("btnSiguiente").onclick = () => ir(1);
 $("btnOcultar").onclick = alternarOcultar;
 $("btnVista").onclick = alternarVista;
 $("btnRonda").onclick = nuevaRonda;
+$("btnVotacion").onclick = alternarVotacion;
 $("btnSorteo").onclick = abrirSorteo;
 $("btnCalcular").onclick = () => calcularSorteo(false);
 $("btnRefrescar").onclick = () => calcularSorteo(true);
@@ -598,7 +628,7 @@ $("btnQR").onclick = alternarQR;
 $("btnPantalla").onclick = pantallaCompleta;
 document.addEventListener("keydown", e => {
   if (!clase) return;
-  if ($("dlgSorteo").open || (e.target.closest && e.target.closest("input, select, textarea"))) return; // en el sorteo se escribe: las teclas no son atajos
+  if (document.querySelector("dialog[open]") || (e.target.closest && e.target.closest("input, select, textarea"))) return; // en el sorteo y el acceso se escribe: las teclas no son atajos
   const k = e.key.toLowerCase();
   if (e.key === "ArrowRight") ir(1);
   else if (e.key === "ArrowLeft") ir(-1);
@@ -606,6 +636,7 @@ document.addEventListener("keydown", e => {
   else if (k === "w") alternarVista();
   else if (k === "r") nuevaRonda();
   else if (k === "s") abrirSorteo();
+  else if (k === "v") alternarVotacion();
   else if (k === "q") alternarQR();
   else if (k === "f") pantallaCompleta();
 });

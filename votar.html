@@ -53,6 +53,8 @@
   /* «Responder» siempre a la vista en la pantalla final, justo sobre la barra ‹ › */
   .resumen + .enviar { position: sticky; bottom: var(--alto-nav, 73px); box-shadow: 0 12px 0 var(--papel), 0 -12px 0 var(--papel); }
   .resumen + .enviar:disabled { opacity: 1; background: var(--uss-azul-50); }
+  /* Votación cerrada: ni las preguntas ni la navegación a la vista */
+  .en-espera #nav, .en-espera #pagina { display: none; }
 </style>
 </head>
 <body>
@@ -72,6 +74,11 @@ let enviando = false;       // hay un envío de la tanda en marcha
 let ultEstado = 0;          // cuándo se consultaron las rondas por última vez
 let avisoBlancas = 0;       // cuándo se avisó que quedan preguntas en blanco (0 = sin aviso); pintar() lo reinicia
 let ultToque = { k: "", t: 0 }, tIr = 0; // para que el 2.º toque de un doble toque no quite lo recién marcado ni elija en la pantalla recién abierta
+let abiertas = null;        // qué preguntas abrió el profesor, según el servidor (null = aún no se sabe)
+let vioAbierta = false;     // en esta visita ya se vio la votación abierta: si se cierra, el aviso es «se cerró», no «espera»
+let consultando = false;    // hay una consulta de rondas en marcha
+let tSondeo = 0, sondeoRapido = null;
+const CERRADA = "Votación cerrada"; // el mismo texto que CERRADA en apps-script/Codigo.gs
 const mem = {};             // respaldo si el navegador no deja usar localStorage
 const LISTO = "Tus respuestas quedaron registradas. Si se abre una nueva ronda, podrás responder de nuevo aquí mismo.";
 const pref = () => claseNombre ? claseNombre + "/" : "";
@@ -93,6 +100,10 @@ const borrador = q => leer(claveBorr(q.id)) || "";
 const hayResumen = () => tanda.length > 1;                   // la pantalla final solo tiene sentido con varias preguntas
 const ultimo = () => hayResumen() ? tanda.length : tanda.length - 1;
 const enResumen = () => !p;
+// Mientras el profesor no abra la votación, las preguntas pendientes no se muestran (y el servidor no las acepta)
+const abiertaTanda = () => abiertas !== null && tanda.every(q => abiertas[q.id] !== false);
+// (un envío sin confirmar se puede reintentar igual: si llegó antes del cierre, el servidor lo reconoce y no lo rechaza)
+const esperando = () => !abiertaTanda() && pendientes().length > 0 && !lotePendiente();
 
 // Lo marcado de una pregunta, si está listo para enviarse; null si falta o no vale
 function respuestaDe(q) {
@@ -208,11 +219,11 @@ async function iniciar() {
     return;
   }
   if (hayResumen()) armarNavegacion();
-  mostrarPregunta(0);
-  programarEstado();
-  document.addEventListener("visibilitychange", () => setTimeout(() => estadoSiToca(45000), Math.random() * 2000));
+  mostrarPregunta(0); // mientras no se sepa si la votación está abierta, muestra «Cargando…»
+  estado();
+  document.addEventListener("visibilitychange", () => setTimeout(() => estadoSiToca(esperando() ? 3000 : 45000), Math.random() * 2000));
   // al volver la red, toda la sala vuelve a la vez: más azar para repartir la carga
-  addEventListener("online", () => setTimeout(() => estadoSiToca(45000), Math.random() * 15000));
+  addEventListener("online", () => setTimeout(() => estadoSiToca(esperando() ? 3000 : 45000), Math.random() * 15000));
   // Otra pestaña con la misma tanda (QR escaneado dos veces) envió o vio una nueva ronda: poner esta al día
   let tSync = 0;
   addEventListener("storage", e => {
@@ -294,7 +305,7 @@ function mostrarPregunta(dir) {
 }
 
 function ir(d) {
-  if (tanda.length < 2) return;
+  if (tanda.length < 2 || esperando()) return;
   const n = idx + d;
   if (n < 0 || n > ultimo()) return; // en los extremos no pasa nada
   idx = n;
@@ -307,21 +318,31 @@ function ir(d) {
   mostrarPregunta(Math.sign(d));
 }
 
-function quiereEstado() { return tanda.some(q => enviada(q) !== null); }
+function quiereEstado() { return esperando() || tanda.some(q => enviada(q) !== null); }
 // Toda consulta de fondo pasa por aquí: solo con la pestaña visible, si ya se envió algo, y no más seguido que "min" ms
 function estadoSiToca(min) { if (!document.hidden && quiereEstado() && Date.now() - ultEstado > min) estado(); }
 
 // Consulta periódica (detecta si se abre una nueva ronda). Espaciada y con azar para no saturar al servidor.
+// Mientras se espera que el profesor abra (o reabra) la votación, más seguido: cada 5 a 10 s.
 function programarEstado() {
-  setTimeout(() => { estadoSiToca(30000); programarEstado(); }, 60000 + Math.random() * 30000);
+  clearTimeout(tSondeo);
+  const rapido = sondeoRapido = esperando();
+  tSondeo = setTimeout(() => { estadoSiToca(rapido ? 4000 : 30000); programarEstado(); },
+    rapido ? 5000 + Math.random() * 5000 : 60000 + Math.random() * 30000);
 }
 
 // Una sola consulta trae la ronda de todas las preguntas de la tanda
 async function estado(intento = 0) {
+  if (consultando) return;
+  consultando = true;
   ultEstado = Date.now();
   try {
     const d = await llamar({ accion: "estados", qs: tanda.map(q => q.id).join(",") });
     if (!d.rondas) return;
+    const primera = abiertas === null, antes = esperando();
+    // Sin "abiertas", el Apps Script publicado es anterior a «Abrir votación»: todo queda abierto, como antes
+    abiertas = d.abiertas || Object.fromEntries(tanda.map(q => [q.id, true]));
+    if (abiertaTanda()) vioAbierta = true;
     const reab = []; // preguntas que el profesor reabrió con una nueva ronda
     tanda.forEach(q => {
       const nueva = d.rondas[q.id], vieja = rondaDe(q.id);
@@ -331,13 +352,19 @@ async function estado(intento = 0) {
       guardar(claveRonda(q.id), nueva);
       if (antes !== null && enviada(q) === null) reab.push(q);
     });
-    if (!reab.length || enviando) return;
+    if (enviando) return;
+    if (primera || antes !== esperando()) { pintar(); return; } // se abrió o se cerró la votación
+    if (!reab.length) return;
     // Solo se repinta si cambia lo que se ve; así no se cierra el teclado de quien está escribiendo en otra pregunta
     if (enResumen() || !hayResumen() || reab.includes(p)) pintar();
     else $("mensaje").textContent = `Se abrió una nueva ronda en ${reab.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(reab)}: ${reab.length === 1 ? "respóndela" : "respóndelas"} y pulsa «Responder» al final.`;
   } catch (e) {
+    // Sin saber aún si la votación está abierta, se avisa; el sondeo rápido sigue intentando
+    if (abiertas === null) $("mensaje").textContent = "No se pudo conectar con el servidor. Seguimos intentando…";
     // consulta de fondo: si falla no se avisa; un solo reintento, y solo si la pestaña sigue a la vista (el sondeo periódico hace el resto)
-    if (intento < 1) setTimeout(() => { if (!document.hidden) estado(intento + 1); }, 10000 + Math.random() * 10000);
+    else if (intento < 1) setTimeout(() => { if (!document.hidden) estado(intento + 1); }, 10000 + Math.random() * 10000);
+  } finally {
+    consultando = false;
   }
 }
 
@@ -369,6 +396,13 @@ async function enviarLote(items) {
         if (r.codigo && claseNombre) guardar(claveCod(), r.codigo);
         return r;
       } catch (e) {
+        if (e.servidor && e.message === CERRADA) { // el profesor cerró la votación: no se guardó nada
+          olvidar(kv);
+          abiertas = Object.fromEntries(tanda.map(q => [q.id, false]));
+          vioAbierta = true;
+          mostrar("", "Tus respuestas no alcanzaron a enviarse.");
+          return null;
+        }
         if (e.servidor && FIJOS.test(e.message)) { // el servidor lo rechazó sin guardar nada: no tiene sentido insistir
           olvidar(kv);
           mostrar("", "No se pudieron enviar tus respuestas. Avísale a tu profesor; lo que marcaste sigue guardado aquí.");
@@ -496,9 +530,24 @@ function pintar() {
   avisoBlancas = 0;
   $("zona").innerHTML = "";
   $("mensaje").textContent = "";
-  if (enResumen()) pintarResumen(); else pintarPregunta();
+  const espera = esperando();
+  document.body.classList.toggle("en-espera", espera);
+  if (espera) pintarEspera();
+  else if (enResumen()) pintarResumen(); else pintarPregunta();
   if (enviando) { $("mensaje").textContent = "Enviando…"; $("zona").querySelectorAll("button, input, textarea").forEach(c => c.disabled = true); }
   mostrarCodigo();
+  if (espera !== sondeoRapido) programarEstado(); // al empezar o terminar la espera cambia el ritmo de las consultas
+}
+
+// Votación cerrada (aún no se abre, o el profesor la cerró): no se muestran las preguntas pendientes
+function pintarEspera() {
+  const h = $("pregunta");
+  h.classList.remove("largo");
+  if (abiertas === null) { h.textContent = "Cargando…"; return; }
+  const guardado = tanda.some(q => enviada(q) === null && borrador(q).trim());
+  h.textContent = vioAbierta ? "La votación está cerrada" : "Espera a que tu profesor abra la votación";
+  $("mensaje").textContent = (vioAbierta ? "Si tu profesor la vuelve a abrir, podrás responder aquí mismo." : "Las preguntas aparecerán aquí solas apenas se abra: deja esta página abierta.")
+    + (guardado ? " Lo que ya marcaste sigue guardado." : "");
 }
 
 // Pantalla final: lo que se marcó en cada pregunta (se puede tocar para corregir) y el botón "Responder"
@@ -532,6 +581,8 @@ function pintarResumen() {
 }
 
 function pintarPregunta() {
+  $("pregunta").textContent = p.texto; // por si venía de la pantalla de espera
+  $("pregunta").classList.toggle("largo", p.texto.length > 160);
   const zona = $("zona");
   const ya = enviada(p), lp = ya === null ? enLote(p) : null;
   const cur = ya !== null ? ya : lp ? lp[1] || "" : borrador(p);

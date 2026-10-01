@@ -11,33 +11,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script src="config.js"></script>
 <script src="repo.js"></script>
+<script src="profesor.js"></script>
 <script>
-// Clave del editor: solo para que los estudiantes no entren por error
-const HASH_CLAVE = "dce922f7f585c5f70384a3a2bd86428b5856a064b2e43e0ae3b3bf542d9b79d9";
-(async () => {
-  const raiz = document.documentElement;
-  raiz.style.visibility = "hidden";
-  const sha = async t => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))]
-    .map(b => b.toString(16).padStart(2, "0")).join("");
-  if (localStorage.getItem("editor-ok") !== HASH_CLAVE) {
-    const t = prompt("Esta página es para el profesor. Clave:");
-    if (!t || await sha(t) !== HASH_CLAVE) {
-      const bloquear = () => {
-        document.body.innerHTML = "<p style='padding:24px;font-size:20px;max-width:32em'>Esta página es solo para el profesor. Para responder, usa el enlace o el código que aparece en la pantalla.</p>";
-        raiz.style.visibility = "visible";
-      };
-      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bloquear);
-      else bloquear();
-      return;
-    }
-    localStorage.setItem("editor-ok", HASH_CLAVE);
-  }
-  raiz.style.visibility = "visible";
-})();
+// Solo el profesor: la clave la comprueba el Apps Script (con límite de intentos), no esta página
+protegerPagina();
 </script>
 <style>
   main { max-width: 820px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 34px; margin: 0 0 6px; }
+  .titulo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
   h2 { font-size: 24px; margin: 0 0 12px; }
   .ayuda { color: var(--suave); font-size: 18px; margin: 0 0 24px; line-height: 1.4; }
   .panel { background: #fff; border: 1px solid var(--riel); border-radius: 6px; padding: 18px 20px; margin-bottom: 28px; }
@@ -80,7 +62,7 @@ const HASH_CLAVE = "dce922f7f585c5f70384a3a2bd86428b5856a064b2e43e0ae3b3bf542d9b
 </head>
 <body>
 <main>
-  <h1>Preguntas de la clase</h1>
+  <div class="titulo"><h1>Preguntas de la clase</h1><button id="btnSalir" title="Cierra la sesión de profesor en este navegador">Cerrar sesión</button></div>
   <p class="ayuda">Arma las preguntas aquí y publícalas en el repositorio. Cada clase publicada tiene su propia dirección,
     y cada pregunta, su propio enlace para proyectarla. La hoja de cálculo solo recibe las respuestas.</p>
 
@@ -445,6 +427,11 @@ $("btnNueva").onclick = () => {
   $("nombre").value = "";
   $("panelPublicar").hidden = true;
   guardar(); pintar();
+};
+$("btnSalir").onclick = async () => {
+  if (!confirm("¿Cerrar la sesión de profesor en este navegador? Para volver a entrar se pedirá la clave.")) return;
+  await salirProfesor();
+  location.reload();
 };
 $("btnCopiarJSON").onclick = async () => {
   try { await navigator.clipboard.writeText(contenidoArchivo()); aviso("Contenido copiado. Pégalo en GitHub y pulsa Commit changes."); }
