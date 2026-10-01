@@ -170,7 +170,9 @@ async function iniciar() {
   i = Math.min(Math.max(0, i), clase.p.length - 1);
   $("btnSorteo").hidden = !nombreClase; // la tanda (clase-##-#) solo existe en las clases publicadas
   mostrar();
-  setInterval(actualizar, 3000);
+  // Con el proyector en otra pestaña (diapositivas) o el sorteo abierto no se consulta: menos carga para el Apps Script
+  setInterval(() => { if (!document.hidden && !$("dlgSorteo").open) actualizar(); }, 3000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) actualizar(); });
 }
 
 function mostrar() {
@@ -182,7 +184,7 @@ function mostrar() {
     // Un solo QR y un solo enlace corto para toda la tanda: el estudiante entra una vez y cambia de pregunta
     // dentro de votar.html. Así no vuelve a cargar la página (ni a caer en otro navegador) en cada pregunta.
     url = new URL(`votar.html?clase=${c}`, location.href).href;
-    $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b><br><small>Una sola vez: sirve para toda la tanda</small>";
+    $("corto").innerHTML = "Escanea o escribe<br><b style='font-size:1.4em;color:var(--tinta)'></b><br><small>Una sola vez: sirve para toda la tanda.<br>Al final, pulsa «Responder»</small>";
     $("corto").querySelector("b").textContent = "tinyurl.com/epi-uss/" + nombreClase.replace(/^clase-/, "");
   } else {
     history.replaceState(null, "", `?i=${i}#${datosClase}`);
@@ -216,12 +218,13 @@ async function actualizar(forzar) {
     $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}, ronda ${d.ronda}, ${n} respuesta${n === 1 ? "" : "s"}`;
     if (!n) {
       $("zona").dataset.clave = "";
-      $("zona").innerHTML = '<p class="vacio">Esperando respuestas… escanea el QR para participar.</p>';
+      $("zona").innerHTML = '<p class="vacio">Esperando respuestas… escanea el QR para participar.<br><small>Llegan cuando cada estudiante pulsa «Responder»' + (nombreClase && clase.p.length > 1 ? ' al final de la tanda' : '') + '.</small></p>';
       $("resumen").textContent = "";
     } else {
       ({ alt: dibujarAlt, esc: dibujarEsc, abi: dibujarAbi, num: dibujarNum })[p.tipo](p, d.respuestas);
     }
-    $("error").textContent = "";
+    // Sin "version", el Apps Script publicado es el anterior (sin accion=lote): los celulares no podrían enviar
+    $("error").textContent = d.version >= 2 ? "" : "El Apps Script publicado es la versión anterior: los celulares no podrán enviar. En Apps Script: Implementar › Administrar implementaciones › (lápiz) › Versión: Nueva versión › Implementar.";
     $("estado").textContent = "Actualizado " + new Date().toLocaleTimeString("es-CL");
   } catch (e) {
     $("error").textContent = "No pude leer las respuestas: " + e.message;
@@ -358,7 +361,7 @@ const claveProfesor = () => localStorage.getItem("menti-clave") || prompt("Clave
 async function nuevaRonda() {
   const clave = claveProfesor();
   if (!clave) return;
-  if (!confirm("¿Empezar una nueva ronda para esta pregunta? Las respuestas anteriores quedan en la hoja y el gráfico parte de cero.")) return;
+  if (!confirm("¿Empezar una nueva ronda para esta pregunta? El gráfico parte de cero (las respuestas anteriores quedan en la hoja). Para el sorteo solo cuenta la ronda nueva: quienes ya respondieron deben volver a responderla. Los celulares con la página abierta la reabren solos en un par de minutos; quien la cerró debe volver a abrir el enlace.")) return;
   try {
     await api({ accion: "ronda", q: clase.p[i].id, clave });
     localStorage.setItem("menti-clave", clave);
@@ -537,7 +540,7 @@ function pintarSorteo() {
   cont.innerHTML = "";
   const linea = (t) => { const el = document.createElement("p"); el.textContent = t; cont.appendChild(el); return el; };
   if (!filas.length) {
-    linea("Todavía no hay votos con código en esta tanda. Los códigos aparecen cuando los estudiantes responden desde su celular; después pulsa «Actualizar votos».");
+    linea("Todavía no hay votos con código en esta tanda. Los códigos aparecen cuando los estudiantes pulsan «Responder» en su celular; después pulsa «Actualizar votos».");
   } else {
     linea(`${premiados.length} código${premiados.length === 1 ? "" : "s"} premiado${premiados.length === 1 ? "" : "s"} de ${filas.length} que participaron (${pct} % o más: al menos ${minimo} de ${total} buenas).`).style.fontWeight = "700";
     if (premiados.length) {

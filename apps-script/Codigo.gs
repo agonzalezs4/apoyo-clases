@@ -21,6 +21,19 @@
  *  - "sorteo" lee la hoja UNA vez para todas las preguntas de la tanda y devuelve (código, pregunta,
  *    respuesta). La corrección la hace la pantalla del profesor: la alternativa correcta nunca sale de ahí.
  *  - En la hoja "Respuestas" agrega el encabezado "codigo" en la celda F1 (solo es una etiqueta).
+ *
+ * Envío por tanda (nuevo):
+ *  - El celular ya no envía cada pregunta al tocarla: el estudiante puede cambiar sus alternativas y,
+ *    al final, pulsa "Responder". "lote" recibe TODAS las respuestas en una sola consulta (d = JSON con
+ *    [pregunta, respuesta, texto]) y devuelve el código y la ronda de cada pregunta. No es obligatorio
+ *    responder todas: las que quedan en blanco viajan solo con su id y no generan fila en la hoja.
+ *  - "estados" devuelve las rondas de toda la tanda en una sola consulta (antes era una por pregunta).
+ *  - "enviar" y "estado" siguen existiendo por si algún celular tiene abierta la versión anterior.
+ *  - Mientras un lote se escribe queda marcado "en curso": si el celular reintenta (la red cortó o
+ *    Google tardó), el reintento no vuelve a escribir las filas. Si el lote falló a medias, el
+ *    reintento sigue desde la primera fila que faltaba.
+ *  - IMPORTANTE: implementa esta versión (Nueva versión; no basta con Guardar) ANTES de publicar el
+ *    votar.html nuevo. Si presentar.html avisa «El Apps Script publicado es la versión anterior», falta ese paso.
  */
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la piden los botones "Nueva ronda" y "Sortear"
@@ -37,6 +50,10 @@ function doGet(e) {
   try {
     if (p.accion === "sorteo") {
       out = sorteo_(p.qs, p.clave); // recibe varias preguntas (qs), no una sola (q)
+    } else if (p.accion === "lote") {
+      out = lote_(p.d, p.v, p.n); // todas las respuestas de la tanda en una consulta
+    } else if (p.accion === "estados") {
+      out = estados_(p.qs);
     } else {
       const q = String(p.q || "").slice(0, 40);
       if (!q) throw new Error("Falta el identificador de la pregunta");
@@ -116,6 +133,67 @@ function enviar_(q, r, t, v, n) {
   return conCodigo_({ ok: true, ronda: ronda }, codigo);
 }
 
+/* Guarda de una vez las respuestas de la tanda. d = JSON [[pregunta, respuesta, texto], ...]
+   Una pregunta que el estudiante dejó en blanco viaja como [pregunta]: no se escribe fila, solo se devuelve su ronda */
+function lote_(d, v, n) {
+  let items;
+  try { items = JSON.parse(String(d || "")); } catch (err) { throw new Error("Envío inválido"); }
+  if (!Array.isArray(items) || !items.length) throw new Error("No hay respuestas que guardar");
+  items = items.slice(0, 30).map(it => {
+    it = Array.isArray(it) ? it : [];
+    return { q: String(it[0] || "").slice(0, 40), r: String(it[1] || "").trim().slice(0, 500), t: String(it[2] || "").slice(0, 300) };
+  });
+  if (items.some(it => !it.q)) throw new Error("Falta el identificador de la pregunta");
+  if (!items.some(it => it.r)) throw new Error("Respuesta vacía");
+  v = String(v || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
+  n = String(n || "");
+  const codigo = RE_DIGITOS.test(n) ? codigo_(n) : "";
+  const cache = CacheService.getScriptCache();
+  const claveV = v ? "lote_" + v : "";
+  let desde = 0, previas = null; // un intento anterior que falló a medias ya escribió items[0..desde), con las rondas «previas»
+  if (claveV) {
+    const antes = cache.get(claveV);
+    // El mismo lote se está escribiendo en otra ejecución (el celular cortó y reintentó): que espere, sin duplicar
+    if (antes === "en-curso") throw new Error("Envío en curso");
+    if (antes !== null) {
+      const o = JSON.parse(antes);
+      if (o.ok) { o.repetido = true; return o; } // reintento de un lote ya guardado: se devuelve lo mismo
+      desde = Number(o.desde) || 0;
+      previas = o.rondas || null;
+    }
+    cache.put(claveV, "en-curso", 360); // una ejecución de Apps Script puede durar hasta 6 min
+  }
+  const ahora = new Date();
+  const rondas = Object.create(null);
+  let i = 0;
+  try {
+    const h = hoja_();
+    // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
+    for (; i < items.length; i++) {
+      const it = items[i];
+      // lo ya escrito conserva la ronda con que quedó en la hoja (aunque luego se abriera una nueva ronda)
+      rondas[it.q] = i < desde && previas && previas[it.q] != null ? previas[it.q] : ronda_(it.q);
+      if (i < desde || !it.r) continue; // ya escrita en un intento anterior, o en blanco
+      h.appendRow([ahora, "'" + it.q, rondas[it.q], "'" + it.t, "'" + it.r, codigo ? "'" + codigo : ""]);
+    }
+  } catch (err) {
+    if (claveV) { const k = Math.max(i, desde); if (k) cache.put(claveV, JSON.stringify({ desde: k, rondas: Object.assign({}, previas, rondas) }), 21600); else cache.remove(claveV); }
+    throw err;
+  }
+  const out = conCodigo_({ ok: true, rondas: rondas }, codigo);
+  if (claveV) cache.put(claveV, JSON.stringify(out), 21600);
+  return out;
+}
+
+/* Rondas vigentes de toda la tanda en una sola consulta */
+function estados_(qs) {
+  const ids = String(qs || "").split(",").map(s => s.trim().slice(0, 40)).filter(Boolean).slice(0, 30);
+  if (!ids.length) throw new Error("Faltan las preguntas de la tanda");
+  const rondas = Object.create(null);
+  ids.forEach(q => { rondas[q] = ronda_(q); });
+  return { rondas: rondas };
+}
+
 function conCodigo_(out, codigo) {
   if (codigo) out.codigo = codigo;
   return out;
@@ -128,11 +206,12 @@ function leer_(q) {
   const ronda = ronda_(q);
   const h = hoja_();
   const n = h.getLastRow();
-  const filas = n > 1 ? h.getRange(2, 1, n - 1, 5).getValues() : [];
+  const filas = n > 1 ? h.getRange(2, 2, n - 1, 4).getValues() : []; // columnas B:E (sin la fecha)
   const respuestas = filas
-    .filter(f => String(f[1]) === q && Number(f[2]) === ronda)
-    .map(f => String(f[4]));
-  const out = { ronda: ronda, respuestas: respuestas };
+    .filter(f => String(f[0]) === q && Number(f[1]) === ronda)
+    .map(f => String(f[3]));
+  // version: presentar.html la usa para avisar si el Apps Script publicado aún no tiene "lote"
+  const out = { ronda: ronda, respuestas: respuestas, version: 2 };
   const s = JSON.stringify(out);
   if (s.length < 90000) cache.put("leer_" + q, s, 2);
   return out;

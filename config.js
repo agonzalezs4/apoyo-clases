@@ -31,7 +31,7 @@ function paraVotar(p) {
 }
 
 function aNumero(s) {
-  const t = String(s).trim().replace(/\s/g, "").replace(",", ".");
+  const t = String(s).trim().replace(/\s/g, "").replace(/%$/, "").replace(",", "."); // «10,5 %» vale 10,5
   if (t === "") return null;
   const x = Number(t);
   return Number.isFinite(x) ? x : null;
