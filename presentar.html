@@ -4,12 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Presentar</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilos.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="lib/lz-string.min.js"></script>
 <script src="config.js"></script>
 <script src="repo.js"></script>
 <script src="profesor.js"></script>
@@ -51,7 +47,7 @@
 
   /* QR */
   #qrpanel { text-align: center; background: #fff; padding: 16px; border: 1px solid var(--riel); }
-  #qrpanel img { width: clamp(170px, 21vw, 320px); height: auto; image-rendering: pixelated; display: block; }
+  #qrpanel svg { width: clamp(170px, 21vw, 320px); height: auto; display: block; }
   #qrpanel p { margin: 8px 0 0; font-size: 17px; color: var(--suave); }
   .oculto-qr #qrpanel { display: none; }
   .oculto-qr main { grid-template-columns: 1fr; }
@@ -199,18 +195,30 @@ function mostrar() {
   $("pregunta").textContent = p.texto;
   document.title = p.texto;
   $("meta").textContent = `Pregunta ${i + 1} de ${clase.p.length}`;
-  if ($("qr").dataset.url !== url) { // el enlace de la tanda no cambia entre preguntas: el QR tampoco se redibuja
-    const qr = qrcode(0, "M");
-    qr.addData(url);
-    qr.make();
-    $("qr").innerHTML = `<img alt="Código QR para responder" src="${qr.createDataURL(8, 2)}">`;
-    $("qr").dataset.url = url;
-  }
+  pintarQR(url, clase.qr);
   $("zona").innerHTML = "";
   $("zona").dataset.clave = "";
   $("resumen").textContent = "";
   $("pagina").innerHTML = p.pagina ? `<iframe src="${p.pagina}" style="width:100%;height:60vh;border:0"></iframe>` : "";
   actualizar(true);
+}
+
+// El QR de la tanda viene calculado en el JSON (lo guarda el editor al publicar): aquí solo se dibuja.
+// Solo si falta o no coincide con el enlace actual (clase publicada antes de este cambio, otra dirección,
+// o el modo de prueba, donde cada pregunta tiene su enlace) se calcula con la librería local lib/qrcode.min.js.
+let qrUrl;
+async function pintarQR(url, guardado) {
+  if (qrUrl === url) return; // el enlace de la tanda no cambia entre preguntas: el QR tampoco se redibuja
+  qrUrl = url;
+  try {
+    let m = guardado && guardado.url === url ? guardado : null;
+    if (!m) { await cargarQR(); m = qrMatriz(url); }
+    if (qrUrl !== url) return; // se cambió de pregunta mientras cargaba
+    $("qr").innerHTML = qrSvg(m, "Código QR para responder");
+  } catch (e) {
+    qrUrl = null;
+    $("qr").textContent = "No pude dibujar el QR: " + e.message;
+  }
 }
 
 async function actualizar(forzar) {

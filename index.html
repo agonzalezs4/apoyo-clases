@@ -4,11 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Preguntas de la clase</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilos.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="lib/lz-string.min.js"></script>
 <script src="config.js"></script>
 <script src="repo.js"></script>
 <script src="profesor.js"></script>
@@ -95,7 +92,7 @@ protegerPagina();
     #qrZona:fullscreen #qrImg { width: min(75vh, 90vw); }
     #qrZona:fullscreen #qrTexto { font-size: 4vh; color: var(--tinta); }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="lib/qrcode.min.js"></script>
   <script>
   (() => {
     const el = id => document.getElementById(id);
@@ -297,7 +294,9 @@ function revisar() {
 
 /* ---------- Publicar ---------- */
 function contenidoArchivo() {
-  return JSON.stringify({ nombre: clase.nombre, p: clase.p.map(({ idOrig, ...p }) => p) }, null, 2); // idOrig es solo del editor
+  // El QR de la tanda se calcula aquí, una sola vez, y viaja en el archivo: presentar.html solo lo dibuja
+  const url = new URL(`votar.html?clase=${encodeURIComponent(clase.nombre)}`, location.href).href;
+  return JSON.stringify({ nombre: clase.nombre, qr: { url, ...qrMatriz(url) }, p: clase.p.map(({ idOrig, ...p }) => p) }, null, 2); // idOrig es solo del editor
 }
 
 function publicar() {
@@ -451,6 +450,7 @@ async function iniciar() {
     try {
       clase = await cargarClase(qs.get("clase"));
       clase.nombre = clase.nombre || qs.get("clase");
+      delete clase.qr; // lo recalcula Publicar; no tiene sentido arrastrarlo en el editor
       clase.idsDe = clase.nombre; // ids de esta clase publicada (ver publicar)
       clase.p.forEach(p => { p.idOrig = p.id; });
       aviso(`Editando «${clase.nombre}». Cuando termines, pulsa Publicar para guardar los cambios en el repositorio.`);
