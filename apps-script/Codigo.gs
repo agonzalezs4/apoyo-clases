@@ -150,7 +150,7 @@ function lote_(d, v, n) {
   const codigo = RE_DIGITOS.test(n) ? codigo_(n) : "";
   const cache = CacheService.getScriptCache();
   const claveV = v ? "lote_" + v : "";
-  let desde = 0; // un intento anterior que falló a medias ya escribió items[0..desde)
+  let desde = 0, previas = null; // un intento anterior que falló a medias ya escribió items[0..desde), con las rondas «previas»
   if (claveV) {
     const antes = cache.get(claveV);
     // El mismo lote se está escribiendo en otra ejecución (el celular cortó y reintentó): que espere, sin duplicar
@@ -159,8 +159,9 @@ function lote_(d, v, n) {
       const o = JSON.parse(antes);
       if (o.ok) { o.repetido = true; return o; } // reintento de un lote ya guardado: se devuelve lo mismo
       desde = Number(o.desde) || 0;
+      previas = o.rondas || null;
     }
-    cache.put(claveV, "en-curso", 90);
+    cache.put(claveV, "en-curso", 360); // una ejecución de Apps Script puede durar hasta 6 min
   }
   const ahora = new Date();
   const rondas = Object.create(null);
@@ -170,12 +171,13 @@ function lote_(d, v, n) {
     // appendRow (una por pregunta) es atómico: no hace falta candado. No se usa setValues porque dos lotes simultáneos pisarían las mismas filas
     for (; i < items.length; i++) {
       const it = items[i];
-      rondas[it.q] = ronda_(it.q);
+      // lo ya escrito conserva la ronda con que quedó en la hoja (aunque luego se abriera una nueva ronda)
+      rondas[it.q] = i < desde && previas && previas[it.q] != null ? previas[it.q] : ronda_(it.q);
       if (i < desde || !it.r) continue; // ya escrita en un intento anterior, o en blanco
       h.appendRow([ahora, "'" + it.q, rondas[it.q], "'" + it.t, "'" + it.r, codigo ? "'" + codigo : ""]);
     }
   } catch (err) {
-    if (claveV) { const k = Math.max(i, desde); if (k) cache.put(claveV, JSON.stringify({ desde: k }), 21600); else cache.remove(claveV); }
+    if (claveV) { const k = Math.max(i, desde); if (k) cache.put(claveV, JSON.stringify({ desde: k, rondas: Object.assign({}, previas, rondas) }), 21600); else cache.remove(claveV); }
     throw err;
   }
   const out = conCodigo_({ ok: true, rondas: rondas }, codigo);

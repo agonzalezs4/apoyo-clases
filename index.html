@@ -199,6 +199,12 @@ let clase = null;
 
 function aviso(t) { $("aviso").textContent = t; }
 function nuevaId() { return Math.random().toString(36).slice(2, 8); }
+// Id de una pregunta en la clase «nombre», derivado de su id de origen (FNV-1a 32 bits): siempre el mismo para el mismo nombre
+function idPara(id, nombre) {
+  let h = 2166136261;
+  for (const c of id + "|" + nombre) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return (h >>> 0).toString(36);
+}
 
 function nueva(tipo) {
   const p = { id: nuevaId(), tipo, texto: "" };
@@ -309,16 +315,19 @@ function revisar() {
 
 /* ---------- Publicar ---------- */
 function contenidoArchivo() {
-  return JSON.stringify({ nombre: clase.nombre, p: clase.p }, null, 2);
+  return JSON.stringify({ nombre: clase.nombre, p: clase.p.map(({ idOrig, ...p }) => p) }, null, 2); // idOrig es solo del editor
 }
 
 function publicar() {
   const error = revisar() || (!clase.nombre ? "Ponle un nombre a la clase antes de publicarla." : "");
   if (error) { aviso(error); return; }
   aviso("");
-  // Una clase abierta desde el repositorio y publicada con otro nombre recibe ids nuevos: con los mismos ids,
-  // el Apps Script mezclaría respuestas, rondas y códigos del sorteo de las dos tandas
-  if (clase.idsDe && clase.idsDe !== clase.nombre) { clase.p.forEach(p => p.id = nuevaId()); clase.idsDe = clase.nombre; guardar(); }
+  // Cada nombre de clase tiene sus propios ids: con los mismos ids, el Apps Script mezclaría respuestas, rondas y
+  // códigos del sorteo de dos tandas. idsDe = nombre con que estos ids se publicaron por primera vez (o se abrieron
+  // del repositorio); con otro nombre se derivan de forma fija, así volver al nombre original recupera los ids publicados
+  if (!clase.idsDe) clase.idsDe = clase.nombre;
+  clase.p.forEach(p => { p.idOrig = p.idOrig || p.id; p.id = clase.nombre === clase.idsDe ? p.idOrig : idPara(p.idOrig, clase.nombre); });
+  guardar();
   const ruta = `clases/${clase.nombre}.json`;
   $("pubNombre").textContent = clase.nombre;
   document.querySelectorAll(".pubN").forEach(el => el.textContent = clase.nombre);
@@ -456,6 +465,7 @@ async function iniciar() {
       clase = await cargarClase(qs.get("clase"));
       clase.nombre = clase.nombre || qs.get("clase");
       clase.idsDe = clase.nombre; // ids de esta clase publicada (ver publicar)
+      clase.p.forEach(p => { p.idOrig = p.id; });
       aviso(`Editando «${clase.nombre}». Cuando termines, pulsa Publicar para guardar los cambios en el repositorio.`);
     } catch (e) { aviso(e.message); }
   }

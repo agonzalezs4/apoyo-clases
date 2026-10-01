@@ -392,9 +392,14 @@ async function responder() {
   const pend = pendientes();
   if (!pend.length) { pintar(); return; } // ya se envió desde otra pestaña: solo poner la pantalla al día
   let items = lotePendiente();
+  const reintento = !!items; // reenvío del lote fijo: lo marcado después en otra pregunta no va en él
   if (!items) {
     const malas = pend.filter(malEscrita);
-    if (malas.length) { $("error").textContent = `Revisa ${malas.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(malas)}: escribe solo un número (por ejemplo 12,5).`; return; }
+    if (malas.length) {
+      $("error").textContent = `Revisa ${malas.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(malas)}: escribe solo un número (por ejemplo 12,5).`;
+      window.scrollTo(0, document.documentElement.scrollHeight); // al fondo: el aviso queda sobre la barra ‹ ›, no detrás
+      return;
+    }
     const blancas = pend.filter(q => respuestaDe(q) === null);
     if (blancas.length === pend.length) return;
     // Confirmación en la página (no confirm(): en el navegador interno de algunos lectores QR no aparece y devuelve "no")
@@ -404,11 +409,13 @@ async function responder() {
       const uno = blancas.length === 1, b = botonEnvio();
       if (b) b.textContent = "Responder igual";
       $("mensaje").textContent = `${uno ? "La pregunta" : "Las preguntas"} ${numeros(blancas)} ${uno ? "quedará" : "quedarán"} sin responder y ya no podrás ${uno ? "completarla" : "completarlas"}. Si quieres enviar así, toca «Responder igual».`;
-      $("mensaje").scrollIntoView({ block: "nearest" });
+      window.scrollTo(0, document.documentElement.scrollHeight); // al fondo: el aviso queda sobre la barra ‹ ›, no detrás
       return;
     }
     items = pend.map(q => { const r = respuestaDe(q); return r === null ? [q.id] : [q.id, r, q.texto.slice(0, 80)]; });
   }
+  const antes = {}; // ronda local de cada pregunta al empezar el envío
+  items.forEach(([id]) => { antes[id] = rondaDe(id); });
   enviando = true;
   pintar();
   let d = null;
@@ -418,14 +425,21 @@ async function responder() {
     items.forEach(([id, r = ""]) => {
       const nueva = d.rondas && d.rondas[id] != null ? d.rondas[id] : null, vieja = rondaDe(id);
       guardar(claveVoto(id, nueva != null ? nueva : vieja), r);
-      // si durante el envío se vio una ronda más nueva, no se retrocede: esa pregunta queda abierta para la ronda nueva
-      if (nueva != null && !(vieja != null && Number(nueva) < Number(vieja))) guardar(claveRonda(id), nueva);
+      // Manda la ronda del servidor (es la que usa el sorteo), salvo que DURANTE el envío se haya visto una más nueva:
+      // entonces no se retrocede y esa pregunta queda abierta para la ronda nueva
+      const vioOtra = vieja !== antes[id] && vieja != null && Number(nueva) < Number(vieja);
+      if (nueva != null && !vioOtra) guardar(claveRonda(id), nueva);
       olvidar(claveBorr(id));
     });
     window.scrollTo(0, 0);
   }
   pintar(); // si falló, el error ya está en pantalla y lo marcado sigue ahí
   if (!d) window.scrollTo(0, document.documentElement.scrollHeight); // el error queda junto al botón
+  const faltan = d && reintento ? pendientes().filter(q => respuestaDe(q) !== null) : [];
+  if (faltan.length) {
+    $("mensaje").textContent = `Se envió lo anterior. Falta enviar ${faltan.length === 1 ? "la pregunta" : "las preguntas"} ${numeros(faltan)}: pulsa «Responder».`;
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  }
 }
 
 function boton(texto, clase = "opcion") {
@@ -440,7 +454,11 @@ function estadoEnvio() {
   const pend = pendientes();
   if (!pend.length) return null;
   if (enviando) return { texto: "Enviando…", off: true, msg: null };
-  if (lotePendiente()) return { texto: "Reintentar envío", off: false, msg: "Tu envío anterior no se confirmó. Pulsa «Reintentar envío»: se mandan las mismas respuestas." };
+  if (lotePendiente()) {
+    const despues = pend.filter(q => !enLote(q) && respuestaDe(q) !== null); // marcadas después (p. ej. una pregunta reabierta)
+    return { texto: "Reintentar envío", off: false, msg: "Tu envío anterior no se confirmó. Pulsa «Reintentar envío»: se mandan las mismas respuestas."
+      + (despues.length ? ` ${despues.length === 1 ? "La pregunta" : "Las preguntas"} ${numeros(despues)} ${despues.length === 1 ? "se envía" : "se envían"} después, con «Responder».` : "") };
+  }
   const blancas = pend.filter(q => respuestaDe(q) === null && !malEscrita(q));
   if (blancas.length === pend.length) {
     const yaEnvio = tanda.some(q => rondaDe(q.id) !== null); // ya envió antes: lo pendiente es una nueva ronda
@@ -459,7 +477,7 @@ function panelEnvio() {
   if (!e) return;
   const env = boton(e.texto, "enviar");
   env.disabled = e.off;
-  env.onclick = responder;
+  env.onclick = () => { if (Date.now() - tIr >= 400) responder(); }; // el 2.º toque de un doble toque en «Revisar y responder ›» no envía
   $("zona").appendChild(env);
   if (e.msg !== null) $("mensaje").textContent = e.msg;
 }
@@ -617,7 +635,7 @@ function pintarPregunta() {
   if (!hayResumen()) panelEnvio();
   else if (idx === tanda.length - 1 || (leer(claveVio()) && editable)) {
     const rev = boton("Revisar y responder ›", "enviar");
-    rev.onclick = () => ir(tanda.length - idx);
+    rev.onclick = () => { if (Date.now() - tIr >= 400) ir(tanda.length - idx); };
     zona.appendChild(rev);
   }
 }
