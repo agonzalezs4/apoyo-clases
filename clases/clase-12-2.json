@@ -1,27 +1,32 @@
 {
   "nombre": "clase-12-2",
+  "qr": {
+    "url": "https://agonzalezs4.github.io/apoyo-clases/votar.html?clase=clase-12-2",
+    "n": 37,
+    "d": "/irHi/wTMXHQbqphqLt16ZTl26230q7BQGRZB/qqqq/gEE+XAL51kUvlKttvSaSa9BaO6/I4Lh60Hx9r4tFctIAcxpr3a7RwxvAKfSj3uoMuHEiI0oKVlmF5CHkSO4SkbggtfpQqWx8hV2y3jJRyw6uF4req6UhqIrF9DydaWj8LCb9dLfuAblykY/hmqKqwWiMhGrqzPn+t1v4K9m6mgpofBMFNOZ/pRA5PgA=="
+  },
   "p": [
     {
       "id": "c122-af8l1e",
       "tipo": "alt",
-      "texto": "Con este diseño, ¿qué medida de asociación corresponde calcular?",
+      "texto": "¿Qué medida de asociación corresponde a este diseño? Calcúlela",
       "opciones": [
-        "Riesgo relativo",
-        "Razón de prevalencias",
-        "Diferencia de riesgos",
-        "Odds ratio"
+        "RR= 2,7",
+        "OR= 6,0",
+        "OR= 0,17",
+        "RP= 4"
       ],
       "multi": false
     },
     {
       "id": "c122-abu6of",
       "tipo": "alt",
-      "texto": "¿Cuál es el valor del odds ratio?",
+      "texto": "¿Por qué se eligió el diseño de casos y controles y no se puede calcular el RR?",
       "opciones": [
-        "1,0",
-        "0,33",
-        "3,0",
-        "2,0"
+        "Porque exposición y desenlace se midieron al mismo tiempo",
+        "Porque se siguió a consumidores y no consumidores hasta ver quién enfermaba",
+        "Porque la psicosis es rara y tarda años en aparecer. Además, el investigador fija cuántos casos y controles hay, así que no hay incidencias",
+        "Porque el RR solo se calcula en ensayos clínicos"
       ],
       "multi": false
     },
@@ -30,17 +35,12 @@
       "tipo": "alt",
       "texto": "¿Qué frase interpreta correctamente el resultado?",
       "opciones": [
-        "Los casos tuvieron odds de uso tres veces la de los controles",
-        "El 50% de quienes usaban benzodiacepinas sufrió una fractura",
-        "Las benzodiacepinas triplicaron las fracturas de cadera",
-        "La prevalencia de uso fue tres veces mayor en la población"
+        "El consumo diario de marihuana causa 6 veces más psicosis",
+        "El riesgo de psicosis es 600% mayor en quienes consumen a diario",
+        "Las odds de consumo diario fueron 6 veces mayores en jóvenes con psicosis que en controles sin psicosis",
+        "Quienes consumen a diario tienen 2,7 veces más riesgo de psicosis que quienes no"
       ],
       "multi": false
-    },
-    {
-      "id": "c122-42zndu",
-      "tipo": "abi",
-      "texto": "En una encuesta de un solo día a 200 clientes de una farmacia, 30 de los 100 que usan 3 o más medicamentos declararon mareos en el último mes, frente a 15 de los 100 que usan menos de 3. Nombra y calcula la medida de asociación adecuada, interprétala en una frase y explica por qué no corresponde llamarla riesgo relativo."
     }
   ]
 }
