@@ -1,10 +1,15 @@
 {
   "nombre": "clase-12-1",
+  "qr": {
+    "url": "https://agonzalezs4.github.io/apoyo-clases/votar.html?clase=clase-12-1",
+    "n": 37,
+    "d": "/hPHi/wTNXHQbq5hqLt1yZTl26m30q7BUmRZB/qqqq/gFA+XAL59kUvnp9tvSaj49BaOq9I4LhylHx9rotNctIANRpr3azwwxvCatyj3uKIuHEiE0IKVlmBJCHkQK4SkbgwNfpQpWg8xV2W/TNRy102F4rUCeUhqJtF9DydYej8LCa9dLfuAblykY/l2qKqwWiMhGrq7Pn+t1n4K9m6kgpofBMFNOZ/pRA5PgA=="
+  },
   "p": [
     {
       "id": "c121-af8l1e",
       "tipo": "alt",
-      "texto": "¿Cuál es el riesgo relativo de caída a 6 meses (polifarmacia vs sin polifarmacia)?",
+      "texto": "¿Cuál es el riesgo relativo de síntomas depresivos a 6 meses (>3 h vs. ≤3 h)?",
       "opciones": [
         "1,5",
         "2,5",
@@ -28,7 +33,7 @@
     {
       "id": "c121-40qq98",
       "tipo": "alt",
-      "texto": "¿Por qué en este estudio corresponde calcular riesgo relativo?",
+      "texto": "¿Por qué en este estudio corresponde calcular el riesgo relativo?",
       "opciones": [
         "Porque la exposición y la caída se midieron en un solo momento",
         "Porque se partió de personas que ya se habían caído antes",
@@ -40,7 +45,7 @@
     {
       "id": "c121-42zndu",
       "tipo": "abi",
-      "texto": "Un colega escribe: \"La polifarmacia provoca que los adultos mayores se caigan 2,5 veces más\". Reescribe la frase para que sea correcta en este estudio y explica en una línea qué cambiaste."
+      "texto": "\"Usar redes sociales durante más de 3 horas deprime a los estudiantes al doble.\" ¿Es correcta esta frase? Escriba una frase que interprete correctamente el resultado."
     }
   ]
 }
