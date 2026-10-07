@@ -45,9 +45,11 @@
  *    todos (y te llega un correo de aviso). Una sesión ya abierta sigue funcionando durante el bloqueo.
  *  - Segundo paso (CODIGO_POR_CORREO): con la clave correcta, te llega al correo un código de 6 dígitos que
  *    vence en 10 minutos. Sin tu correo no se puede entrar, aunque alguien conozca la clave.
+ *  - Computador conocido: al escribir el código puedes marcar «Recordar este computador». Ese navegador recibe
+ *    una marca al azar (vence en DIAS_EQUIPO) y desde ahí solo pide la clave; el código se pide en equipos nuevos.
  *  - Tras pegar esta versión: ejecuta "autorizar" otra vez (pide el permiso para enviar correos) e implementa
  *    una Nueva versión. Funciones útiles desde el editor: "cerrarSesiones" (si usaste un PC ajeno y no
- *    cerraste sesión) y "desbloquearAcceso" (si te bloqueaste tú).
+ *    cerraste sesión; también olvida los computadores recordados) y "desbloquearAcceso" (si te bloqueaste tú).
  */
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la del acceso del profesor. Mejor larga (12 o más caracteres) y que no uses en otro sitio
@@ -55,6 +57,7 @@ const SECRETO = "PON_AQUI_TU_SECRETO"; // solo tú lo sabes: de él sale la letr
 const CODIGO_POR_CORREO = true; // segundo paso al entrar: un código de 6 dígitos al correo (false = solo la clave)
 const CORREO_PROFESOR = ""; // adónde llega el código; vacío = el correo dueño de este script
 const HORAS_SESION = 12; // cuánto dura la sesión del profesor en un navegador
+const DIAS_EQUIPO = 30; // cuánto se recuerda un computador donde ya escribiste el código del correo
 const INTENTOS_MAX = 5; // fallos seguidos (clave o código) antes de bloquear el acceso
 const MINUTOS_BLOQUEO = 15;
 const SIN_SESION = "Sesión vencida: vuelve a entrar"; // presentar.html e index.html reconocen este texto
@@ -72,7 +75,7 @@ function doGet(e) {
     if (p.accion === "sorteo") {
       out = sorteo_(p.qs, p.token); // recibe varias preguntas (qs), no una sola (q)
     } else if (p.accion === "entrar") {
-      out = entrar_(p.clave, p.codigo);
+      out = entrar_(p.clave, p.codigo, p.equipo, p.recordar === "1");
     } else if (p.accion === "sesion") {
       exigirSesion_(p.token);
       out = { ok: true };
@@ -332,9 +335,9 @@ function nuevaRonda_(q, token) {
 
 /* ---------- Acceso del profesor ---------- */
 // La clave se comprueba solo aquí (nunca en la página, que es pública) y con límite de intentos.
-// Las propiedades "acceso_*" y "ses_*" viven en PropertiesService: sobreviven a la caché y son las mismas para todos.
+// Las propiedades "acceso_*", "ses_*" y "eq_*" viven en PropertiesService: sobreviven a la caché y son las mismas para todos.
 
-function entrar_(clave, codigo) {
+function entrar_(clave, codigo, equipo, recordar) {
   if (CLAVE === "PON_AQUI_TU_CLAVE") throw new Error("Falta cambiar CLAVE en el Apps Script");
   const lock = LockService.getScriptLock(); // los intentos se atienden de a uno: no se pueden lanzar miles en paralelo
   if (!lock.tryLock(20000)) throw new Error("El servidor está ocupado: inténtalo de nuevo");
@@ -344,7 +347,8 @@ function entrar_(clave, codigo) {
     const hasta = Number(props.getProperty("acceso_bloqueado_hasta")) || 0;
     if (hasta > ahora) throw new Error("Demasiados intentos fallidos. Espera " + Math.ceil((hasta - ahora) / 60000) + " min y vuelve a intentarlo.");
     if (!iguales_(String(clave || ""), CLAVE)) { fallo_(props); throw new Error("Clave incorrecta"); }
-    if (CODIGO_POR_CORREO) {
+    let nuevoEquipo = null;
+    if (CODIGO_POR_CORREO && !vigente_(props, "eq_", equipo)) {
       codigo = String(codigo || "").replace(/\D/g, "");
       if (!codigo) return enviarCodigo_(props, ahora);
       const pend = JSON.parse(props.getProperty("acceso_codigo") || "null");
@@ -357,9 +361,12 @@ function entrar_(clave, codigo) {
         throw new Error(pend.n >= 3 ? "Código incorrecto. Pide uno nuevo." : "Código incorrecto");
       }
       props.deleteProperty("acceso_codigo");
+      if (recordar) nuevoEquipo = guardarMarca_(props, "eq_", ahora + DIAS_EQUIPO * 86400000);
     }
     props.deleteProperty("acceso_fallos");
-    return nuevaSesion_(props, ahora);
+    const out = nuevaSesion_(props, ahora);
+    if (nuevoEquipo) { out.equipo = nuevoEquipo.token; out.equipoExpira = nuevoEquipo.expira; }
+    return out;
   } finally {
     lock.releaseLock();
   }
@@ -391,19 +398,28 @@ function enviarCodigo_(props, ahora) {
 }
 
 function nuevaSesion_(props, ahora) {
+  const m = guardarMarca_(props, "ses_", ahora + HORAS_SESION * 3600000);
+  return { ok: true, token: m.token, expira: m.expira };
+}
+
+// Sesiones ("ses_") y computadores recordados ("eq_"): un token al azar del que se guarda solo el hash,
+// así quien vea las propiedades del script no puede usarlo. De paso se borran las marcas vencidas.
+function guardarMarca_(props, prefijo, expira) {
   const token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, ""); // 64 caracteres al azar
-  const expira = ahora + HORAS_SESION * 3600000;
-  // Se guarda el hash del token, no el token: quien vea las propiedades del script no puede usarlo
-  const todas = props.getProperties();
-  Object.keys(todas).forEach(k => { if (k.indexOf("ses_") === 0 && Number(todas[k]) < ahora) props.deleteProperty(k); });
-  props.setProperty("ses_" + hash_(token), String(expira));
-  return { ok: true, token: token, expira: expira };
+  const ahora = Date.now(), todas = props.getProperties();
+  Object.keys(todas).forEach(k => { if ((k.indexOf("ses_") === 0 || k.indexOf("eq_") === 0) && Number(todas[k]) < ahora) props.deleteProperty(k); });
+  props.setProperty(prefijo + hash_(token), String(expira));
+  return { token: token, expira: expira };
+}
+
+function vigente_(props, prefijo, token) {
+  token = String(token || "");
+  const exp = token.length >= 32 ? Number(props.getProperty(prefijo + hash_(token))) : 0;
+  return exp > Date.now();
 }
 
 function exigirSesion_(token) {
-  token = String(token || "");
-  const exp = token.length >= 32 ? Number(PropertiesService.getScriptProperties().getProperty("ses_" + hash_(token))) : 0;
-  if (!exp || exp < Date.now()) throw new Error(SIN_SESION);
+  if (!vigente_(PropertiesService.getScriptProperties(), "ses_", token)) throw new Error(SIN_SESION);
 }
 
 function salir_(token) {
@@ -412,10 +428,11 @@ function salir_(token) {
   return { ok: true };
 }
 
-/* Ejecutar desde el editor: cierra la sesión en todos los navegadores (p. ej. si dejaste abierta la del PC de la sala) */
+/* Ejecutar desde el editor: cierra la sesión en todos los navegadores (p. ej. si dejaste abierta la del PC de la sala)
+   y olvida los computadores recordados: en todos se volverá a pedir el código del correo */
 function cerrarSesiones() {
   const props = PropertiesService.getScriptProperties();
-  Object.keys(props.getProperties()).forEach(k => { if (k.indexOf("ses_") === 0) props.deleteProperty(k); });
+  Object.keys(props.getProperties()).forEach(k => { if (k.indexOf("ses_") === 0 || k.indexOf("eq_") === 0) props.deleteProperty(k); });
 }
 
 /* Ejecutar desde el editor si el bloqueo por intentos fallidos te dejó fuera a ti */

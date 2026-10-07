@@ -2,8 +2,11 @@
 // La clave NO se comprueba aquí: esta página es pública y cualquiera puede leer su código. La comprueba el
 // Apps Script, con límite de intentos y (si está activado) un código que llega al correo. A cambio entrega una
 // sesión que vence sola; la clave nunca se guarda en el navegador.
+// Computador conocido: tras escribir el código del correo con «Recordar este computador», el servidor entrega una
+// marca que se guarda aquí; mientras siga vigente, en este navegador basta la clave (sin código).
 
 const SESION = "menti-sesion";
+const EQUIPO = "menti-equipo";
 // Las versiones anteriores guardaban la clave (o su hash) en el navegador: se borran
 try { localStorage.removeItem("menti-clave"); localStorage.removeItem("editor-ok"); } catch (e) {}
 
@@ -13,6 +16,13 @@ function sesionGuardada() {
     if (s && s.token && s.expira > Date.now()) return s.token;
   } catch (e) {}
   return null;
+}
+function equipoGuardado() {
+  try {
+    const s = JSON.parse(localStorage.getItem(EQUIPO));
+    if (s && s.token && s.expira > Date.now()) return s.token;
+  } catch (e) {}
+  return "";
 }
 function olvidarSesion() { try { localStorage.removeItem(SESION); } catch (e) {} }
 const sesionVencida = e => /^Sesión vencida/.test(e.message);
@@ -52,7 +62,7 @@ function entrar(motivo) {
     const mostrarPaso = (p, texto) => {
       paso = p;
       el("accesoLblClave").hidden = p !== "clave";
-      el("accesoLblCodigo").hidden = p !== "codigo";
+      el("accesoLblCodigo").hidden = el("accesoLblRecordar").hidden = p !== "codigo";
       el("accesoOtro").hidden = p !== "codigo";
       el("accesoTexto").textContent = texto;
       (p === "clave" ? clave : codigo).focus();
@@ -65,13 +75,15 @@ function entrar(motivo) {
       boton.disabled = true;
       error.textContent = "";
       try {
-        const r = await api({ accion: "entrar", clave: clave.value, codigo: paso === "codigo" ? codigo.value.trim() : "" });
+        const r = await api({ accion: "entrar", clave: clave.value, codigo: paso === "codigo" ? codigo.value.trim() : "",
+          equipo: equipoGuardado(), recordar: paso === "codigo" && el("accesoRecordar").checked ? 1 : 0 });
         if (r.paso === "codigo") {
           codigo.value = "";
           mostrarPaso("codigo", `Te enviamos un código de 6 dígitos a ${r.correo}. Escríbelo aquí (vence en 10 minutos).`);
           return;
         }
         try { localStorage.setItem(SESION, JSON.stringify({ token: r.token, expira: r.expira })); } catch (e) {}
+        if (r.equipo) try { localStorage.setItem(EQUIPO, JSON.stringify({ token: r.equipo, expira: r.equipoExpira })); } catch (e) {}
         fin(r.token);
       } catch (e) {
         error.textContent = e instanceof TypeError ? "No hay conexión con el servidor. Inténtalo de nuevo." : e.message;
@@ -103,6 +115,8 @@ function dialogoAcceso() {
     #dlgAcceso .ayuda { color: var(--suave); }
     #dlgAcceso label { display: block; margin: 0 0 14px; color: var(--suave); font-size: 16px; }
     #dlgAcceso input { display: block; box-sizing: border-box; width: 100%; margin-top: 4px; padding: 8px 12px; font: inherit; font-size: 20px; color: var(--tinta); background: #fff; border: 1px solid var(--riel); border-radius: 4px; }
+    #dlgAcceso #accesoLblRecordar { color: var(--tinta); }
+    #dlgAcceso #accesoRecordar { display: inline; width: auto; margin: 0 8px 0 0; vertical-align: middle; }
     #dlgAcceso #accesoCodigo { letter-spacing: .2em; font-variant-numeric: tabular-nums; }
     #dlgAcceso .botones { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
     #dlgAcceso button { font: inherit; font-size: 16px; padding: 8px 14px; color: var(--tinta); background: #fff; border: 1px solid var(--riel); border-radius: 4px; cursor: pointer; }
@@ -119,6 +133,7 @@ function dialogoAcceso() {
       <p id="accesoTexto" class="ayuda" aria-live="polite"></p>
       <label id="accesoLblClave">Clave <input id="accesoClave" type="password" autocomplete="current-password"></label>
       <label id="accesoLblCodigo" hidden>Código del correo <input id="accesoCodigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+      <label id="accesoLblRecordar" hidden><input id="accesoRecordar" type="checkbox" checked>Recordar este computador (no volver a pedir el código aquí)</label>
       <p id="accesoError" class="error" aria-live="polite"></p>
       <div class="botones">
         <button type="button" id="accesoOtro" hidden>Pedir otro código</button>
