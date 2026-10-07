@@ -1,0 +1,46 @@
+{
+  "nombre": "clase-13-1",
+  "qr": {
+    "url": "https://agonzalezs4.github.io/apoyo-clases/votar.html?clase=clase-13-1",
+    "n": 37,
+    "d": "/iDHi/wT9XHQbq4BqLt1y5Tl26330q7BQWRZB/qqqq/gFA/XAL5xkUvmBgtvSaSY9BaOqdI4Lh6kHx9rotNctIA9Rpr3Y7AwxvDKUyj3uYLuHEiE1oKVlgJZCHkQOoSkbgwPfpQragcxV2w7jNRyy8WF4reLKUhqIvN9DycZaj8LCa5dLfuATFykY/l2qKqwXqMhGrrzPn+t124K9m6kgpofBOFNOZ/oRA5PgA=="
+  },
+  "p": [
+    {
+      "id": "16hhig",
+      "tipo": "alt",
+      "texto": "¿Cuál es el riesgo atribuible en los expuestos (RA) a 1 año?",
+      "opciones": [
+        "20 por 100 usuarios intensivos",
+        "8 por 100 usuarios intensivos",
+        "10 por 100 usuarios intensivos",
+        "14 por 100 usuarios intensivos"
+      ],
+      "multi": false
+    },
+    {
+      "id": "1a6sqos",
+      "tipo": "alt",
+      "texto": "¿Cuál es el riesgo atribuible poblacional (RAP) a 1 año?",
+      "opciones": [
+        "4 por 100 estudiantes",
+        "10 por 100 estudiantes",
+        "14 por 100 estudiantes",
+        "6 por 100 estudiantes"
+      ],
+      "multi": false
+    },
+    {
+      "id": "1m3dpaq",
+      "tipo": "alt",
+      "texto": "Dos universidades tienen las mismas incidencias a 1 año: 20% en usuarios intensivos y 10% en los demás. En la universidad A, el 60% de los estudiantes usa redes >3 h/día; en la B, el 20%. ¿Cómo es el RAP de A comparado con el de B?",
+      "opciones": [
+        "Igual, porque el RR es el mismo en ambas",
+        "Mayor, porque en A los usuarios intensivos tienen más riesgo",
+        "Mayor, porque A tiene más estudiantes expuestos",
+        "Igual, porque el RA es el mismo en ambas"
+      ],
+      "multi": false
+    }
+  ]
+}
