@@ -2,10 +2,17 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS4JLMcGJLLN6mSAQxQYbNolY0fpp0BKnBY4A8GH84Ai9keizha_hT2hqho7mvPPDg/exec";
 
 /* ----- No es necesario editar lo que sigue ----- */
+// A veces Google responde con una página de error HTML (sobrecarga, tiempo agotado) en vez del JSON del script.
+// Se trata como un corte de red (TypeError): quien llama ya reintenta o avisa «sin conexión».
+async function leerJSON(r) {
+  if (!/json/.test(r.headers.get("content-type") || "")) throw new TypeError("Google no respondió (error " + r.status + "): inténtalo de nuevo");
+  return r.json();
+}
+
 async function api(params) {
   if (SCRIPT_URL.startsWith("PEGA")) throw new Error("falta pegar SCRIPT_URL en config.js");
   const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params) + "&_=" + Date.now());
-  const d = await r.json();
+  const d = await leerJSON(r);
   if (d.error) throw new Error(d.error);
   return d;
 }

@@ -154,7 +154,7 @@ async function llamar(params, ms = 15000) {
   const t = setTimeout(() => ac.abort(), ms);
   try {
     const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params) + "&_=" + Date.now(), { signal: ac.signal });
-    const d = await r.json();
+    const d = await leerJSON(r);
     if (d.error) throw Object.assign(new Error(d.error), { servidor: true });
     return d;
   } finally { clearTimeout(t); }
