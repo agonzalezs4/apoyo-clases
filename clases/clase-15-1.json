@@ -1,0 +1,46 @@
+{
+  "nombre": "clase-15-1",
+  "qr": {
+    "url": "https://agonzalezs4.github.io/apoyo-clases/votar.html?clase=clase-15-1",
+    "n": 37,
+    "d": "/jDHi/wTMXHQbqxhqLt1y5Tl26n30q7BYmdZB/qqqq/gGE/XAL5ZkUvlCktvSaS69BaOyfI4Lh60Hx9rotNctIMdxpr3ejCwxvDS8Sj3uCIuHEiA0IKVliFpCHkQK4SkbkwNfpQpa58xV227DNRyCyeF4rYnaUhqLtN9Dydaej8LC79dLfuATFykY/n2qKqwVuMhGrrbPn+t1n4K9m6kgpofBNFNOZ/pRA5PgA=="
+  },
+  "p": [
+    {
+      "id": "1qrjytq",
+      "tipo": "alt",
+      "texto": "Según su diseño, este estudio corresponde a:",
+      "opciones": [
+        "Un estudio de casos y controles",
+        "Una serie de casos",
+        "Un estudio ecológico",
+        "Una cohorte retrospectiva"
+      ],
+      "multi": false
+    },
+    {
+      "id": "ci3i3e",
+      "tipo": "alt",
+      "texto": "Gomel registró 71 casos y Minsk City 9. Con solo estos datos, la conclusión que se sostiene es:",
+      "opciones": [
+        "El riesgo de cáncer de tiroides infantil fue 7,9 veces mayor en Gomel que en Minsk City",
+        "La radiación causó 62 casos adicionales de cáncer de tiroides infantil en Gomel respecto de Minsk City",
+        "Hubo más casos en Gomel, pero falta la población infantil para comparar riesgos",
+        "La prevalencia de cáncer de tiroides infantil fue mayor en Gomel que en Minsk City"
+      ],
+      "multi": false
+    },
+    {
+      "id": "1syzewk",
+      "tipo": "alt",
+      "texto": "Para evaluar si la exposición a yodo radiactivo en la infancia se asocia al cáncer de tiroides, el diseño más eficiente es:",
+      "opciones": [
+        "Un estudio de casos y controles con niños con y sin cáncer de tiroides",
+        "Un ensayo clínico que asigne al azar la exposición a yodo radiactivo en niños",
+        "Una serie de casos más grande, con todos los casos de Bielorrusia y Ucrania",
+        "Un estudio transversal que mida la prevalencia de cáncer de tiroides en escolares"
+      ],
+      "multi": false
+    }
+  ]
+}
