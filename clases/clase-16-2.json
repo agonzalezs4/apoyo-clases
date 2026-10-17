@@ -1,47 +1,50 @@
-[
-  {
-    "id": "c162-leyqf1",
-    "tipo": "alt",
-    "texto": "Imagina que Chile es un Estado federal y que en 2027 nueve regiones aplican la ley que permite farmacias sin químico farmacéutico (QF). En una farmacia rural, el QF suele ser quien nota que en una semana se vendieron tres veces más antidiarreicos y sales de rehidratación que lo habitual, y avisa a la SEREMI: así muchos brotes de gastroenteritis se detectan antes de llegar al hospital. La SEREMI compara, con datos agregados por región, el porcentaje de brotes detectados oportunamente (≤72 h) entre las regiones que aplicaron la ley y las que no. ¿Qué diseño corresponde a esa comparación?",
-    "opciones": [
-      "Estudio transversal con encuesta a una muestra de personas",
-      "Estudio ecológico de comparación entre regiones",
-      "Estudio de cohorte que sigue a cada químico farmacéutico",
-      "Estudio de casos y controles con pacientes hospitalizados"
-    ],
-    "correcta": 1,
-    "explicacion": "La unidad de análisis es la región (datos agregados), comparando una medida global de exposición (ley regional) con una medida global de resultado (% de detección oportuna).",
-    "multi": false,
-    "pagina": "widgets/ley-qf-brotes.html"
-  },
-  {
-    "id": "c162-leyqf2",
-    "tipo": "alt",
-    "texto": "Mira el gráfico (cada línea y cada punto es una región). ¿Cuál de estas conclusiones es la que este diseño permite afirmar?",
-    "opciones": [
-      "En las regiones que aplicaron la ley, la detección oportuna cayó desde 2027",
-      "Cada farmacia que opera sin QF notifica sus brotes con tres días de retraso",
-      "Trabajar sin QF causa que un dependiente deje de reconocer un brote",
-      "Los QF de las regiones que no aplicaron la ley son más diligentes que los demás"
-    ],
-    "correcta": 0,
-    "explicacion": "Un estudio ecológico solo permite concluir sobre las unidades agregadas (las regiones). Afirmar qué hace cada farmacia, dependiente o QF en particular a partir de promedios regionales es caer en la falacia ecológica.",
-    "multi": false,
-    "pagina": "widgets/ley-qf-brotes.html"
-  },
-  {
-    "id": "c162-leyqf3",
-    "tipo": "alt",
-    "texto": "Ahora supón que la ley se aplica en todo Chile el mismo día de 2027 y que la proporción de farmacias sin QF resulta igual en todas las regiones. ¿Qué tipo de estudio ecológico sigue siendo posible para describir el efecto sobre la detección oportuna de brotes?",
-    "opciones": [
-      "Comparación espacial entre regiones con ley y sin ley",
-      "Serie de tiempo nacional: antes y después de 2027",
-      "Comparación de grupos múltiples según porcentaje de farmacias sin QF",
-      "Estudio ecológico mixto comparando dos ciudades con distinta exposición"
-    ],
-    "correcta": 1,
-    "explicacion": "Al no existir variación entre regiones en la aplicación de la ley ni en la proporción de farmacias sin QF, el contraste espacial deja de ser informativo; solo queda comparar la evolución temporal antes y después de 2027.",
-    "multi": false,
-    "pagina": "widgets/ley-qf-brotes.html"
-  }
-]
+{
+  "nombre": "clase-16-2",
+  "p": [
+    {
+      "id": "c162-leyqf1",
+      "tipo": "alt",
+      "texto": "Imagina que Chile es un Estado federal y que en 2027 nueve regiones aplican la ley que permite farmacias sin químico farmacéutico (QF). En una farmacia rural, el QF suele ser quien nota que en una semana se vendieron tres veces más antidiarreicos y sales de rehidratación que lo habitual, y avisa a la SEREMI: así muchos brotes de gastroenteritis se detectan antes de llegar al hospital. La SEREMI compara, con datos agregados por región, el porcentaje de brotes detectados oportunamente (≤72 h) entre las regiones que aplicaron la ley y las que no. ¿Qué diseño corresponde a esa comparación?",
+      "opciones": [
+        "Estudio transversal con encuesta a una muestra de personas",
+        "Estudio ecológico de comparación entre regiones",
+        "Estudio de cohorte que sigue a cada químico farmacéutico",
+        "Estudio de casos y controles con pacientes hospitalizados"
+      ],
+      "correcta": 1,
+      "explicacion": "La unidad de análisis es la región (datos agregados), comparando una medida global de exposición (ley regional) con una medida global de resultado (% de detección oportuna).",
+      "multi": false,
+      "pagina": "widgets/ley-qf-brotes.html"
+    },
+    {
+      "id": "c162-leyqf2",
+      "tipo": "alt",
+      "texto": "Mira el gráfico (cada línea y cada punto es una región). ¿Cuál de estas conclusiones es la que este diseño permite afirmar?",
+      "opciones": [
+        "En las regiones que aplicaron la ley, la detección oportuna cayó desde 2027",
+        "Cada farmacia que opera sin QF notifica sus brotes con tres días de retraso",
+        "Trabajar sin QF causa que un dependiente deje de reconocer un brote",
+        "Los QF de las regiones que no aplicaron la ley son más diligentes que los demás"
+      ],
+      "correcta": 0,
+      "explicacion": "Un estudio ecológico solo permite concluir sobre las unidades agregadas (las regiones). Afirmar qué hace cada farmacia, dependiente o QF en particular a partir de promedios regionales es caer en la falacia ecológica.",
+      "multi": false,
+      "pagina": "widgets/ley-qf-brotes.html"
+    },
+    {
+      "id": "c162-leyqf3",
+      "tipo": "alt",
+      "texto": "Ahora supón que la ley se aplica en todo Chile el mismo día de 2027 y que la proporción de farmacias sin QF resulta igual en todas las regiones. ¿Qué tipo de estudio ecológico sigue siendo posible para describir el efecto sobre la detección oportuna de brotes?",
+      "opciones": [
+        "Comparación espacial entre regiones con ley y sin ley",
+        "Serie de tiempo nacional: antes y después de 2027",
+        "Comparación de grupos múltiples según porcentaje de farmacias sin QF",
+        "Estudio ecológico mixto comparando dos ciudades con distinta exposición"
+      ],
+      "correcta": 1,
+      "explicacion": "Al no existir variación entre regiones en la aplicación de la ley ni en la proporción de farmacias sin QF, el contraste espacial deja de ser informativo; solo queda comparar la evolución temporal antes y después de 2027.",
+      "multi": false,
+      "pagina": "widgets/ley-qf-brotes.html"
+    }
+  ]
+}
