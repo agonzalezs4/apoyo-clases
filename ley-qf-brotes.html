@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brotes detectados a tiempo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{--bg:#fff;--ink:#1f1f1e;--ink2:#6b6a66;--grid:#e6e5e1;--si:#eb6834;--no:#2a78d6}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--grid:#3a3a38;--si:#d95926;--no:#3987e5}}
+body{margin:0;padding:12px 16px;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui,sans-serif}
+h1{font-size:17px;margin:0 0 2px}p{margin:0 0 8px;color:var(--ink2);font-size:13px}
+.wrap{display:flex;flex-wrap:wrap;gap:16px}.wrap>div{flex:1 1 320px;min-width:0}
+h2{font-size:14px;margin:0 0 4px}
+.leg span{display:inline-block;margin-right:14px}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+svg{width:100%;height:auto;display:block}.ax text{fill:var(--ink2);font-size:11px}.ax line,.ax path{stroke:var(--grid)}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:4px 8px;border-radius:4px;font-size:12px;display:none}
+</style></head><body>
+<h1>Brotes de gastroenteritis detectados a tiempo (≤72 h), por región · 2024–2031</h1>
+<p>Datos <b>simulados</b>. Escenario: Chile como Estado federal; en 2027 nueve regiones aplican la ley que permite farmacias sin químico farmacéutico (QF). Cada línea o punto es una <b>región</b>, no una persona. Pasa el mouse para ver el nombre.</p>
+<div class="leg"><span><i style="background:var(--si)"></i>Aplicó la ley (2027)</span><span><i style="background:var(--no)"></i>No aplicó la ley</span></div>
+<div class="wrap">
+ <div><h2>Serie de tiempo</h2><svg id="s1" viewBox="0 0 520 320"></svg></div>
+ <div><h2>Año 2031: % de farmacias rurales sin QF vs. detección oportuna</h2><svg id="s2" viewBox="0 0 520 320"></svg></div>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+const D = {"anios": [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031], "regiones": [{"region": "Arica y Parinacota", "ley": true, "sinQF": 55, "serie": [63.8, 66.7, 63.9, 61.0, 52.9, 46.2, 41.4, 41.3]}, {"region": "Coquimbo", "ley": true, "sinQF": 45, "serie": [64.9, 66.8, 65.5, 58.4, 57.0, 44.4, 45.3, 50.7]}, {"region": "O'Higgins", "ley": true, "sinQF": 40, "serie": [71.4, 71.2, 68.3, 68.1, 62.2, 59.9, 53.0, 55.5]}, {"region": "Maule", "ley": true, "sinQF": 60, "serie": [69.9, 73.6, 67.7, 59.9, 57.8, 51.9, 49.1, 43.7]}, {"region": "Ñuble", "ley": true, "sinQF": 70, "serie": [69.7, 71.2, 72.7, 65.4, 54.8, 48.1, 38.7, 36.2]}, {"region": "La Araucanía", "ley": true, "sinQF": 75, "serie": [63.8, 59.7, 64.6, 52.3, 46.1, 34.2, 26.2, 26.5]}, {"region": "Los Ríos", "ley": true, "sinQF": 65, "serie": [63.4, 63.7, 60.3, 56.3, 44.1, 39.4, 31.2, 34.3]}, {"region": "Los Lagos", "ley": true, "sinQF": 60, "serie": [72.3, 66.9, 65.6, 57.6, 54.8, 49.0, 42.2, 41.8]}, {"region": "Aysén", "ley": true, "sinQF": 50, "serie": [58.2, 58.1, 65.0, 59.0, 54.8, 43.7, 41.6, 42.5]}, {"region": "Tarapacá", "ley": false, "sinQF": 0, "serie": [65.2, 65.4, 59.5, 64.2, 66.2, 65.9, 64.5, 65.5]}, {"region": "Antofagasta", "ley": false, "sinQF": 0, "serie": [67.2, 64.8, 68.2, 67.7, 68.8, 71.1, 70.2, 66.2]}, {"region": "Atacama", "ley": false, "sinQF": 0, "serie": [63.8, 65.8, 64.2, 64.0, 58.9, 65.2, 63.6, 68.4]}, {"region": "Valparaíso", "ley": false, "sinQF": 0, "serie": [70.9, 73.2, 74.0, 75.9, 74.8, 68.1, 73.2, 75.1]}, {"region": "Metropolitana", "ley": false, "sinQF": 0, "serie": [61.6, 64.2, 63.0, 63.0, 64.4, 62.2, 59.2, 62.3]}, {"region": "Biobío", "ley": false, "sinQF": 0, "serie": [65.2, 66.1, 66.7, 67.7, 65.2, 64.9, 67.3, 65.5]}, {"region": "Magallanes", "ley": false, "sinQF": 0, "serie": [68.9, 63.8, 69.7, 68.3, 69.4, 71.0, 65.5, 69.0]}]};
+const col = d => d.ley ? "var(--si)" : "var(--no)";
+const tip = document.getElementById("tip");
+const show = (e,t)=>{tip.style.display="block";tip.textContent=t;tip.style.left=(e.clientX+12)+"px";tip.style.top=(e.clientY-10)+"px";};
+const hide = ()=>tip.style.display="none";
+const M={t:10,r:20,b:40,l:44}, W=520, H=320;
+const y = d3.scaleLinear().domain([20,85]).range([H-M.b,M.t]);
+function ejes(svg,x,xl){
+  svg.append("g").attr("class","ax").attr("transform",`translate(0,${H-M.b})`).call(d3.axisBottom(x).ticks(8).tickFormat(d3.format("d")));
+  svg.append("g").attr("class","ax").attr("transform",`translate(${M.l},0)`).call(d3.axisLeft(y).ticks(6).tickSize(-(W-M.l-M.r))).select(".domain").remove();
+  svg.append("text").attr("class","ax").attr("x",W/2).attr("y",H-6).attr("text-anchor","middle").style("fill","var(--ink2)").style("font-size","11px").text(xl);
+  svg.append("text").attr("x",-H/2).attr("y",12).attr("transform","rotate(-90)").attr("text-anchor","middle").style("fill","var(--ink2)").style("font-size","11px").text("% de brotes detectados ≤72 h");
+}
+// Panel 1: spaghetti
+{
+ const svg=d3.select("#s1"), x=d3.scaleLinear().domain(d3.extent(D.anios)).range([M.l,W-M.r]);
+ ejes(svg,x,"Año");
+ svg.append("line").attr("x1",x(2027)).attr("x2",x(2027)).attr("y1",M.t).attr("y2",H-M.b).attr("stroke","var(--ink2)").attr("stroke-dasharray","4 3");
+ svg.append("text").attr("x",x(2027)+4).attr("y",M.t+10).style("fill","var(--ink2)").style("font-size","11px").text("Ley (9 regiones)");
+ const line=d3.line().x((v,i)=>x(D.anios[i])).y(v=>y(v));
+ svg.selectAll("path.r").data(D.regiones).join("path").attr("class","r").attr("d",d=>line(d.serie))
+  .attr("fill","none").attr("stroke",col).attr("stroke-width",2).attr("opacity",.75)
+  .on("mousemove",(e,d)=>{d3.select(e.target).attr("stroke-width",4).attr("opacity",1);show(e,`${d.region} · ${d.ley?d.sinQF+"% farmacias sin QF":"no aplicó"}`)})
+  .on("mouseleave",e=>{d3.select(e.target).attr("stroke-width",2).attr("opacity",.75);hide()});
+}
+// Panel 2: scatter 2031
+{
+ const svg=d3.select("#s2"), x=d3.scaleLinear().domain([0,95]).range([M.l,W-M.r]);
+ ejes(svg,x,"% de farmacias rurales que operan sin QF (2031)");
+ const ult=d=>d.serie[d.serie.length-1];
+ svg.selectAll("circle").data(D.regiones).join("circle").attr("cx",d=>x(d.sinQF)).attr("cy",d=>y(ult(d))).attr("r",7)
+  .attr("fill",col).attr("stroke","var(--bg)").attr("stroke-width",2)
+  .on("mousemove",(e,d)=>show(e,`${d.region}: ${d.sinQF}% sin QF → ${ult(d)}% detectados a tiempo`)).on("mouseleave",hide);
+ svg.selectAll("text.l").data(D.regiones.filter(d=>d.ley)).join("text").attr("class","l").attr("x",d=>x(d.sinQF)+9).attr("y",(d,i)=>y(ult(d))+(i%2?12:-6))
+  .style("fill","var(--ink2)").style("font-size","10px").text(d=>d.region);
+}
+</script></body></html>
