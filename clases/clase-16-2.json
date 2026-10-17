@@ -14,7 +14,7 @@
       "correcta": 1,
       "explicacion": "La unidad de análisis es la región (datos agregados), comparando una medida global de exposición (ley regional) con una medida global de resultado (% de detección oportuna).",
       "multi": false,
-      "pagina": "widgets/ley-qf-brotes.html"
+      "pagina": "ley-qf-brotes.html"
     },
     {
       "id": "c162-leyqf2",
@@ -29,7 +29,7 @@
       "correcta": 0,
       "explicacion": "Un estudio ecológico solo permite concluir sobre las unidades agregadas (las regiones). Afirmar qué hace cada farmacia, dependiente o QF en particular a partir de promedios regionales es caer en la falacia ecológica.",
       "multi": false,
-      "pagina": "widgets/ley-qf-brotes.html"
+      "pagina": "ley-qf-brotes.html"
     },
     {
       "id": "c162-leyqf3",
@@ -44,7 +44,7 @@
       "correcta": 1,
       "explicacion": "Al no existir variación entre regiones en la aplicación de la ley ni en la proporción de farmacias sin QF, el contraste espacial deja de ser informativo; solo queda comparar la evolución temporal antes y después de 2027.",
       "multi": false,
-      "pagina": "widgets/ley-qf-brotes.html"
+      "pagina": "ley-qf-brotes.html"
     }
   ]
 }
