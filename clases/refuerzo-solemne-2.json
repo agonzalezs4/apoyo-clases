@@ -1,0 +1,130 @@
+{
+  "nombre": "refuerzo-solemne-2",
+  "qr": {
+    "url": "https://agonzalezs4.github.io/apoyo-clases/votar.html?clase=refuerzo-solemne-2",
+    "n": 37,
+    "d": "/uP1C/wUWhhQbouOXrt1KJbl26BhSa7BJR41B/qqqq/gF35hALdNR5JeiPrrSa7Qq1s4EBVWmMahvw9r4I7qb+6ueUGaxou0xvBbwE/BYE5yb5PTvgKVl6JbwxSpZl7J2LzCfpQrDEKXjB49egsfX7OD4rJOoqXc2rYWuf0BehwLAP4q9v6ASofsV/qGqKqwUw5TEbpwhK/F1E7K9m6o29epBHYzj0/pRQ5PgA=="
+  },
+  "p": [
+    {
+      "id": "p46ozg",
+      "tipo": "alt",
+      "texto": "Un programa de seguimiento farmacoterapéutico incorpora a 200 adultos mayores polimedicados. El día del ingreso, 10 ya presentan una reacción adversa a medicamentos (RAM). Durante 3 meses, sin pérdidas, otros 19 presentan su primera RAM. ¿Cuál es la prevalencia de RAM al ingreso y la incidencia acumulada a 3 meses?",
+      "opciones": [
+        "Prevalencia 5%; incidencia acumulada 9,5%",
+        "Prevalencia 5%; incidencia acumulada 10%",
+        "Prevalencia 5%; incidencia acumulada 14,5%",
+        "Prevalencia 14,5%; incidencia acumulada 9,5%"
+      ],
+      "multi": false
+    },
+    {
+      "id": "v0zru1",
+      "tipo": "alt",
+      "texto": "Un nuevo antirretroviral prolonga la sobrevida de las personas con VIH, pero no las cura ni modifica la aparición de nuevas infecciones. ¿Qué ocurrirá con la prevalencia y la incidencia de VIH en la población?",
+      "opciones": [
+        "La incidencia aumentará, porque habrá más personas viviendo con VIH en la población",
+        "La prevalencia disminuirá, mientras que la incidencia se mantendrá sin cambios",
+        "La prevalencia aumentará, mientras que la incidencia se mantendrá sin cambios",
+        "Ambas disminuirán, porque el tratamiento es eficaz para las personas con VIH"
+      ],
+      "multi": false
+    },
+    {
+      "id": "o3yvw0",
+      "tipo": "alt",
+      "texto": "En 2025, en una región de 500.000 habitantes, el centro de información toxicológica registró 250 intoxicaciones por paracetamol. De ellas, 5 personas murieron por esa causa. ¿Cuál es la letalidad y la tasa de mortalidad por intoxicación por paracetamol?",
+      "opciones": [
+        "Letalidad 2%; mortalidad 1 por 100.000 habitantes",
+        "Letalidad 2%; mortalidad 50 por 100.000 habitantes",
+        "Letalidad 1 por 100.000 habitantes; mortalidad 2%",
+        "Letalidad 50 por 100.000 habitantes; mortalidad 1 por 100.000 habitantes"
+      ],
+      "multi": false
+    },
+    {
+      "id": "lngv5n",
+      "tipo": "alt",
+      "texto": "Considera tres estudios. (1) En un día, se encuesta a 600 usuarios de una farmacia comunitaria y se registra si usan AINE (antiinflamatorios sin esteroides) y si tienen dispepsia (malestar estomacal). (2) Se seleccionan 80 pacientes con daño hepático inducido por fármacos y 160 sin ese daño, y se revisa su consumo previo de suplementos herbales. (3) Se sigue durante un año a 1.000 adultos mayores sin caídas, usuarios y no usuarios de benzodiazepinas, y se registran las caídas nuevas. ¿Qué medida de asociación corresponde a cada estudio?",
+      "opciones": [
+        "1: OR; 2: RR; 3: RP",
+        "1: RR; 2: OR; 3: RP",
+        "1: RP; 2: RR; 3: OR",
+        "1: RP; 2: OR; 3: RR"
+      ],
+      "multi": false
+    },
+    {
+      "id": "936h4x",
+      "tipo": "alt",
+      "texto": "En un hospital se seleccionan 50 pacientes con infección por Clostridioides difficile y 100 pacientes sin la infección. En ambos grupos se revisa el uso de inhibidores de la bomba de protones (IBP) en los 3 meses previos. Entre los 50 casos, 30 usaron IBP y 20 no; entre los 100 controles, 25 usaron IBP y 75 no. ¿Cuál es el valor y la interpretación correctos de la medida de asociación?",
+      "opciones": [
+        "RR = 2,6; quienes usaron IBP tuvieron 2,6 veces el riesgo de infección que quienes no los usaron",
+        "OR = 4,5; quienes usaron IBP tuvieron 4,5 veces el riesgo de infección que quienes no los usaron",
+        "OR = 4,5; los casos tuvieron 4,5 veces la odds de haber usado IBP que los controles",
+        "OR = 0,22; los casos tuvieron menos odds de haber usado IBP que los controles"
+      ],
+      "multi": false
+    },
+    {
+      "id": "224cww",
+      "tipo": "alt",
+      "texto": "Una cohorte de adultos mayores comparó a usuarios y no usuarios de un antidepresivo ISRS y evaluó la aparición de hiponatremia a un año. El resultado fue RR = 1,40 (IC 95%: 0,90–2,18). ¿Cuál es la interpretación correcta?",
+      "opciones": [
+        "Es estadísticamente significativa, porque el RR es mayor que 1",
+        "No es estadísticamente significativa, porque el IC incluye el 1",
+        "Es estadísticamente significativa, porque el IC no incluye el 0",
+        "Demuestra que el ISRS no aumenta el riesgo, porque el IC incluye el 1"
+      ],
+      "multi": false
+    },
+    {
+      "id": "i3galw",
+      "tipo": "alt",
+      "texto": "Un ensayo clínico evaluó un programa de conciliación de medicamentos al alta. A 3 meses, la reducción absoluta del riesgo (RAR) de reingreso fue de 4 puntos porcentuales (IC 95%: 0,5 a 7,5). ¿Con qué valor se compara el IC y cuál es la conclusión?",
+      "opciones": [
+        "Con el 0, porque en una diferencia indica ausencia de efecto; el IC no lo incluye, así que la reducción es estadísticamente significativa",
+        "Con el 1, porque en una diferencia indica ausencia de efecto; el IC lo incluye, así que la reducción no es estadísticamente significativa",
+        "Con el 0, porque en una diferencia indica ausencia de efecto; el IC lo incluye, así que la reducción no es estadísticamente significativa",
+        "Con el 1, porque en una diferencia indica ausencia de efecto; el IC no lo incluye, así que la reducción sí es estadísticamente significativa"
+      ],
+      "multi": false
+    },
+    {
+      "id": "hpi3g2",
+      "tipo": "alt",
+      "texto": "Un ensayo clínico evaluó un programa de educación farmacéutica en personas con diabetes. A 6 meses, el 20% del grupo control y el 15% del grupo intervenido acudió a urgencia por descompensación. ¿Cuál es el NNT y cómo se interpreta?",
+      "opciones": [
+        "NNT = 4; hay que intervenir a 4 personas durante 6 meses para evitar una visita a urgencia",
+        "NNT = 5; hay que intervenir a 5 personas durante los 6 meses de seguimiento para evitar una visita a urgencia",
+        "NNT = 7; hay que intervenir a 7 personas durante 6 meses para evitar una visita a urgencia",
+        "NNT = 20; hay que intervenir a 20 personas durante 6 meses para evitar una visita a urgencia"
+      ],
+      "multi": false
+    },
+    {
+      "id": "745467",
+      "tipo": "alt",
+      "texto": "Dos estudios de cohorte evaluaron reacciones adversas graves a un año con dos fármacos distintos. Fármaco A: 0,3% en usuarios y 0,1% en no usuarios. Fármaco B: 9% en usuarios y 3% en no usuarios. Ambos tienen RR = 3,0. ¿Qué afirmación es correcta?",
+      "opciones": [
+        "Ambos fármacos tienen el mismo impacto, porque comparten un RR de 3,0",
+        "El fármaco B tiene mayor impacto absoluto: 6 casos más por cada 100 usuarios, frente a 0,2 en A",
+        "El fármaco A tiene mayor impacto absoluto, porque su riesgo basal es menor",
+        "El fármaco B tiene mayor impacto absoluto: 3 casos más por cada 100 usuarios, frente a 0,3 casos en A"
+      ],
+      "multi": false
+    },
+    {
+      "id": "new89k",
+      "tipo": "alt",
+      "texto": "Con registros de dispensación de una cadena de farmacias, se identificó en 2019 a usuarios crónicos y no usuarios de AINE, todos sin enfermedad renal crónica (ERC). Luego se revisó en fichas clínicas quiénes desarrollaron ERC hasta 2024. El análisis se realizó en 2025. ¿Qué diseño es y qué medida corresponde?",
+      "opciones": [
+        "Casos y controles, porque revisa información del pasado; se calcula OR",
+        "Transversal, porque los datos se obtienen en un solo momento (2025); se calcula RP",
+        "Cohorte retrospectiva, porque parte de la exposición y busca casos nuevos; se calcula RR",
+        "Ecológico, porque utiliza registros agregados de una cadena de farmacias; se calcula una razón de tasas"
+      ],
+      "multi": false
+    }
+  ]
+}
