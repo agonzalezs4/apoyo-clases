@@ -332,3 +332,66 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
 [56] 2026-10-01 09:53 · agonzalezs4
      Merge pull request #6 from agonzalezs4/claude/sweet-hawking-z7lloc
      Votación autorizada por el profesor y acceso seguro con límite de intentos
+
+[57] 2026-11-23 17:56 · Claude
+     Modo recopilación para el repaso (opcional, apagado por defecto)
+     - Apps Script: acción "repaso", aparte de "lote" y "enviar" (no mira si la
+       votación está abierta ni la ronda). Escribe en la hoja «Repaso»: fecha,
+       clase, id_pregunta, tema, respuesta, correcta, sesion. Solo acepta las
+       clases de REPASOS_CON_REGISTRO (vacía por defecto), máximo 10 filas por
+       llamada, campos recortados y con apóstrofo. Un reintento no duplica filas.
+     - recopilar.js (nuevo): solo actúa si la clase trae "recopilar": true y el
+       estudiante elige «Practicar y enviar» en el aviso del inicio. Envía el
+       primer intento de cada pregunta, de a 5 y al terminar, con una sesión al
+       azar que no se guarda. Si falla la red reintenta una vez a los 20 s y
+       descarta; si el servidor rechaza deja de enviar. Nunca muestra error.
+     - pruebas/recopilacion.test.js: node pruebas/recopilacion.test.js
+     - PENDIENTE: repasar.html no está en el repositorio; falta conectarle
+       recopilar.js (aviso, registrar, terminar). Requiere publicar una versión
+       nueva del Apps Script.
+
+[58] 2026-11-23 18:11 · Claude
+     repasar.html de prueba, conectado a recopilar.js
+     - repasar.html?clase=nombre: práctica sin nota de las preguntas "alt" que
+       traen "correcta" (índice desde 0), con "tema", "retro" por alternativa y
+       "explicacion" opcionales. Se puede reintentar hasta acertar; al final
+       muestra los aciertos al primer intento y permite volver al inicio.
+     - Resuelve el pendiente de [57]: aviso en el inicio, registro del primer
+       intento después de mostrar la retroalimentación y envío al terminar.
+     - clases/repaso-demo.json: 7 preguntas de prueba con "recopilar": true.
+       No está en REPASOS_CON_REGISTRO (la lista del repositorio sigue vacía).
+
+[59] 2026-11-23 18:21 · Claude
+     repasar.html completo, según el encargo original
+     - Inicio con «Todo mezclado» y un botón por tema. Preguntas y alternativas
+       se mezclan en cada intento ("correcta" y "retro" siguen a su alternativa).
+     - Incorrecta: se marca (✗, tachada), muestra su retro y deja reintentar sin
+       revelar la correcta. Correcta: ✓, retro, explicacion y «Siguiente».
+     - Final: aciertos al primer intento, desglose por tema y «Repetir las que
+       fallé». El avance se guarda en el navegador (con respaldo en memoria) y
+       se retoma al recargar.
+     - Solo usa preguntas "alt" con "correcta" y una "retro" por alternativa; las
+       demás se saltan y se avisa cuántas se omitieron.
+     - Recopilación: la elección se recuerda (una línea con «Cambiar» en el
+       inicio) y vale tras recargar. Lo pendiente se envía al recargar, salir o
+       dejar la página en segundo plano. «Repetir las que fallé» no se envía.
+       config.js: api() acepta opciones de fetch (para keepalive).
+     - Editor (index.html): los campos tema, correcta, retro y explicacion ya se
+       conservaban al republicar; se perdía "recopilar", ahora se conserva. OJO:
+       si se cambian las alternativas en el editor, "correcta" y "retro" no se
+       reacomodan (el editor no las muestra).
+
+[60] 2026-11-23 19:15 · Claude
+     Repaso para el examen: clases/refuerzo-examen.json
+     - 46 preguntas en 12 temas, con "recopilar": true. Se abre con
+       repasar.html?clase=refuerzo-examen
+     - El nombre coincide con el autorizado en REPASOS_CON_REGISTRO del Apps
+       Script publicado. Para dejar de registrar: quitar "recopilar" del archivo
+       o el nombre de la lista.
+
+[61] 2026-11-23 20:48 · Claude
+     refuerzo-examen: 21 preguntas más (67 en 13 temas)
+     - rp-36 a rp-66: las 20 que faltaban, tal como las entregó el profesor.
+     - rp-59 (estándar de referencia): enunciado y retro más orientadores.
+     - rp-67 (nueva): tasa de incidencia vs. riesgo, con personas-año.
+       Redactada por Claude a partir de la nota del profesor: POR REVISAR.

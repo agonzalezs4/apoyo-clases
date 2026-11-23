@@ -9,9 +9,9 @@ async function leerJSON(r) {
   return r.json();
 }
 
-async function api(params) {
+async function api(params, opciones) {
   if (SCRIPT_URL.startsWith("PEGA")) throw new Error("falta pegar SCRIPT_URL en config.js");
-  const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params) + "&_=" + Date.now());
+  const r = await fetch(SCRIPT_URL + "?" + new URLSearchParams(params) + "&_=" + Date.now(), opciones);
   const d = await leerJSON(r);
   if (d.error) throw new Error(d.error);
   return d;

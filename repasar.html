@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repasar</title>
+<link rel="stylesheet" href="estilos.css">
+<script src="config.js"></script>
+<script src="repo.js"></script>
+<script src="recopilar.js"></script>
+<style>
+  main { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 19px; font-weight: 600; line-height: 1.35; margin: 0 0 20px; }
+  #tema { color: var(--suave); font-size: 15px; margin: 0 0 6px; }
+  #zona { display: grid; gap: 12px; }
+  #zona p { margin: 0; }
+  #zona button, #aviso div button {
+    text-align: left; font-size: 18px; padding: 14px 16px; min-height: 56px; touch-action: manipulation;
+    background: #fff; border: 2px solid var(--riel); border-radius: 6px;
+  }
+  #zona button.bien { background: var(--barra); border-color: var(--barra); color: #fff; }
+  #zona button.mal { border-style: dashed; border-color: var(--aviso); color: var(--aviso); text-decoration: line-through; }
+  #zona button:disabled { cursor: default; }
+  #zona button:disabled:not(.bien):not(.mal) { opacity: .5; }
+  #zona button.accion, #aviso div button { text-align: center; background: var(--barra); border-color: var(--barra); color: #fff; }
+  #retro { font-size: 17px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <p id="tema"></p>
+  <h1 id="pregunta">Cargando…</h1>
+  <div id="aviso"></div>
+  <div id="zona"></div>
+  <p id="retro" aria-live="polite"></p>
+  <p id="error" class="error"></p>
+</main>
+<script>
+// Repaso individual antes del examen, con retroalimentación al responder. No lleva nota.
+// repasar.html?clase=repaso-demo  ->  clases/repaso-demo.json
+// Usa las preguntas "alt" que traen "correcta" (índice desde 0) y "retro" (un texto por alternativa);
+// "tema" y "explicacion" son opcionales. No llama al servidor, salvo el modo opcional de recopilar.js.
+const nombre = new URLSearchParams(location.search).get("clase") || "";
+const CLAVE = "repaso_" + nombre;
+const mem = {}; // respaldo si el navegador no deja usar localStorage
+const leer = k => { try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {} return k in mem ? mem[k] : null; };
+const guardar = (k, v) => { mem[k] = v; try { localStorage.setItem(k, v); } catch (e) {} };
+const olvidar = k => { delete mem[k]; try { localStorage.removeItem(k); } catch (e) {} };
+
+let clase, validas, omitidas, porId = {};
+let ronda = null; // { ids: orden de esta vuelta, i: posición, primeros: {id: 1|0} primer intento, rep: repaso de las falladas }
+
+const temaDe = p => p.tema || "Otros";
+function mezclar(a) {
+  a = [...a];
+  for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; }
+  return a;
+}
+function boton(texto, alPulsar, accion) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = texto;
+  if (accion) b.className = "accion";
+  b.onclick = () => alPulsar(b);
+  $("zona").appendChild(b);
+  return b;
+}
+function pantalla(tema, titulo) {
+  $("tema").textContent = tema;
+  $("pregunta").textContent = titulo;
+  $("aviso").textContent = $("zona").textContent = $("retro").textContent = $("error").textContent = "";
+}
+const cuantas = n => `${n} ${n === 1 ? "pregunta" : "preguntas"}`;
+
+function inicio() {
+  ronda = null;
+  olvidar(CLAVE);
+  pantalla("", `Repaso: ${cuantas(validas.length)} para practicar`);
+  if (omitidas) $("error").textContent = `Se ${omitidas === 1 ? "omitió" : "omitieron"} ${cuantas(omitidas)} de alternativas sin «correcta» o sin una «retro» por alternativa.`;
+  if (Recopilar.aviso(nombre, clase, $("aviso"), inicio)) return; // falta elegir si envía sus respuestas
+  const temas = [...new Set(validas.map(temaDe))];
+  boton(`Todo mezclado (${validas.length})`, () => empezar(validas), true);
+  if (temas.length > 1) temas.forEach(t => { const ps = validas.filter(p => temaDe(p) === t); boton(`${t} (${ps.length})`, () => empezar(ps)); });
+}
+
+function empezar(ps, rep) {
+  ronda = { ids: mezclar(ps.map(p => p.id)), i: 0, primeros: {}, rep: !!rep };
+  avanzar();
+}
+function avanzar() {
+  guardar(CLAVE, JSON.stringify(ronda)); // para retomar si recarga
+  if (ronda.i < ronda.ids.length) mostrar(); else fin();
+}
+
+function mostrar() {
+  const p = porId[ronda.ids[ronda.i]];
+  pantalla(`${p.tema ? p.tema + " · " : ""}${ronda.i + 1} de ${ronda.ids.length}`, p.texto);
+  // se mezclan los índices: "correcta" y "retro" siguen a su alternativa
+  mezclar(p.opciones.map((_, k) => k)).forEach(k => boton(p.opciones[k], b => {
+    const bien = k === p.correcta;
+    $("retro").textContent = (bien ? "✓ Correcto. " : "✗ Incorrecto. ") + p.retro[k] + (bien && p.explicacion ? " " + p.explicacion : "");
+    b.disabled = true;
+    b.textContent = (bien ? "✓ " : "✗ ") + p.opciones[k];
+    b.className = bien ? "bien" : "mal";
+    if (!(p.id in ronda.primeros)) { // el puntaje (y el envío opcional) solo cuentan el primer intento
+      ronda.primeros[p.id] = bien ? 1 : 0;
+      guardar(CLAVE, JSON.stringify(ronda));
+      if (!ronda.rep) Recopilar.registrar(p.id, p.tema, p.opciones[k], bien);
+    }
+    if (!bien) { $("retro").scrollIntoView({ block: "nearest" }); return; } // puede intentar de nuevo; la correcta no se revela
+    $("zona").querySelectorAll("button").forEach(x => { x.disabled = true; });
+    boton(ronda.i + 1 < ronda.ids.length ? "Siguiente" : "Terminar", () => { ronda.i++; avanzar(); }, true).focus();
+    $("retro").scrollIntoView({ block: "nearest" }); // en pantallas chicas la retro queda bajo «Siguiente»
+  }));
+}
+
+function fin() {
+  if (!ronda.rep) Recopilar.terminar();
+  const ps = ronda.ids.map(id => porId[id]), ok = p => ronda.primeros[p.id] === 1;
+  pantalla("", `Acertaste ${ps.filter(ok).length} de ${ps.length} al primer intento`);
+  [...new Set(ps.map(temaDe))].forEach(t => {
+    const delTema = ps.filter(p => temaDe(p) === t), linea = document.createElement("p");
+    linea.textContent = `${t}: ${delTema.filter(ok).length} de ${delTema.length}`;
+    $("zona").appendChild(linea);
+  });
+  const falladas = ps.filter(p => !ok(p));
+  if (falladas.length) boton(`Repetir las que fallé (${falladas.length})`, () => empezar(falladas, true), true);
+  boton("Volver al inicio", inicio, !falladas.length);
+}
+
+cargarClase(nombre).then(c => {
+  clase = c;
+  const alt = c.p.filter(p => p && p.tipo === "alt" && Array.isArray(p.opciones));
+  validas = alt.filter(p => p.id && !p.multi && Number.isInteger(p.correcta) && p.opciones[p.correcta] != null && Array.isArray(p.retro) && p.retro.length === p.opciones.length);
+  omitidas = alt.length - validas.length;
+  if (!validas.length) throw new Error("Esta clase no tiene preguntas de repaso: cada pregunta de alternativas necesita «correcta» y una «retro» por alternativa.");
+  validas.forEach(p => { porId[p.id] = p; });
+  let previa = null;
+  try { previa = JSON.parse(leer(CLAVE)); } catch (e) {}
+  inicio(); // también deja listo el modo recopilación con la elección recordada
+  if (previa && Array.isArray(previa.ids) && previa.ids.length && previa.ids.every(id => porId[id]) && previa.primeros) { ronda = previa; avanzar(); }
+}).catch(e => { $("pregunta").textContent = ""; $("error").textContent = e.message; });
+</script>
+</body>
+</html>

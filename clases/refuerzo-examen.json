@@ -1,0 +1,1346 @@
+{
+  "nombre": "refuerzo-examen",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-01",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Estudio A: se sortean 500 personas del padrón de un CESFAM para encuestarlas sobre automedicación. Estudio B: 500 voluntarios con insomnio se sortean para recibir melatonina o placebo. ¿Qué gana cada estudio con su sorteo?",
+      "opciones": [
+        "A: grupos comparables (validez interna). B: muestra representativa (validez externa)",
+        "A: muestra representativa (validez externa). B: grupos comparables (validez interna)",
+        "En ambos, muestra representativa (validez externa)",
+        "En ambos, grupos comparables (validez interna)"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Está al revés. En A se sortea quién entra. En B, qué recibe cada uno.",
+        "Sortear quién entra hace que la muestra se parezca al padrón, y eso permite generalizar. Sortear qué recibe cada persona deja dos grupos parecidos, y eso permite comparar.",
+        "Los voluntarios de B no representan a todas las personas con insomnio, porque nadie sorteó quién entraba.",
+        "En A no hay grupos de tratamiento que comparar. Solo se eligió a quién encuestar."
+      ]
+    },
+    {
+      "id": "rp-02",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un hospital, cada médico decide a qué pacientes con neumonía darles un antibiótico nuevo, y suele reservarlo para los más graves. Al mes, la mortalidad fue mayor entre quienes lo recibieron. ¿Cuál es la lectura más razonable?",
+      "opciones": [
+        "El antibiótico nuevo aumenta la mortalidad",
+        "Faltó cegamiento al registrar las muertes",
+        "Los grupos partieron distintos en gravedad",
+        "El resultado se debe al tamaño de la muestra"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Puede ser, pero estos datos no lo muestran. Los grupos no eran comparables al partir.",
+        "Sin cegamiento puede cambiar cómo se cuida a cada paciente, pero una muerte se registra igual. La explicación principal está antes: en quién recibió qué.",
+        "Los más graves recibieron el fármaco nuevo, y los más graves también mueren más. Esto se llama confusión por indicación: el motivo para indicar el fármaco (la gravedad) también afecta el resultado. Un sorteo habría repartido la gravedad entre los dos grupos.",
+        "El tamaño afecta la precisión. No explica una diferencia entre grupos que partieron distintos."
+      ]
+    },
+    {
+      "id": "rp-03",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Una cadena de farmacias quiere saber si un recordatorio por WhatsApp mejora el retiro mensual de antihipertensivos. ¿Cuál de estos planes es un estudio experimental?",
+      "opciones": [
+        "Comparar el retiro de quienes ya usaban una app de recordatorios con el de quienes no",
+        "Encuestar hoy a los pacientes sobre recordatorios y retiro del último mes",
+        "Comparar el retiro promedio de comunas con y sin programa de recordatorios",
+        "Sortear qué pacientes reciben el recordatorio y comparar el retiro a 6 meses"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Cada persona eligió usar la app y el equipo solo observa. Es una cohorte.",
+        "Exposición y resultado se miden en un mismo momento, sin intervenir. Es un estudio transversal.",
+        "Son datos agregados por comuna y nadie asigna nada. Es un estudio ecológico.",
+        "El equipo asigna la intervención (además, por sorteo), sigue a las personas y compara. Eso es un estudio experimental."
+      ]
+    },
+    {
+      "id": "rp-04",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un ensayo de un analgésico, el sorteo dejó dos grupos parecidos. El ensayo es doble ciego y el dolor se mide preguntando al paciente, de 0 a 10. ¿Qué problema evita el doble ciego?",
+      "opciones": [
+        "Que saber qué se recibe cambie cómo se informa el dolor",
+        "Que los grupos partan distintos en edad o en gravedad del dolor",
+        "Que los voluntarios difieran del resto de personas con dolor",
+        "Que una parte de los pacientes abandone antes del final"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Quien sabe que toma el fármaco nuevo tiende a informar menos dolor, y quien evalúa también se inclina. El cegamiento protege la medición.",
+        "Eso ya lo resolvió el sorteo. El cegamiento actúa después, durante el seguimiento y la medición.",
+        "Eso es validez externa. Depende de a quién se reclutó.",
+        "Los abandonos se manejan con el seguimiento y con el análisis por intención de tratar."
+      ]
+    },
+    {
+      "id": "rp-05",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un ensayo, 150 de las 500 personas asignadas al fármaco nuevo lo dejan por náuseas. El equipo propone analizar solo a las 350 que lo completaron (análisis por protocolo). ¿Qué se gana y qué se pierde con esa decisión?",
+      "opciones": [
+        "Se gana representatividad de la población y se pierde precisión por tener menos personas",
+        "Se gana ver el efecto en quienes sí lo tomaron y se pierde la comparabilidad del sorteo",
+        "Se gana comparabilidad entre los grupos y se pierde información de quienes abandonaron",
+        "Se gana precisión en la estimación y se pierde el cegamiento de quienes dejaron el fármaco"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El ensayo no buscaba representar a la población. Y lo que se pierde es más grave que la precisión.",
+        "Quienes abandonan suelen ser distintos (aquí, quienes tuvieron náuseas), y los grupos dejan de parecerse. Por intención de tratar es al revés: conserva lo que logró el sorteo y muestra el efecto en condiciones reales, con abandonos incluidos.",
+        "La comparabilidad es justo lo que se pierde al sacar a 150 personas de un solo grupo.",
+        "Con menos personas hay menos precisión. Y saber quién abandonó no revela qué fármaco tenía."
+      ]
+    },
+    {
+      "id": "rp-06",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un folleto dice que un fármaco reduce el riesgo de infarto en 25%. En el ensayo, a 2 años, tuvo un infarto el 8% del grupo control y el 6% del grupo tratado. ¿A cuántas personas hay que tratar durante 2 años para evitar un infarto?",
+      "opciones": [
+        "4 personas",
+        "13 personas",
+        "17 personas",
+        "50 personas"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Usaste la reducción relativa (1 dividido por 0,25). El NNT se calcula con la reducción absoluta.",
+        "Usaste el riesgo del grupo control (1 dividido por 0,08).",
+        "Usaste el riesgo del grupo tratado (1 dividido por 0,06).",
+        "La reducción absoluta es 8% menos 6% = 2 puntos porcentuales. NNT = 1 dividido por 0,02 = 50. El 25% del folleto es relativo (2 de 8)."
+      ]
+    },
+    {
+      "id": "rp-07",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Dos ensayos informan su resultado de forma distinta. Ensayo 1: RR = 0,80 (IC 95%: 0,62 a 1,03). Ensayo 2: diferencia de riesgos = −4 puntos porcentuales (IC 95%: −7 a −1). ¿Cuál es estadísticamente significativo?",
+      "opciones": [
+        "Solo el ensayo 1, porque su IC excluye el 0",
+        "Solo el ensayo 2, porque su IC excluye el 0",
+        "Ambos, porque ninguno de los IC incluye el 0",
+        "Ninguno, porque ambos IC incluyen valores bajo 1"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El 0 es el valor nulo de una diferencia. El RR es una razón: su valor nulo es 1, y este IC lo incluye.",
+        "Una razón (RR, OR, RP) se compara con 1. Una diferencia se compara con 0. El IC del ensayo 1 incluye el 1 y el del ensayo 2 excluye el 0. Ojo: que un resultado no sea significativo no prueba que no haya efecto.",
+        "Es cierto que ninguno incluye el 0, pero para el RR el valor que importa es el 1.",
+        "Estar bajo 1 no es el criterio. Importa si el IC contiene el valor nulo de esa medida."
+      ]
+    },
+    {
+      "id": "rp-08",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Un ensayo compara dos antihipertensivos, con 60 personas por grupo. A los 3 meses, la presión sistólica bajó en promedio 12 mmHg con el fármaco A y 10 mmHg con el B. La hipótesis nula (H0) dice que los dos bajan la presión lo mismo. La prueba entrega p = 0,20 y el equipo había fijado α = 0,05. ¿Cuál conclusión es correcta?",
+      "opciones": [
+        "Se acepta H0: ambos fármacos tienen el mismo efecto",
+        "Hay 20% de probabilidad de que H0 sea verdadera",
+        "No se rechaza H0: falta evidencia de una diferencia",
+        "Hay 80% de probabilidad de que los fármacos difieran"
+      ],
+      "correcta": 2,
+      "retro": [
+        "H0 no se acepta. No encontrar diferencia no demuestra que los fármacos sean iguales. Si en una prueba aparece la palabra aceptar, léela como no rechazar.",
+        "El valor p se calcula suponiendo que H0 es cierta. No es la probabilidad de que lo sea.",
+        "Como p es mayor que α, no se rechaza H0. Los 2 mmHg de diferencia son compatibles con el azar, y también con una diferencia real que este estudio no alcanzó a detectar.",
+        "1 menos p no es la probabilidad de que exista una diferencia."
+      ]
+    },
+    {
+      "id": "rp-09",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "En un ensayo se compara la presión arterial sistólica (mmHg) a 3 meses entre el grupo intervenido y el grupo control. Hay 12 personas por grupo y la presión no distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "U de Mann-Whitney",
+        "t de Student",
+        "Chi-cuadrado",
+        "Correlación de Spearman"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Una variable dicotómica (el grupo) y una cuantitativa sin normalidad, en dos grupos independientes y pequeños.",
+        "Responde la misma pregunta, pero supone normalidad o muestras grandes.",
+        "Es para dos variables categóricas. Que falte normalidad no vuelve categórica a la presión.",
+        "Relaciona dos variables cuantitativas u ordinales. Aquí una de las dos es el grupo."
+      ]
+    },
+    {
+      "id": "rp-10",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "En un solo día se encuesta a 800 universitarios. Informa insomnio el 30% de quienes toman bebidas energéticas a diario y el 15% de quienes no. ¿Qué frase interpreta bien el resultado?",
+      "opciones": [
+        "El riesgo de desarrollar insomnio es el doble con consumo diario",
+        "La prevalencia de insomnio es 15 veces mayor con consumo diario",
+        "La prevalencia de insomnio es el doble con consumo diario",
+        "El consumo diario de bebidas energéticas duplica el insomnio"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Hablar de riesgo de desarrollar exige seguimiento y casos nuevos. Aquí todo se midió el mismo día.",
+        "15 es la diferencia en puntos porcentuales (30 menos 15), no la razón (30 dividido por 15).",
+        "Es un estudio transversal, así que corresponde la razón de prevalencias: 30 dividido por 15 = 2. No dice qué vino primero.",
+        "Es lenguaje causal. Un estudio transversal no muestra qué ocurrió primero, y pudo ser al revés."
+      ]
+    },
+    {
+      "id": "rp-11",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "Supón que el virus papiloma humano (VPH) está presente en todos los casos de cáncer de cuello uterino, pero que la mayoría de las mujeres infectadas no llega a desarrollarlo. Según el modelo de Rothman, ¿qué tipo de causa es el VPH?",
+      "opciones": [
+        "Ni necesaria ni suficiente",
+        "Suficiente, pero no necesaria",
+        "Necesaria, pero no suficiente",
+        "Necesaria y suficiente"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Si está en todos los casos, sin VPH no hay enfermedad. Eso la hace necesaria.",
+        "Está al revés. No basta por sí sola (la mayoría de las infectadas no enferma) y sí está en todos los casos.",
+        "Está en todas las tortas causales (necesaria), pero requiere otras causas componentes para completar una (no suficiente). Igual que el bacilo de Koch en la tuberculosis.",
+        "Si fuera suficiente, toda mujer infectada desarrollaría el cáncer."
+      ]
+    },
+    {
+      "id": "rp-12",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "Una encuesta hecha en un solo día encuentra que las personas con depresión pasan más horas en redes sociales que las personas sin depresión. Un diario titula que las redes sociales causan depresión. ¿Qué criterio de Bradford Hill falta para sostener ese titular?",
+      "opciones": [
+        "Secuencia temporal, porque no se sabe qué ocurrió primero",
+        "Fuerza de asociación, porque las encuestas dan asociaciones débiles",
+        "Plausibilidad, porque no existe un mecanismo que lo explique",
+        "Gradiente, porque no se midió cuántas horas usa cada persona"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Puede que la depresión lleve a usar más las redes, y no al revés. Es el único criterio indispensable: la causa tiene que ir antes que el efecto.",
+        "La fuerza se ve en el tamaño de la medida, no en el tipo de estudio. Una encuesta puede mostrar una asociación fuerte, por ejemplo una razón de prevalencias de 10.",
+        "Sí hay mecanismos posibles, como dormir menos o compararse con otros. El problema es el orden en el tiempo.",
+        "Las horas sí se midieron. Y aunque hubiera gradiente, seguiría sin saberse qué fue primero."
+      ]
+    },
+    {
+      "id": "rp-13",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un test de cribado se aplica a 5.000 adultos sin síntomas: 100 tienen la enfermedad y 4.900 no (prevalencia de 2%, considerada baja). El test sale positivo en 80 de los enfermos y en 490 de los sanos. Una persona recibe un resultado positivo. ¿Cuál es la probabilidad de que tenga la enfermedad?",
+      "opciones": [
+        "1,6%",
+        "14%",
+        "80%",
+        "86%"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Dividiste por todos los examinados (80 de 5.000). La pregunta parte de quienes dieron positivo.",
+        "Valor predictivo positivo: 80 enfermos entre 570 positivos (80 más 490) = 14%. Con prevalencia baja, la mayoría de los positivos son falsos positivos.",
+        "Esa es la sensibilidad (80 de 100). Parte de los enfermos, no del resultado positivo.",
+        "Esa es la parte de los positivos que están sanos (490 de 570)."
+      ]
+    },
+    {
+      "id": "rp-14",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Una farmacia quiere ofrecer un test rápido como primer filtro para una infección grave que tiene tratamiento. Quienes salgan positivos se confirmarán después con otro examen. ¿Qué prueba es más útil como primer filtro?",
+      "opciones": [
+        "Una muy sensible, porque un resultado negativo permite descartar la infección",
+        "Una muy sensible, porque un resultado positivo permite confirmar la infección",
+        "Una muy específica, porque un resultado negativo permite descartar la infección",
+        "Una muy específica, porque un resultado positivo permite confirmar la infección"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Una prueba muy sensible deja pocos falsos negativos. Por eso sirve para tamizaje: si sale negativa, es poco probable que la persona esté infectada.",
+        "Una prueba sensible puede dar muchos falsos positivos. Por eso los positivos se confirman después.",
+        "La específica deja pocos falsos positivos, no pocos falsos negativos. Con ella se pueden escapar infectados.",
+        "Es cierto, y por eso la específica se usa en el segundo paso. Como primer filtro dejaría escapar infectados."
+      ]
+    },
+    {
+      "id": "rp-15",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Un equipo usa los registros de dispensación de una cadena de farmacias para describir cómo se distribuye el consumo de ansiolíticos por comuna, sexo y edad. ¿A qué ámbito de la epidemiología corresponde?",
+      "opciones": [
+        "Poblacional",
+        "Clínica",
+        "Social",
+        "Ocupacional"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Describe frecuencia y distribución en la población. El ámbito se define por el objeto y el propósito, no por la fuente de los datos.",
+        "Los datos salen de farmacias, pero no se usan para decidir sobre pacientes individuales.",
+        "Lo sería si el foco fueran las condiciones sociales y económicas que explican el consumo.",
+        "No se estudia una exposición laboral ni a un grupo de trabajadores."
+      ]
+    },
+    {
+      "id": "rp-16",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo quiere estudiar si la polifarmacia se asocia con caídas en personas mayores. Ya planteó el problema, fijó sus objetivos, revisó la literatura y formuló su hipótesis. Ahora decide que medirá la polifarmacia como 5 o más medicamentos al día, que usará una cohorte y que tomará una muestra de tres CESFAM. ¿En qué etapa del método está?",
+      "opciones": [
+        "Formulación de hipótesis",
+        "Planificación del estudio",
+        "Recolección de los datos",
+        "Procesamiento, análisis e interpretación de los resultados"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Ya la formuló. Ahora decide cómo ponerla a prueba.",
+        "Operacionalizar las variables, elegir el diseño y definir la muestra son parte de la planificación (etapa 5).",
+        "Todavía no mide a nadie. Está decidiendo cómo medir.",
+        "Aún no hay datos que analizar."
+      ]
+    },
+    {
+      "id": "rp-17",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un estudio necesita medir la adherencia a antihipertensivos. ¿Cuál de estas es una definición operacional?",
+      "opciones": [
+        "Grado en que la conducta del paciente coincide con las indicaciones acordadas con su equipo",
+        "Compromiso activo y voluntario del paciente con un tratamiento que comprende y acepta",
+        "Proporción de días cubiertos según retiros de farmacia en 6 meses. Adherente si es 80% o más",
+        "Variable cualitativa ordinal que refleja la responsabilidad del paciente con su terapia"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Es la definición conceptual. Dice qué es, no cómo se medirá.",
+        "También es conceptual. No indica instrumento, fuente ni punto de corte.",
+        "Dice cómo se mide (el indicador), de dónde sale el dato (los retiros) y cómo se clasifica (80%).",
+        "Clasifica la variable, pero no dice cómo obtener el dato."
+      ]
+    },
+    {
+      "id": "rp-18",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Tras confirmarse un caso de sarampión en un jardín infantil, el equipo de epidemiología visita el jardín y va casa por casa en el barrio preguntando por niños con fiebre y manchas en la piel. ¿Qué tipo de vigilancia es?",
+      "opciones": [
+        "Pasiva",
+        "Activa",
+        "Centinela",
+        "De laboratorio"
+      ],
+      "correcta": 1,
+      "retro": [
+        "En la pasiva el equipo espera que los establecimientos notifiquen los casos que atienden. Aquí sale a buscarlos.",
+        "El equipo sale a buscar los casos en vez de esperar la notificación.",
+        "La centinela vigila un evento de forma permanente, solo en algunos establecimientos elegidos de antemano.",
+        "Esa se basa en laboratorios que informan los agentes que identifican."
+      ]
+    },
+    {
+      "id": "rp-19",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Una comuna tiene 40.000 hombres y 45.000 mujeres. En 2025 murieron 250 hombres, 20 de ellos por cáncer de próstata. Ese año había 500 hombres con cáncer de próstata. ¿Cuál es la tasa de mortalidad por cáncer de próstata en hombres?",
+      "opciones": [
+        "4 por cada 100 hombres con cáncer de próstata",
+        "8 por cada 100 defunciones de hombres",
+        "24 por cada 100.000 habitantes",
+        "50 por cada 100.000 hombres"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Esa es la letalidad (20 de 500): muertes entre los enfermos.",
+        "Esa es la mortalidad proporcional (20 de 250): qué parte de las muertes se debió a esa causa.",
+        "Usaste la población total (20 de 85.000). En una tasa específica, numerador y denominador son del mismo grupo.",
+        "20 muertes entre 40.000 hombres = 5 por cada 10.000 = 50 por cada 100.000 hombres."
+      ]
+    },
+    {
+      "id": "rp-20",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un piloto en una farmacia compara si hubo o no una reacción adversa entre 20 personas que recibieron consejería y 20 que no. Hubo 2 reacciones en un grupo y 5 en el otro. ¿Qué prueba corresponde?",
+      "opciones": [
+        "Chi-cuadrado",
+        "Exacta de Fisher",
+        "t de Student",
+        "U de Mann-Whitney"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Es la prueba habitual para dos variables categóricas. Pero aquí las frecuencias esperadas son menores que 5 (se esperan 3,5 reacciones por grupo).",
+        "Dos variables categóricas con frecuencias esperadas bajas: prueba exacta de Fisher.",
+        "Compara promedios de una variable cuantitativa. Aquí el resultado es sí o no.",
+        "Compara una variable cuantitativa u ordinal entre dos grupos. Aquí el resultado es sí o no."
+      ]
+    },
+    {
+      "id": "rp-21",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un estudio con 300 personas mayores quiere saber si la edad (en años) se relaciona con el número de medicamentos que toma cada una. El número de medicamentos no distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "ANOVA",
+        "Kruskal-Wallis",
+        "Pearson",
+        "Spearman"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Compara promedios entre tres o más grupos. Aquí no hay grupos, hay dos variables numéricas.",
+        "Es la alternativa a ANOVA cuando no hay normalidad. También necesita tres o más grupos.",
+        "Sirve para dos variables cuantitativas, pero supone normalidad. Aquí no se cumple.",
+        "Dos variables cuantitativas y sin normalidad: correlación de Spearman."
+      ]
+    },
+    {
+      "id": "rp-22",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Un ensayo con 20.000 personas compara dos antihipertensivos. La presión sistólica bajó en promedio 0,8 mmHg más con el fármaco nuevo, con p = 0,001 y α = 0,05. ¿Cuál es la lectura correcta de la diferencia?",
+      "opciones": [
+        "Es significativa, y por lo tanto es importante para los pacientes",
+        "No es significativa, porque la diferencia es menor que 1 mmHg",
+        "Es significativa, pero demasiado pequeña para importar en la clínica",
+        "No es significativa, porque con tantas personas el valor p pierde validez"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Significativa solo dice que la diferencia es difícil de explicar por azar. No dice que sea grande.",
+        "La significancia se decide comparando p con α, no mirando el tamaño de la diferencia. Aquí p es menor que 0,05.",
+        "Con muestras muy grandes, diferencias mínimas salen significativas. Significancia estadística y relevancia clínica son preguntas distintas.",
+        "El valor p sigue siendo válido. Lo que cambia es que detecta diferencias cada vez más pequeñas."
+      ]
+    },
+    {
+      "id": "rp-23",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Dos estudios de cohorte encuentran el mismo RR = 1,5. Estudio A, con 200 personas: IC 95% de 0,8 a 2,8. Estudio B, con 5.000 personas: IC 95% de 1,3 a 1,7. ¿Qué explica la diferencia entre los dos intervalos?",
+      "opciones": [
+        "El estudio B es más preciso porque tiene más personas",
+        "El estudio B tiene un efecto más grande que el A",
+        "El estudio A tiene más sesgo porque es más pequeño",
+        "El estudio A está mal calculado, porque su IC incluye el 1"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Más personas, intervalo más angosto. El efecto estimado es el mismo (1,5). Solo B es estadísticamente significativo, porque su intervalo no incluye el 1.",
+        "El efecto es el mismo: RR = 1,5 en los dos.",
+        "El tamaño afecta la precisión (error por azar), no el sesgo (error sistemático).",
+        "Un IC que incluye el 1 no es un error de cálculo. Indica que el resultado no es estadísticamente significativo."
+      ]
+    },
+    {
+      "id": "rp-24",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una cohorte sigue durante un año a personas con insuficiencia cardíaca. Se hospitalizó el 6% de quienes tuvieron seguimiento farmacéutico y el 12% de quienes no lo tuvieron. ¿Qué frase interpreta bien el riesgo relativo?",
+      "opciones": [
+        "El grupo con seguimiento tuvo 6 veces menos riesgo que el grupo sin seguimiento",
+        "El grupo con seguimiento tuvo 50 puntos porcentuales menos de riesgo",
+        "El grupo con seguimiento tuvo el doble de riesgo que el grupo sin seguimiento",
+        "El grupo con seguimiento tuvo la mitad del riesgo que el grupo sin seguimiento"
+      ],
+      "correcta": 3,
+      "retro": [
+        "6 es la diferencia en puntos porcentuales (12 menos 6), no una razón.",
+        "La reducción relativa es 50%, pero en puntos porcentuales la diferencia es 6 (de 12% a 6%).",
+        "Está invertido. 2 sale de dividir 12% por 6%, que compara al grupo sin seguimiento con el grupo con seguimiento.",
+        "RR = 6% dividido por 12% = 0,5. Un RR menor que 1 indica menor riesgo en el grupo expuesto, aquí quienes tuvieron seguimiento."
+      ]
+    },
+    {
+      "id": "rp-25",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "En una cohorte de un año, tuvo una caída el 12% de las personas mayores que usan benzodiazepinas y el 7% de las que no las usan. ¿Cuál es el riesgo atribuible en expuestos y qué significa?",
+      "opciones": [
+        "1,7 por 100. De cada 100 personas expuestas, 1,7 caídas se atribuyen al fármaco",
+        "5 por 100. De cada 100 personas expuestas, 5 caídas se atribuyen al fármaco",
+        "12 por 100. De cada 100 personas expuestas, 12 caídas se atribuyen al fármaco",
+        "20 por 100. De cada 100 personas expuestas, 20 caídas se atribuyen al fármaco"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Dividiste en vez de restar. 12 dividido por 7 es el RR (1,7 veces), no el riesgo atribuible.",
+        "Riesgo atribuible = 12% menos 7% = 5 puntos porcentuales. Son las caídas de más por cada 100 personas expuestas, si la asociación es causal.",
+        "Ese es el riesgo total en quienes usan benzodiazepinas. Parte de esas caídas habría ocurrido igual sin el fármaco (7 de cada 100).",
+        "20 sale de 1 dividido por 0,05. Es cuántas personas tienen que usar el fármaco para que ocurra una caída de más. Es otra medida."
+      ]
+    },
+    {
+      "id": "rp-26",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Un CESFAM sigue durante un año a 1.000 personas con diabetes. Al inicio, 200 ya tenían daño renal. Durante el año, 40 de las demás lo desarrollan. No hubo pérdidas. ¿Cuál es la incidencia acumulada de daño renal en un año?",
+      "opciones": [
+        "4%",
+        "5%",
+        "20%",
+        "24%"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Dejaste en el denominador a las 200 personas que ya tenían daño renal. Ellas no pueden ser casos nuevos.",
+        "Casos nuevos (40) entre personas en riesgo al inicio (1.000 menos 200 = 800). 40 dividido por 800 = 5%.",
+        "Esa es la prevalencia al inicio (200 de 1.000): casos que ya existían.",
+        "Esa es la prevalencia de período. Suma los casos que ya existían y los nuevos (240 de 1.000)."
+      ]
+    },
+    {
+      "id": "rp-27",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "La comuna A tiene una tasa cruda de mortalidad de 10 por 1.000 habitantes y la comuna B, de 6 por 1.000. En A, el 30% de la población tiene 65 años o más. En B, el 10%. ¿Qué conviene usar para comparar el riesgo de morir entre las dos comunas?",
+      "opciones": [
+        "Las tasas crudas, porque ya incluyen a toda la población de cada comuna",
+        "La letalidad, porque mide la gravedad de las enfermedades en cada comuna",
+        "Las tasas ajustadas por edad, porque la estructura de edad es distinta",
+        "La mortalidad proporcional, porque no depende del tamaño de la población"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La tasa cruda sirve para describir cuánto se muere en cada comuna. Pero A tiene muchas más personas mayores, y eso solo ya sube su tasa.",
+        "La letalidad mide muertes entre los enfermos de una enfermedad. No compara el riesgo de morir de toda la población.",
+        "El ajuste responde qué pasaría si las dos comunas tuvieran la misma estructura de edad. Así, la diferencia que quede no se debe a que una es más envejecida.",
+        "La mortalidad proporcional dice qué parte de las muertes se debe a cada causa. No mide el riesgo de morir."
+      ]
+    },
+    {
+      "id": "rp-28",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un hospital revisa fichas de los últimos 5 años. Selecciona a 60 pacientes que tuvieron hemorragia digestiva y a 120 que no la tuvieron, y luego busca en las fichas quiénes usaban antiinflamatorios antes. ¿Qué diseño es y qué medida corresponde?",
+      "opciones": [
+        "Casos y controles, porque se eligió según el evento o desenlace. Se calcula OR",
+        "Cohorte retrospectiva, porque usa fichas de años anteriores. Se calcula RR",
+        "Transversal, porque los datos se revisan en un solo momento. Se calcula RP",
+        "Cohorte retrospectiva, porque se eligió según la exposición previa. Se calcula OR"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Se parte del evento o desenlace (con y sin hemorragia) y se mira hacia atrás la exposición. Como el investigador fijó cuántos casos y controles hay, no se puede calcular riesgo. Se comparan las odds de exposición.",
+        "Mirar al pasado no define el diseño. Importa cómo se eligió a las personas: aquí, por tener o no la hemorragia.",
+        "En un estudio transversal se mide exposición y desenlace a la vez en una muestra. Aquí se eligió a las personas por el desenlace.",
+        "No se eligió por exposición. Si se hubiera partido de usuarios y no usuarios de antiinflamatorios, sería una cohorte."
+      ]
+    },
+    {
+      "id": "rp-29",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Una campaña busca bajar la hipertensión con tres acciones a la vez: educar a cada paciente, mejorar la oferta de alimentos en los barrios y regular la sal de los alimentos envasados. ¿Qué paradigma está detrás de esa estrategia?",
+      "opciones": [
+        "Miasma",
+        "Germen",
+        "Caja negra",
+        "Caja china"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Ese paradigma propone sanear el ambiente: agua, basura, aire.",
+        "Ese paradigma busca un agente específico para cortar su transmisión.",
+        "La caja negra mira factores de riesgo de cada persona, como los estilos de vida. Aquí se interviene también en el barrio y en la regulación.",
+        "Interviene a la vez en varios niveles, uno dentro de otro: la persona, su entorno y la sociedad."
+      ]
+    },
+    {
+      "id": "rp-30",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Para seguir la influenza, el Ministerio de Salud recibe cada semana los datos de un grupo de centros de salud elegidos de antemano, que informan cuántas consultas por enfermedad tipo influenza atendieron. ¿Qué tipo de vigilancia es?",
+      "opciones": [
+        "Pasiva",
+        "Activa",
+        "Centinela",
+        "De laboratorio"
+      ],
+      "correcta": 2,
+      "retro": [
+        "En la pasiva notifican todos los establecimientos, de rutina. Aquí informa solo un grupo elegido de antemano.",
+        "En la activa el equipo sale a buscar los casos. Aquí los centros informan lo que atienden.",
+        "Vigila un evento de forma permanente en algunos establecimientos elegidos, que representan lo que pasa en el resto.",
+        "Esa se basa en laboratorios que informan los agentes que identifican. Aquí se informan consultas."
+      ]
+    },
+    {
+      "id": "rp-31",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Una farmacia comunitaria nota que en diez días se duplicó la venta de antipiréticos infantiles y de jarabes para la tos en su barrio. ¿Qué corresponde hacer desde el punto de vista de la vigilancia?",
+      "opciones": [
+        "Avisar a la SEREMI de Salud, porque puede ser la señal de un brote",
+        "Registrarlo como un dato de ventas, porque no es información de salud",
+        "Esperar a que un hospital confirme casos, porque la farmacia no notifica",
+        "Avisar al Ministerio de Salud, porque es quien investiga brotes en terreno"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Un aumento sostenido de la dispensación es una señal. La farmacia detecta y avisa, y la SEREMI analiza y coordina el control en la región.",
+        "La dispensación sí sirve para la vigilancia. Muchas veces el alza se ve primero en la farmacia.",
+        "Esperar retrasa el control. Detectar y avisar a tiempo es parte del rol de los establecimientos y farmacias.",
+        "El Ministerio norma y consolida los datos del país. El análisis y el control en la región los coordina la SEREMI."
+      ]
+    },
+    {
+      "id": "rp-32",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "En una ficha se registra cuántos medicamentos distintos toma cada persona al día (por ejemplo 0, 1, 2 o 7). ¿Qué tipo de variable es?",
+      "opciones": [
+        "Cualitativa nominal",
+        "Cualitativa ordinal",
+        "Cuantitativa continua",
+        "Cuantitativa discreta"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Una nominal solo nombra categorías sin orden, como el tipo de previsión.",
+        "Tiene orden, pero además son cantidades que se pueden sumar y restar. Eso la hace cuantitativa.",
+        "Una continua admite valores intermedios, como 2,5. Nadie toma 2,5 medicamentos.",
+        "Es un conteo: toma valores enteros y no admite valores intermedios."
+      ]
+    },
+    {
+      "id": "rp-33",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un estudio quiere saber si la cantidad de horas de sueño influye en la presión arterial sistólica de personas adultas. ¿Cuál es la variable dependiente y por qué?",
+      "opciones": [
+        "Las horas de sueño, porque son la causa que se propone",
+        "Las horas de sueño, porque se miden antes que la presión",
+        "La presión sistólica, porque es el efecto que se quiere explicar",
+        "La presión sistólica, porque se puede modificar con tratamiento"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La causa que se propone es la variable independiente.",
+        "El orden en que se mide no define el rol. Las horas de sueño son la variable independiente.",
+        "La dependiente es el efecto o resultado. Depende de la otra variable, que aquí son las horas de sueño.",
+        "Es la dependiente, pero no por eso. Lo es porque es el resultado que el estudio quiere explicar."
+      ]
+    },
+    {
+      "id": "rp-34",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un estudio compara el promedio de hemoglobina glicosilada entre tres grupos de personas con diabetes: las que se atienden en CESFAM, en consulta privada y en hospital. Hay 100 personas por grupo y la variable distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "Chi-cuadrado",
+        "Pearson",
+        "t de Student",
+        "ANOVA"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Es para dos variables categóricas. La hemoglobina glicosilada es cuantitativa.",
+        "Relaciona dos variables cuantitativas. Aquí una de las dos es el grupo.",
+        "Compara promedios entre dos grupos. Aquí hay tres.",
+        "Una variable cuantitativa con normalidad, comparada entre tres o más grupos. Si se rechaza H0, al menos un promedio difiere, pero la prueba no dice cuál."
+      ]
+    },
+    {
+      "id": "rp-35",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Un ensayo compara el dolor promedio entre dos analgésicos, con 80 personas por grupo. La hipótesis nula (H0) dice que el dolor promedio es igual con los dos. La prueba entrega p = 0,03 y el equipo había fijado α = 0,05. ¿Qué decisión corresponde?",
+      "opciones": [
+        "No se rechaza H0, porque el valor p es menor que α",
+        "Se rechaza H0, porque el valor p es menor que α",
+        "Se rechaza H0, porque hay 3% de probabilidad de que sea verdadera",
+        "No se rechaza H0, porque hay 97% de probabilidad de que sea verdadera"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Es al revés. Cuando p es menor o igual que α, se rechaza H0.",
+        "Si p es menor o igual que α, se rechaza H0 y la diferencia es estadísticamente significativa. Eso no dice si la diferencia es grande o clínicamente importante.",
+        "La decisión es correcta, pero la razón no. El valor p no es la probabilidad de que H0 sea verdadera.",
+        "Ni la decisión ni la razón. El valor p no es la probabilidad de que H0 sea verdadera o falsa."
+      ]
+    },
+    {
+      "id": "rp-36",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Un tratamiento nuevo cura la hepatitis C en 12 semanas. Antes, la infección duraba muchos años. Supón que la cantidad de contagios nuevos por año no cambia. ¿Qué pasa con la prevalencia y con la incidencia?",
+      "opciones": [
+        "La prevalencia se mantiene y la incidencia baja",
+        "La prevalencia baja y la incidencia también baja",
+        "La prevalencia baja y la incidencia se mantiene",
+        "La prevalencia se mantiene y la incidencia también"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La incidencia son los contagios nuevos, y el caso dice que no cambian. Lo que cambia es cuánto dura la infección.",
+        "La prevalencia sí baja. La incidencia no, porque el tratamiento cura a quienes ya se infectaron y los contagios nuevos siguen igual.",
+        "La prevalencia depende de cuántos casos nuevos hay y de cuánto dura la enfermedad. Si dura menos, hay menos personas enfermas al mismo tiempo.",
+        "Si cada infección dura menos, hay menos personas infectadas al mismo tiempo. La prevalencia baja."
+      ]
+    },
+    {
+      "id": "rp-37",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "La enfermedad A causa 10 muertes al año por cada 100.000 habitantes, y mueren 2 de cada 100 personas que la tienen. La enfermedad B causa 1 muerte al año por cada 100.000 habitantes, y mueren 50 de cada 100 personas que la tienen. ¿Qué afirmación es correcta?",
+      "opciones": [
+        "A tiene mayor mortalidad y B tiene mayor letalidad",
+        "A tiene mayor letalidad y B tiene mayor mortalidad",
+        "A tiene mayor mortalidad y también mayor letalidad",
+        "B tiene mayor mortalidad y también mayor letalidad"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Mortalidad: muertes entre toda la población. Letalidad: muertes entre quienes tienen la enfermedad. B es poco frecuente, pero muy grave para quien la tiene.",
+        "Está al revés. La letalidad se calcula entre los enfermos: 2 de cada 100 en A y 50 de cada 100 en B.",
+        "La mortalidad sí es mayor en A. Pero entre quienes tienen la enfermedad, muere mucha más gente en B.",
+        "La letalidad sí es mayor en B. Pero en la población total causa menos muertes, porque es poco frecuente."
+      ]
+    },
+    {
+      "id": "rp-38",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un estudio selecciona a 40 personas con cáncer de pulmón y a 40 personas sin cáncer. Fumaban 30 de las personas con cáncer y 10 de las personas sin cáncer. ¿Cuál es el OR?",
+      "opciones": [
+        "0,11",
+        "3",
+        "9",
+        "20"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Está invertido. Comparaste a los controles con los casos (1 dividido por 9).",
+        "Dividiste las proporciones de fumadores (75% por 25%). En casos y controles se comparan odds, no proporciones.",
+        "Odds de fumar en los casos: 30 a 10, o sea 3. Odds en los controles: 10 a 30, o sea un tercio. 3 dividido por un tercio = 9.",
+        "Restaste (30 menos 10). El OR es una razón, no una diferencia."
+      ]
+    },
+    {
+      "id": "rp-39",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Dos fármacos duplican el riesgo de una reacción adversa grave (RR = 2). Con el fármaco A, la reacción ocurre en 2 de cada 1.000 usuarios y en 1 de cada 1.000 no usuarios. Con el fármaco B, en 200 de cada 1.000 usuarios y en 100 de cada 1.000 no usuarios. ¿Cuál agrega más casos por cada 1.000 usuarios?",
+      "opciones": [
+        "Los dos agregan lo mismo, porque tienen el mismo RR",
+        "El A, porque su riesgo sin el fármaco es más bajo",
+        "El B, con 2 casos de más por cada 1.000 usuarios",
+        "El B, con 100 casos de más por cada 1.000 usuarios"
+      ],
+      "correcta": 3,
+      "retro": [
+        "El RR dice cuántas veces sube el riesgo. No dice cuántos casos de más hay.",
+        "Con un riesgo de base bajo, duplicarlo agrega pocos casos: 1 por cada 1.000.",
+        "2 es el RR, no la cantidad de casos. Hay que restar: 200 menos 100.",
+        "A agrega 1 caso por cada 1.000 (2 menos 1). B agrega 100 (200 menos 100). La diferencia de riesgos muestra el impacto real."
+      ]
+    },
+    {
+      "id": "rp-40",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "En una cohorte, las personas que suelen llevar un encendedor en el bolsillo desarrollan más cáncer de pulmón que las que no lo llevan. Casi todas las personas que llevan encendedor fuman. ¿Qué explica mejor la asociación entre llevar encendedor y cáncer de pulmón?",
+      "opciones": [
+        "Azar, porque la asociación apareció en un solo estudio",
+        "Sesgo de selección, porque los fumadores eligen llevar encendedor",
+        "Causalidad inversa, porque el cáncer lleva a usar encendedor",
+        "Confusión, porque fumar se asocia con ambas cosas"
+      ],
+      "correcta": 3,
+      "retro": [
+        "El azar se evalúa con el valor p y el intervalo de confianza. Aquí hay una explicación más directa.",
+        "El sesgo de selección tiene que ver con quién entra al estudio. Aquí el problema es una tercera variable.",
+        "En una cohorte las personas parten sin cáncer, así que el encendedor se registró antes.",
+        "Un confusor es una tercera variable asociada con la exposición (el encendedor) y con el desenlace (el cáncer). Antes de hablar de causa hay que descartar azar, sesgo y confusión."
+      ]
+    },
+    {
+      "id": "rp-41",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un estudio compara 30 países y encuentra que donde se venden más bebidas azucaradas por habitante hay más personas con diabetes. ¿Qué conclusión permite este diseño?",
+      "opciones": [
+        "En los países con más venta de bebidas azucaradas hay más diabetes",
+        "Las personas que toman más bebidas azucaradas tienen más diabetes",
+        "Cada persona que deja las bebidas azucaradas reduce su riesgo de diabetes",
+        "Un país que reduce la venta de bebidas azucaradas va a tener menos diabetes"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Un estudio ecológico usa datos agregados por grupo. Solo permite concluir sobre los grupos, que aquí son los países.",
+        "Eso es falacia ecológica: aplicar a cada persona una asociación vista entre grupos. No sabemos si quienes tienen diabetes son quienes toman más bebidas azucaradas.",
+        "También es falacia ecológica, y además afirma un efecto causal en personas.",
+        "Habla de países, pero es una afirmación causal. Comparar países en un momento no muestra qué pasa si uno cambia su consumo."
+      ]
+    },
+    {
+      "id": "rp-42",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un equipo quiere estudiar las causas de una malformación que afecta a 1 de cada 20.000 recién nacidos. Tiene poco tiempo y poco presupuesto. ¿Qué diseño conviene?",
+      "opciones": [
+        "Cohorte, porque sigue a los expuestos hasta ver el evento",
+        "Casos y controles, porque parte de los casos que ya hay",
+        "Transversal, porque mide exposición y evento en un momento",
+        "Ensayo clínico, porque el sorteo deja grupos comparables"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Habría que seguir decenas de miles de embarazos para ver unos pocos casos. Es lento y caro.",
+        "Para eventos raros es el diseño más eficiente: reúne los casos que ya ocurrieron y los compara con controles. Es rápido y barato.",
+        "En una muestra de la población casi no aparecerían casos. Y no mostraría qué ocurrió primero.",
+        "No es ético asignar por sorteo una exposición que podría dañar. Y tendría el mismo problema que la cohorte."
+      ]
+    },
+    {
+      "id": "rp-43",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Un genérico cuesta la mitad que el fármaco de marca. Un ensayo busca mostrar que el genérico no es peor que el de marca más allá de un margen fijado antes de empezar. ¿Qué tipo de ensayo es?",
+      "opciones": [
+        "De superioridad",
+        "De efectividad",
+        "De búsqueda de dosis (fase II)",
+        "De no inferioridad"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Ese busca mostrar que el nuevo es mejor. Aquí basta con que no sea peor.",
+        "Ese pregunta si el tratamiento ayuda en condiciones reales. No se define por un margen.",
+        "La fase II busca la dosis adecuada en pocos pacientes. No compara contra un margen.",
+        "Busca mostrar que el nuevo no es peor más allá de un margen acordado antes. Sirve cuando el nuevo tiene otra ventaja, como ser más barato o más cómodo."
+      ]
+    },
+    {
+      "id": "rp-44",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un ensayo con solo 40 pacientes, el equipo teme que por azar un grupo quede con muchas más mujeres que el otro, y el sexo influye en el resultado. ¿Qué tipo de asignación conviene?",
+      "opciones": [
+        "Simple, con una moneda por cada persona",
+        "En bloques, para igualar el tamaño de los grupos",
+        "Estratificada, sorteando dentro de cada sexo",
+        "Por orden de llegada, alternando un grupo y otro"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Con pocas personas, la moneda puede dejar por azar grupos distintos en sexo o en tamaño.",
+        "Los bloques aseguran grupos del mismo tamaño, pero no la misma mezcla de hombres y mujeres.",
+        "Primero se separa por la variable clave (el sexo) y luego se sortea dentro de cada estrato. Así los dos grupos quedan con la misma mezcla.",
+        "Eso no es un sorteo. Quien recluta sabe qué grupo viene y puede influir en quién entra."
+      ]
+    },
+    {
+      "id": "rp-45",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Un servicio de salud calcula cuántas personas con diabetes hay en cada comuna para decidir cuántos químicos farmacéuticos contratar en cada CESFAM. ¿Cuál es el uso principal de la epidemiología en este caso?",
+      "opciones": [
+        "Diagnóstico de la situación de salud",
+        "Planificación y gestión de recursos",
+        "Investigación de causas",
+        "Vigilancia epidemiológica"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Contar cuántas personas hay es un paso. Pero el objetivo del caso es decidir cómo repartir recursos.",
+        "La información se usa para asignar recursos donde más se necesitan.",
+        "No se busca explicar por qué hay más diabetes en una comuna que en otra.",
+        "La vigilancia sigue un evento en el tiempo para detectar cambios y actuar. Aquí se toma una decisión de recursos."
+      ]
+    },
+    {
+      "id": "rp-46",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "En una semana, 15 personas que almorzaron en el mismo casino de una empresa consultan por diarrea y vómitos. En el resto de la comuna, las consultas por diarrea siguen como de costumbre. ¿Cómo se llama esta situación?",
+      "opciones": [
+        "Brote",
+        "Epidemia",
+        "Endemia",
+        "Pandemia"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Es un aumento localizado de casos con un vínculo común, que aquí es el casino.",
+        "Una epidemia es un número de casos por sobre lo esperado en un territorio, como varias comunas o una región. Aquí el aumento está limitado a un lugar.",
+        "Es la presencia habitual de una enfermedad en una zona. Aquí hay un aumento repentino.",
+        "Es una epidemia que se extiende a muchos países."
+      ]
+    },
+    {
+      "id": "rp-47",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo estudia el uso de antibióticos sin receta. Ya definió sus variables, eligió una muestra de ferias libres y construyó su cuestionario. Esta semana los encuestadores lo están aplicando a 400 personas. ¿En qué etapa del método está?",
+      "opciones": [
+        "Formulación de hipótesis",
+        "Planificación del estudio",
+        "Recolección de los datos",
+        "Procesamiento, análisis e interpretación de los resultados"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La hipótesis se formula antes de planificar el estudio.",
+        "La planificación ya terminó: variables, muestra y cuestionario están listos.",
+        "Aplicar el instrumento para obtener la información es la recolección de los datos (etapa 6).",
+        "Eso viene después, cuando ya estén todas las respuestas."
+      ]
+    },
+    {
+      "id": "rp-48",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Para estudiar el consumo de antidepresivos en una comuna, un equipo usa la base de recetas despachadas que la farmacia del CESFAM ya tenía registrada. ¿Qué tipo de fuente de datos es?",
+      "opciones": [
+        "Primaria, porque los datos vienen directo de la farmacia",
+        "Primaria, porque el equipo analiza los datos por primera vez",
+        "Secundaria, porque los datos se registraron antes y con otro fin",
+        "Secundaria, porque los datos son menos confiables que una encuesta"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Primaria es cuando el equipo recoge los datos para su propio estudio, por ejemplo con una encuesta.",
+        "No importa quién los analiza primero. Importa para qué y por quién fueron recogidos.",
+        "Son registros que ya existían. Se crearon para despachar recetas, no para este estudio.",
+        "Secundaria no quiere decir de peor calidad. Quiere decir que los datos ya existían."
+      ]
+    },
+    {
+      "id": "rp-49",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Una encuesta a 400 personas adultas registra dos variables dicotómicas: si fuman (sí o no) y si tienen hipertensión (sí o no). ¿Qué prueba permite evaluar si las dos variables están asociadas?",
+      "opciones": [
+        "Chi-cuadrado",
+        "t de Student",
+        "Spearman",
+        "ANOVA"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Las dos variables son categóricas dicotómicas, es decir, tienen dos categorías cada una. Con una muestra grande y frecuencias esperadas suficientes corresponde chi-cuadrado. Si fueran bajas, se usaría la prueba exacta de Fisher.",
+        "Compara promedios de una variable cuantitativa entre dos grupos. Aquí las dos variables son dicotómicas (sí o no).",
+        "Relaciona dos variables cuantitativas u ordinales. Aquí las dos son dicotómicas.",
+        "Compara promedios entre tres o más grupos. Aquí no hay ninguna variable cuantitativa."
+      ]
+    },
+    {
+      "id": "rp-50",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un estudio compara el colesterol LDL promedio (mg/dL) entre 150 personas que retiran sus estatinas todos los meses y 150 que no. El colesterol distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "Chi-cuadrado",
+        "U de Mann-Whitney",
+        "ANOVA",
+        "t de Student"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Es para dos variables categóricas. El colesterol es cuantitativo.",
+        "Sirve para la misma comparación cuando no hay normalidad o los grupos son pequeños. Aquí hay normalidad y grupos grandes.",
+        "Se usa con tres o más grupos. Aquí hay dos.",
+        "Una variable cuantitativa con normalidad, comparada entre dos grupos independientes."
+      ]
+    },
+    {
+      "id": "rp-51",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "El 1 de marzo, 50 de los 1.000 funcionarios de un hospital tenían dermatitis de manos. Entre el 1 de marzo y el 31 de agosto, otros 100 funcionarios la presentaron por primera vez. No entró ni salió personal. ¿Cuál es la prevalencia de período entre marzo y agosto?",
+      "opciones": [
+        "5%",
+        "10%",
+        "10,5%",
+        "15%"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Esa es la prevalencia puntual del 1 de marzo (50 de 1.000).",
+        "Contaste solo los casos nuevos (100 de 1.000). La prevalencia de período incluye también a quienes ya tenían dermatitis.",
+        "Esa es la incidencia acumulada: 100 casos nuevos entre 950 personas en riesgo.",
+        "Suma los casos que ya existían y los nuevos del período: 50 más 100 = 150 de 1.000."
+      ]
+    },
+    {
+      "id": "rp-52",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una cohorte sigue por un año a 200 personas que usan corticoides y a 400 que no los usan. Tuvieron una fractura 40 personas de cada grupo. ¿Cuál es el RR de fractura?",
+      "opciones": [
+        "0,5",
+        "1",
+        "2",
+        "10"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Está invertido. Dividiste el riesgo de quienes no usan por el de quienes usan.",
+        "Los casos son los mismos (40 y 40), pero los grupos no tienen el mismo tamaño. Se comparan riesgos, no cantidades de casos.",
+        "Riesgo con corticoides: 40 de 200 = 20%. Riesgo sin corticoides: 40 de 400 = 10%. RR = 20 dividido por 10 = 2.",
+        "Restaste los riesgos (20% menos 10%). Esa es la diferencia de riesgos, no el RR."
+      ]
+    },
+    {
+      "id": "rp-53",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Una SEREMI quiere saber qué proporción de los estudiantes de enseñanza media de su región usa hoy cigarrillos electrónicos, para diseñar una campaña. ¿Qué diseño responde esa pregunta de forma más directa?",
+      "opciones": [
+        "Cohorte, porque sigue a los estudiantes para ver casos nuevos",
+        "Casos y controles, porque compara a quienes tienen y no tienen el evento",
+        "Ecológico, porque trabaja con datos agregados de la región",
+        "Transversal, porque mide la prevalencia en un momento"
+      ],
+      "correcta": 3,
+      "retro": [
+        "La pregunta es cuántos usan hoy, no cuántos empiezan a usar. No hace falta seguimiento.",
+        "Ese diseño sirve para buscar causas. No entrega la proporción en la población.",
+        "Un dato agregado no dice qué hace cada estudiante.",
+        "Una encuesta a una muestra de estudiantes entrega la prevalencia actual. Es rápido y barato."
+      ]
+    },
+    {
+      "id": "rp-54",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un estudio recluta hoy a 2.000 personas sin demencia, registra quiénes usan benzodiazepinas y las sigue 10 años para ver quiénes desarrollan demencia. ¿Qué ventaja tiene este diseño frente a un estudio transversal?",
+      "opciones": [
+        "Es más rápido y más barato de realizar",
+        "Muestra que la exposición ocurrió antes que el desenlace",
+        "Sirve mejor para estudiar desenlaces muy poco frecuentes",
+        "Elimina la confusión, porque hay seguimiento"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Es al revés. La cohorte es lenta y cara.",
+        "Es una cohorte: parte de personas sin el desenlace y las sigue. Por eso muestra la secuencia temporal y permite medir incidencia.",
+        "Para desenlaces raros conviene casos y controles.",
+        "El seguimiento no elimina la confusión. Hay que medir los confusores y ajustar por ellos."
+      ]
+    },
+    {
+      "id": "rp-55",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un test rápido para detectar infección urinaria tiene una especificidad de 95%. ¿Qué frase lo interpreta bien?",
+      "opciones": [
+        "De cada 100 personas enfermas, 95 obtienen un resultado positivo",
+        "De cada 100 resultados negativos, 95 son de personas sanas",
+        "De cada 100 personas sanas, 95 obtienen un resultado negativo",
+        "De cada 100 personas examinadas, 95 quedan bien clasificadas"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Eso describe la sensibilidad, que parte de los enfermos.",
+        "Eso es el valor predictivo negativo, que parte del resultado del test.",
+        "La especificidad parte de los sanos: qué proporción de ellos sale negativa.",
+        "Eso describe la exactitud del test, que mezcla sanos y enfermos."
+      ]
+    },
+    {
+      "id": "rp-56",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "El mismo test se usa en dos lugares. En un operativo en la feria, 1 de cada 100 personas examinadas tiene la enfermedad. En un policlínico de especialidad, 50 de cada 100. La sensibilidad y la especificidad son las mismas. ¿Dónde es más probable que un resultado positivo sea un verdadero positivo?",
+      "opciones": [
+        "En el policlínico, porque la prevalencia es más alta",
+        "En la feria, porque hay más personas sanas que examinar",
+        "En los dos por igual, porque el test es el mismo",
+        "En la feria, porque la enfermedad es menos frecuente"
+      ],
+      "correcta": 0,
+      "retro": [
+        "El valor predictivo positivo sube cuando sube la prevalencia. La sensibilidad y la especificidad son propias del test y no cambian con el lugar.",
+        "Más personas sanas significa más falsos positivos. Eso baja el valor predictivo positivo.",
+        "Lo que no cambia es la sensibilidad y la especificidad. El valor predictivo depende también de la prevalencia.",
+        "Con una enfermedad poco frecuente, la mayoría de los positivos son falsos positivos."
+      ]
+    },
+    {
+      "id": "rp-57",
+      "tipo": "alt",
+      "tema": "Lectura crítica",
+      "multi": false,
+      "texto": "Una revisión sistemática combina 8 ensayos sobre recordatorios por mensaje de texto para mejorar la adherencia a un tratamiento. En el forest plot, cinco estudios tienen intervalos que cruzan la línea del 1 y tres no la cruzan. El rombo del resultado combinado muestra RR = 1,25 (IC 95%: 1,10 a 1,42) a favor de los recordatorios. ¿Cuál es la conclusión?",
+      "opciones": [
+        "No hay efecto, porque la mayoría de los estudios cruza la línea del 1",
+        "Los recordatorios mejoran la adherencia y el resultado es significativo",
+        "Los recordatorios mejoran la adherencia en 125%, según el resultado combinado",
+        "No se puede concluir, porque los estudios no dicen lo mismo"
+      ],
+      "correcta": 1,
+      "retro": [
+        "No se cuentan estudios. Los estudios chicos tienen intervalos anchos, y por eso se combinan.",
+        "La conclusión se lee en el rombo. Su intervalo (1,10 a 1,42) no incluye el 1. RR = 1,25 es 25% más de adherencia en términos relativos.",
+        "RR = 1,25 significa 25% más en términos relativos, no 125%.",
+        "Que algunos no sean significativos por separado no impide combinarlos. Para eso sirve el metaanálisis."
+      ]
+    },
+    {
+      "id": "rp-58",
+      "tipo": "alt",
+      "tema": "Lectura crítica",
+      "multi": false,
+      "texto": "Una revisión sistemática concluye que un suplemento podría reducir los resfríos, con certeza de la evidencia baja según GRADE. ¿Qué significa certeza baja?",
+      "opciones": [
+        "Que el suplemento no funciona para prevenir los resfríos",
+        "Que el efecto del suplemento es pequeño y poco importante",
+        "Que el efecto real podría ser distinto del que se estimó",
+        "Que la revisión incluyó muy pocos estudios para concluir"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Certeza baja no es lo mismo que no hay efecto. Es no saber con confianza.",
+        "La certeza habla de cuánto confiar en el resultado, no de su tamaño.",
+        "Certeza baja quiere decir que no sabemos con confianza. Nuevos estudios podrían cambiar la conclusión.",
+        "El número de estudios es solo una de las razones posibles. También bajan la certeza el riesgo de sesgo o los resultados que no coinciden."
+      ]
+    },
+    {
+      "id": "rp-59",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un centro de salud quiere saber qué tan bien funciona un test rápido de estreptococo en niños con dolor de garganta. A cada niño le hace el test rápido y también un cultivo, que es el estándar de referencia: el examen contra el que se compara el test. ¿Para qué sirve el cultivo en este estudio?",
+      "opciones": [
+        "Para saber quién tiene de verdad la infección",
+        "Para comprobar si el test rápido da lo mismo al repetirlo",
+        "Para tratar a los niños mientras llega el resultado del test",
+        "Para aumentar la sensibilidad del test rápido al usarlos juntos"
+      ],
+      "correcta": 0,
+      "retro": [
+        "El cultivo clasifica a los niños con y sin infección, y esa clasificación se compara con el resultado del test rápido. Así se estima la sensibilidad (qué proporción de quienes tienen la infección da positivo) y la especificidad (qué proporción de quienes no la tienen da negativo).",
+        "Si repitieras el test rápido para ver si da lo mismo, estarías estudiando su reproducibilidad. Para eso no hace falta un estándar de referencia.",
+        "En este estudio el cultivo se usa para evaluar el test, no para tratar.",
+        "Las propiedades del test rápido no cambian por compararlo con el cultivo."
+      ]
+    },
+    {
+      "id": "rp-60",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un municipio evalúa hacer un operativo anual para detectar una enfermedad en personas sin síntomas. ¿Con cuál de estas enfermedades tendría más sentido hacerlo?",
+      "opciones": [
+        "Una frecuente, pero leve y que suele pasar sola sin ningún tratamiento",
+        "Una grave, pero que no cuenta con un tratamiento que cambie su evolución",
+        "Una frecuente, grave y que mejora si se trata antes de los síntomas",
+        "Una grave, pero que solo se puede detectar cuando ya produce síntomas"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Si es leve y pasa sola, buscarla en personas sanas trae más molestias que beneficios.",
+        "Detectarla antes no sirve si no hay nada que ofrecer para cambiar su curso.",
+        "El tamizaje se justifica cuando la enfermedad es un problema importante, se puede detectar antes de los síntomas y tratarla temprano mejora el pronóstico.",
+        "El tamizaje busca la enfermedad en personas sin síntomas. Si no se puede detectar antes, no hay nada que adelantar."
+      ]
+    },
+    {
+      "id": "rp-61",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Un ensayo prueba un antidiabético en pacientes muy seleccionados, con controles semanales y vigilancia estricta de que tomen el fármaco. Otro ensayo lo prueba en CESFAM, con los pacientes habituales y la atención habitual. ¿Qué mide cada uno?",
+      "opciones": [
+        "El primero mide efectividad y el segundo mide eficacia",
+        "El primero mide eficacia y el segundo mide efectividad",
+        "Los dos miden eficacia, porque ambos son ensayos clínicos",
+        "Los dos miden efectividad, porque ambos tratan a pacientes"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Está al revés. Las condiciones ideales corresponden a eficacia.",
+        "Eficacia: si funciona en condiciones ideales, con más validez interna. Efectividad: si ayuda en condiciones reales, con más validez externa.",
+        "El segundo ensayo se hace en condiciones reales. Eso es efectividad.",
+        "El primer ensayo se hace en condiciones ideales y muy controladas. Eso es eficacia."
+      ]
+    },
+    {
+      "id": "rp-62",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Para estudiar si fumar causa cáncer de pulmón se usaron estudios de cohorte y de casos y controles, en vez de un ensayo aleatorizado. ¿Cuál es la razón principal?",
+      "opciones": [
+        "Porque los ensayos aleatorizados no permiten estudiar relaciones de causa",
+        "Porque el cáncer de pulmón es demasiado frecuente para un ensayo",
+        "Porque las personas que fuman rechazan participar en investigaciones",
+        "Porque no es ético asignar por sorteo una exposición dañina"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Es al revés. El ensayo aleatorizado es el mejor diseño para hablar de causa, cuando se puede hacer.",
+        "La frecuencia no es el problema. El problema es obligar a alguien a fumar.",
+        "Las personas que fuman sí participan en estudios. Así se hicieron las cohortes.",
+        "Solo se sortea una intervención cuando de verdad no se sabe si daña o beneficia. Si no se puede sortear, se usan estudios observacionales."
+      ]
+    },
+    {
+      "id": "rp-63",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Se quiere probar un antibiótico nuevo para la neumonía, una enfermedad que ya tiene tratamientos eficaces. ¿Qué debe recibir el grupo control del ensayo?",
+      "opciones": [
+        "Un placebo, para medir el efecto real del antibiótico nuevo",
+        "El tratamiento habitual, porque no es ético dejar sin tratar",
+        "Ningún tratamiento, para observar la evolución de la enfermedad",
+        "El antibiótico nuevo, pero en una dosis más baja que el otro grupo"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El placebo se usa cuando no existe un tratamiento eficaz. Aquí sí existe.",
+        "Si ya hay un tratamiento que funciona, el nuevo se compara contra ese. Nadie puede quedar sin tratamiento por participar.",
+        "Dejar sin tratar una neumonía pone en riesgo a los participantes.",
+        "Eso compararía dos dosis del mismo fármaco. No diría si el nuevo es mejor o peor que lo que ya se usa."
+      ]
+    },
+    {
+      "id": "rp-64",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "El sedentarismo aumenta el riesgo de infarto. Hay personas sedentarias que llegan a viejas sin un infarto, y personas activas que sí lo tienen. Según el modelo de Rothman, ¿qué tipo de causa es el sedentarismo?",
+      "opciones": [
+        "Necesaria y suficiente",
+        "Necesaria, pero no suficiente",
+        "Suficiente, pero no necesaria",
+        "Ni necesaria ni suficiente"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Si fuera necesaria, no habría infartos en personas activas. Si fuera suficiente, toda persona sedentaria tendría uno.",
+        "No es necesaria, porque hay personas activas que tienen un infarto.",
+        "No es suficiente, porque hay personas sedentarias que no tienen un infarto.",
+        "Es una causa componente: forma parte de algunas tortas causales, junto con otros factores. En las enfermedades crónicas es lo más común."
+      ]
+    },
+    {
+      "id": "rp-65",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo terminó de analizar sus datos y encontró que la polifarmacia se asocia con más caídas en personas mayores. Ahora discute qué significa ese hallazgo y qué medidas propone para los CESFAM. ¿En qué etapa del método está?",
+      "opciones": [
+        "Planificación del estudio",
+        "Recolección de los datos",
+        "Conclusiones y sugerencias",
+        "Informe y difusión"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La planificación ocurre antes de recoger los datos.",
+        "Los datos ya se recogieron y se analizaron.",
+        "Con los resultados analizados, el equipo concluye y propone qué hacer (etapa 8).",
+        "Eso viene después: es cuando el estudio completo se escribe y se comunica."
+      ]
+    },
+    {
+      "id": "rp-66",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un estudio de casos y controles sobre anticonceptivos orales y trombosis venosa obtiene OR = 3. ¿Qué frase lo interpreta bien?",
+      "opciones": [
+        "Las usuarias tienen 3 veces el riesgo de trombosis que las no usuarias",
+        "Los casos tienen 3 veces las odds de haber usado anticonceptivos",
+        "El 3% de las usuarias de anticonceptivos desarrolla una trombosis",
+        "Las usuarias tienen 3 puntos porcentuales más de riesgo de trombosis"
+      ],
+      "correcta": 1,
+      "retro": [
+        "En casos y controles no se puede calcular riesgo, porque el investigador fijó cuántos casos y controles hay.",
+        "Se comparan las odds de exposición entre casos y controles. Las mujeres con trombosis tienen 3 veces las odds de haber usado anticonceptivos que las mujeres sin trombosis.",
+        "El OR no es un porcentaje de personas que enferman.",
+        "El OR es una razón, no una diferencia en puntos porcentuales."
+      ]
+    },
+    {
+      "id": "rp-67",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una cohorte registra cuánto tiempo estuvo en riesgo cada persona. Hubo 8 casos por 1.000 personas-año en expuestos y 4 por 1.000 personas-año en no expuestos. Fíjate en el denominador. ¿Qué frase interpreta bien el resultado?",
+      "opciones": [
+        "El riesgo de enfermar es el doble en los expuestos",
+        "La tasa de incidencia es el doble en los expuestos",
+        "La prevalencia de la enfermedad es el doble en los expuestos",
+        "Los expuestos tienen 4 puntos porcentuales más de riesgo"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El riesgo (incidencia acumulada) es la proporción de personas inicialmente en riesgo que desarrolla el evento en un plazo definido. Aquí el denominador es tiempo, no personas. Con esas dos tasas solas no puedes afirmar que el riesgo sea el doble.",
+        "8 dividido por 4 = 2: es la razón de tasas de incidencia. La tasa divide los casos nuevos por el tiempo total que las personas estuvieron en riesgo. Personas-año en el denominador: interpreta una tasa.",
+        "La prevalencia cuenta los casos que existen en un momento. Aquí se cuentan casos nuevos por tiempo en riesgo.",
+        "La diferencia es de 4 casos por 1.000 personas-año. Es una diferencia de tasas, no de riesgos ni en puntos porcentuales."
+      ]
+    }
+  ]
+}
