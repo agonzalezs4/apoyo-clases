@@ -1,0 +1,135 @@
+{
+  "nombre": "repaso-demo",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-nnt-1",
+      "tipo": "alt",
+      "tema": "Impacto",
+      "texto": "Un folleto dice que un fármaco reduce el riesgo de infarto en 25%. En el ensayo, a 2 años, tuvo un infarto el 8% del grupo control y el 6% del grupo tratado. ¿A cuántas personas hay que tratar durante 2 años para evitar un infarto?",
+      "opciones": [
+        "4 personas",
+        "13 personas",
+        "17 personas",
+        "50 personas"
+      ],
+      "multi": false,
+      "correcta": 3,
+      "retro": [
+        "Usaste la reducción relativa (1 dividido por 0,25). El NNT se calcula con la reducción absoluta.",
+        "Usaste el riesgo del grupo control (1 dividido por 0,08).",
+        "Usaste el riesgo del grupo tratado (1 dividido por 0,06).",
+        "La reducción absoluta es 8% menos 6% = 2 puntos porcentuales. NNT = 1 dividido por 0,02 = 50."
+      ],
+      "explicacion": "El 25% es relativo (2 de 8). El beneficio real son 2 de cada 100."
+    },
+    {
+      "id": "rp-prueba-2",
+      "tipo": "alt",
+      "tema": "Prueba",
+      "texto": "Pregunta de prueba 2 (sin contenido): la correcta es la alternativa C.",
+      "opciones": [
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C"
+      ],
+      "multi": false,
+      "correcta": 2,
+      "retro": [
+        "No: era la C.",
+        "No: era la C.",
+        "Esa es."
+      ]
+    },
+    {
+      "id": "rp-prueba-3",
+      "tipo": "alt",
+      "tema": "Prueba",
+      "texto": "Pregunta de prueba 3 (sin contenido): la correcta es la alternativa A.",
+      "opciones": [
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C"
+      ],
+      "multi": false,
+      "correcta": 0,
+      "retro": [
+        "Esa es.",
+        "No: era la A.",
+        "No: era la A."
+      ]
+    },
+    {
+      "id": "rp-prueba-4",
+      "tipo": "alt",
+      "tema": "Prueba",
+      "texto": "Pregunta de prueba 4 (sin contenido): la correcta es la alternativa B.",
+      "opciones": [
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C"
+      ],
+      "multi": false,
+      "correcta": 1,
+      "retro": [
+        "No: era la B.",
+        "Esa es.",
+        "No: era la B."
+      ]
+    },
+    {
+      "id": "rp-prueba-5",
+      "tipo": "alt",
+      "tema": "Prueba",
+      "texto": "Pregunta de prueba 5 (sin contenido): la correcta es la alternativa C.",
+      "opciones": [
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C"
+      ],
+      "multi": false,
+      "correcta": 2,
+      "retro": [
+        "No: era la C.",
+        "No: era la C.",
+        "Esa es."
+      ]
+    },
+    {
+      "id": "rp-prueba-6",
+      "tipo": "alt",
+      "tema": "Prueba",
+      "texto": "Pregunta de prueba 6 (sin contenido): la correcta es la alternativa A.",
+      "opciones": [
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C"
+      ],
+      "multi": false,
+      "correcta": 0,
+      "retro": [
+        "Esa es.",
+        "No: era la A.",
+        "No: era la A."
+      ]
+    },
+    {
+      "id": "rp-prueba-7",
+      "tipo": "alt",
+      "tema": "Prueba",
+      "texto": "Pregunta de prueba 7 (sin contenido): la correcta es la alternativa B.",
+      "opciones": [
+        "Alternativa A",
+        "Alternativa B",
+        "Alternativa C"
+      ],
+      "multi": false,
+      "correcta": 1,
+      "retro": [
+        "No: era la B.",
+        "Esa es.",
+        "No: era la B."
+      ]
+    }
+  ]
+}

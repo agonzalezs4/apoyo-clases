@@ -349,3 +349,14 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
      - PENDIENTE: repasar.html no está en el repositorio; falta conectarle
        recopilar.js (aviso, registrar, terminar). Requiere publicar una versión
        nueva del Apps Script.
+
+[58] 2026-11-23 18:11 · Claude
+     repasar.html de prueba, conectado a recopilar.js
+     - repasar.html?clase=nombre: práctica sin nota de las preguntas "alt" que
+       traen "correcta" (índice desde 0), con "tema", "retro" por alternativa y
+       "explicacion" opcionales. Se puede reintentar hasta acertar; al final
+       muestra los aciertos al primer intento y permite volver al inicio.
+     - Resuelve el pendiente de [57]: aviso en el inicio, registro del primer
+       intento después de mostrar la retroalimentación y envío al terminar.
+     - clases/repaso-demo.json: 7 preguntas de prueba con "recopilar": true.
+       No está en REPASOS_CON_REGISTRO (la lista del repositorio sigue vacía).
