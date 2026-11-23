@@ -50,7 +50,19 @@
  *  - Tras pegar esta versión: ejecuta "autorizar" otra vez (pide el permiso para enviar correos) e implementa
  *    una Nueva versión. Funciones útiles desde el editor: "cerrarSesiones" (si usaste un PC ajeno y no
  *    cerraste sesión; también olvida los computadores recordados) y "desbloquearAcceso" (si te bloqueaste tú).
+ *
+ * Registro anónimo del repaso (nuevo, opcional):
+ *  - "repaso" guarda en la hoja «Repaso» el primer intento de cada pregunta de repasar.html: clase, pregunta,
+ *    tema, alternativa elegida, si fue correcta y un identificador de sesión al azar. Sin nombre ni código de sorteo.
+ *  - Solo acepta las clases anotadas en REPASOS_CON_REGISTRO (parte vacía: no se guarda nada de ningún repaso).
+ *    Además el archivo de la clase debe traer "recopilar": true y el estudiante debe elegir «Practicar y enviar».
+ *  - No depende de la votación (ni abierta ni ronda) y no toca la hoja «Respuestas».
  */
+
+// Repasos cuyas respuestas se guardan (nombre del archivo de clases/, sin .json). Ej.: ["refuerzo-solemne-2"]
+const REPASOS_CON_REGISTRO = [];
+const HOJA_REPASO = "Repaso";
+const FILAS_REPASO = 10; // máximo de respuestas por llamada (repasar.html envía de a 5)
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la del acceso del profesor. Mejor larga (12 o más caracteres) y que no uses en otro sitio
 const SECRETO = "PON_AQUI_TU_SECRETO"; // solo tú lo sabes: de él sale la letra verificadora del código
@@ -85,6 +97,8 @@ function doGet(e) {
       out = abrir_(p.qs, p.abrir === "1", p.token);
     } else if (p.accion === "lote") {
       out = lote_(p.d, p.v, p.n); // todas las respuestas de la tanda en una consulta
+    } else if (p.accion === "repaso") {
+      out = repaso_(p.clase, p.d, p.s, p.v);
     } else if (p.accion === "estados") {
       out = estados_(p.qs);
     } else {
@@ -223,6 +237,41 @@ function lote_(d, v, n) {
   const out = conCodigo_({ ok: true, rondas: rondas }, codigo);
   if (claveV) cache.put(claveV, JSON.stringify(out), 21600);
   return out;
+}
+
+/* Registro anónimo del repaso. d = JSON [[pregunta, tema, respuesta, correcta], ...]; s = sesión al azar del navegador; v = id del envío */
+function repaso_(clase, d, s, v) {
+  clase = String(clase || "").slice(0, 60);
+  if (REPASOS_CON_REGISTRO.indexOf(clase) < 0) throw new Error("Este repaso no registra respuestas");
+  let items;
+  try { items = JSON.parse(String(d || "")); } catch (err) { throw new Error("Envío inválido"); }
+  if (!Array.isArray(items) || !items.length) throw new Error("No hay respuestas que guardar");
+  const limpio = x => String(x || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
+  s = limpio(s); v = limpio(v);
+  const filas = items.slice(0, FILAS_REPASO).map(it => {
+    it = Array.isArray(it) ? it : [];
+    return { q: String(it[0] || "").slice(0, 40), tema: String(it[1] || "").slice(0, 100), r: String(it[2] || "").trim().slice(0, 300), ok: Number(it[3]) === 1 ? 1 : 0 };
+  }).filter(f => f.q && f.r);
+  if (!filas.length) throw new Error("Respuesta vacía");
+  const cache = CacheService.getScriptCache();
+  const claveV = v ? "repaso_" + v : "";
+  if (claveV && cache.get(claveV) !== null) return { ok: true, repetido: true }; // reintento de un envío que sí llegó
+  if (claveV) cache.put(claveV, "1", 21600);
+  const h = hojaRepaso_(), ahora = new Date();
+  // appendRow es atómico (como en "lote"); el apóstrofo guarda como texto y evita fórmulas
+  filas.forEach(f => h.appendRow([ahora, "'" + clase, "'" + f.q, "'" + f.tema, "'" + f.r, f.ok, "'" + s]));
+  return { ok: true, n: filas.length };
+}
+
+function hojaRepaso_() {
+  const ss = SpreadsheetApp.getActive();
+  let h = ss.getSheetByName(HOJA_REPASO);
+  if (!h) {
+    h = ss.insertSheet(HOJA_REPASO);
+    h.appendRow(["fecha", "clase", "id_pregunta", "tema", "respuesta", "correcta", "sesion"]);
+    h.setFrozenRows(1);
+  }
+  return h;
 }
 
 /* Rondas vigentes de toda la tanda en una sola consulta */
