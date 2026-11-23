@@ -380,3 +380,11 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
        conservaban al republicar; se perdía "recopilar", ahora se conserva. OJO:
        si se cambian las alternativas en el editor, "correcta" y "retro" no se
        reacomodan (el editor no las muestra).
+
+[60] 2026-11-23 19:15 · Claude
+     Repaso para el examen: clases/refuerzo-examen.json
+     - 46 preguntas en 12 temas, con "recopilar": true. Se abre con
+       repasar.html?clase=refuerzo-examen
+     - El nombre coincide con el autorizado en REPASOS_CON_REGISTRO del Apps
+       Script publicado. Para dejar de registrar: quitar "recopilar" del archivo
+       o el nombre de la lista.
