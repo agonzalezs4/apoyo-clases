@@ -296,7 +296,7 @@ function revisar() {
 function contenidoArchivo() {
   // El QR de la tanda se calcula aquí, una sola vez, y viaja en el archivo: presentar.html solo lo dibuja
   const url = new URL(`votar.html?clase=${encodeURIComponent(clase.nombre)}`, location.href).href;
-  return JSON.stringify({ nombre: clase.nombre, qr: { url, ...qrMatriz(url) }, p: clase.p.map(({ idOrig, ...p }) => p) }, null, 2); // idOrig es solo del editor
+  return JSON.stringify({ nombre: clase.nombre, ...(clase.recopilar === true && { recopilar: true }), qr: { url, ...qrMatriz(url) }, p: clase.p.map(({ idOrig, ...p }) => p) }, null, 2); // idOrig es solo del editor
 }
 
 function publicar() {

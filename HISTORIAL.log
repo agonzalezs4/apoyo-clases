@@ -360,3 +360,23 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
        intento después de mostrar la retroalimentación y envío al terminar.
      - clases/repaso-demo.json: 7 preguntas de prueba con "recopilar": true.
        No está en REPASOS_CON_REGISTRO (la lista del repositorio sigue vacía).
+
+[59] 2026-11-23 18:21 · Claude
+     repasar.html completo, según el encargo original
+     - Inicio con «Todo mezclado» y un botón por tema. Preguntas y alternativas
+       se mezclan en cada intento ("correcta" y "retro" siguen a su alternativa).
+     - Incorrecta: se marca (✗, tachada), muestra su retro y deja reintentar sin
+       revelar la correcta. Correcta: ✓, retro, explicacion y «Siguiente».
+     - Final: aciertos al primer intento, desglose por tema y «Repetir las que
+       fallé». El avance se guarda en el navegador (con respaldo en memoria) y
+       se retoma al recargar.
+     - Solo usa preguntas "alt" con "correcta" y una "retro" por alternativa; las
+       demás se saltan y se avisa cuántas se omitieron.
+     - Recopilación: la elección se recuerda (una línea con «Cambiar» en el
+       inicio) y vale tras recargar. Lo pendiente se envía al recargar, salir o
+       dejar la página en segundo plano. «Repetir las que fallé» no se envía.
+       config.js: api() acepta opciones de fetch (para keepalive).
+     - Editor (index.html): los campos tema, correcta, retro y explicacion ya se
+       conservaban al republicar; se perdía "recopilar", ahora se conserva. OJO:
+       si se cambian las alternativas en el editor, "correcta" y "retro" no se
+       reacomodan (el editor no las muestra).
