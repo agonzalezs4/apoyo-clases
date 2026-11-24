@@ -412,3 +412,8 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
      - refuerzo-examen1 (nuevo, rp-01 a rp-11) a refuerzo-examen6: la misma
        compilación troceada. Para registrar refuerzo-examen1 hay que agregarlo a
        REPASOS_CON_REGISTRO del Apps Script publicado.
+
+[64] 2026-11-24 · Claude
+     Enlace «Repasar» en la lista de clases publicadas (index.html)
+     - Aparece antes de «Presentar» solo en las clases con preguntas de repaso
+       («correcta» y «retro»); abre repasar.html?clase=nombre.

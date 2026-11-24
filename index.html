@@ -353,11 +353,14 @@ function filaClase(n) {
   d.className = "clase";
   d.innerHTML = `
     <div class="fila-clase"><strong></strong>
-      <span class="links"><a target="_blank" rel="noopener">Presentar</a><a>Editar aquí</a><button>Ver enlaces por pregunta</button></span>
+      <span class="links"><a target="_blank" rel="noopener" hidden>Repasar</a><a target="_blank" rel="noopener">Presentar</a><a>Editar aquí</a><button>Ver enlaces por pregunta</button></span>
     </div>
     <ol class="enlaces" hidden></ol>`;
   d.querySelector("strong").textContent = n;
-  const [aPres, aEdit] = d.querySelectorAll("a");
+  const [aRep, aPres, aEdit] = d.querySelectorAll("a");
+  aRep.href = "repasar.html?clase=" + encodeURIComponent(n);
+  // solo si tiene preguntas de repaso (con «correcta» y «retro»), como pide repasar.html
+  cargarClase(n).then(c => { aRep.hidden = !c.p.some(p => p && Number.isInteger(p.correcta) && Array.isArray(p.retro)); }).catch(() => {});
   aPres.href = "presentar.html?clase=" + encodeURIComponent(n);
   aEdit.href = "index.html?clase=" + encodeURIComponent(n);
   aEdit.onclick = e => {
