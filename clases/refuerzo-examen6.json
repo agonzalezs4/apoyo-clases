@@ -1,0 +1,246 @@
+{
+  "nombre": "refuerzo-examen6",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-56",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "El mismo test se usa en dos lugares. En un operativo en la feria, 1 de cada 100 personas examinadas tiene la enfermedad. En un policlínico de especialidad, 50 de cada 100. La sensibilidad y la especificidad son las mismas. ¿Dónde es más probable que un resultado positivo sea un verdadero positivo?",
+      "opciones": [
+        "En el policlínico, porque la prevalencia es más alta",
+        "En la feria, porque hay más personas sanas que examinar",
+        "En los dos por igual, porque el test es el mismo",
+        "En la feria, porque la enfermedad es menos frecuente"
+      ],
+      "correcta": 0,
+      "retro": [
+        "El valor predictivo positivo sube cuando sube la prevalencia. La sensibilidad y la especificidad son propias del test y no cambian con el lugar.",
+        "Más personas sanas significa más falsos positivos. Eso baja el valor predictivo positivo.",
+        "Lo que no cambia es la sensibilidad y la especificidad. El valor predictivo depende también de la prevalencia.",
+        "Con una enfermedad poco frecuente, la mayoría de los positivos son falsos positivos."
+      ]
+    },
+    {
+      "id": "rp-57",
+      "tipo": "alt",
+      "tema": "Lectura crítica",
+      "multi": false,
+      "texto": "Una revisión sistemática combina 8 ensayos sobre recordatorios por mensaje de texto para mejorar la adherencia a un tratamiento. En el forest plot, cinco estudios tienen intervalos que cruzan la línea del 1 y tres no la cruzan. El rombo del resultado combinado muestra RR = 1,25 (IC 95%: 1,10 a 1,42) a favor de los recordatorios. ¿Cuál es la conclusión?",
+      "opciones": [
+        "No hay efecto, porque la mayoría de los estudios cruza la línea del 1",
+        "Los recordatorios mejoran la adherencia y el resultado es significativo",
+        "Los recordatorios mejoran la adherencia en 125%, según el resultado combinado",
+        "No se puede concluir, porque los estudios no dicen lo mismo"
+      ],
+      "correcta": 1,
+      "retro": [
+        "No se cuentan estudios. Los estudios chicos tienen intervalos anchos, y por eso se combinan.",
+        "La conclusión se lee en el rombo. Su intervalo (1,10 a 1,42) no incluye el 1. RR = 1,25 es 25% más de adherencia en términos relativos.",
+        "RR = 1,25 significa 25% más en términos relativos, no 125%.",
+        "Que algunos no sean significativos por separado no impide combinarlos. Para eso sirve el metaanálisis."
+      ]
+    },
+    {
+      "id": "rp-58",
+      "tipo": "alt",
+      "tema": "Lectura crítica",
+      "multi": false,
+      "texto": "Una revisión sistemática concluye que un suplemento podría reducir los resfríos, con certeza de la evidencia baja según GRADE. ¿Qué significa certeza baja?",
+      "opciones": [
+        "Que el suplemento no funciona para prevenir los resfríos",
+        "Que el efecto del suplemento es pequeño y poco importante",
+        "Que el efecto real podría ser distinto del que se estimó",
+        "Que la revisión incluyó muy pocos estudios para concluir"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Certeza baja no es lo mismo que no hay efecto. Es no saber con confianza.",
+        "La certeza habla de cuánto confiar en el resultado, no de su tamaño.",
+        "Certeza baja quiere decir que no sabemos con confianza. Nuevos estudios podrían cambiar la conclusión.",
+        "El número de estudios es solo una de las razones posibles. También bajan la certeza el riesgo de sesgo o los resultados que no coinciden."
+      ]
+    },
+    {
+      "id": "rp-59",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un centro de salud quiere saber qué tan bien funciona un test rápido de estreptococo en niños con dolor de garganta. A cada niño le hace el test rápido y también un cultivo, que es el estándar de referencia: el examen contra el que se compara el test. ¿Para qué sirve el cultivo en este estudio?",
+      "opciones": [
+        "Para saber quién tiene de verdad la infección",
+        "Para comprobar si el test rápido da lo mismo al repetirlo",
+        "Para tratar a los niños mientras llega el resultado del test",
+        "Para aumentar la sensibilidad del test rápido al usarlos juntos"
+      ],
+      "correcta": 0,
+      "retro": [
+        "El cultivo clasifica a los niños con y sin infección, y esa clasificación se compara con el resultado del test rápido. Así se estima la sensibilidad (qué proporción de quienes tienen la infección da positivo) y la especificidad (qué proporción de quienes no la tienen da negativo).",
+        "Si repitieras el test rápido para ver si da lo mismo, estarías estudiando su reproducibilidad. Para eso no hace falta un estándar de referencia.",
+        "En este estudio el cultivo se usa para evaluar el test, no para tratar.",
+        "Las propiedades del test rápido no cambian por compararlo con el cultivo."
+      ]
+    },
+    {
+      "id": "rp-60",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un municipio evalúa hacer un operativo anual para detectar una enfermedad en personas sin síntomas. ¿Con cuál de estas enfermedades tendría más sentido hacerlo?",
+      "opciones": [
+        "Una frecuente, pero leve y que suele pasar sola sin ningún tratamiento",
+        "Una grave, pero que no cuenta con un tratamiento que cambie su evolución",
+        "Una frecuente, grave y que mejora si se trata antes de los síntomas",
+        "Una grave, pero que solo se puede detectar cuando ya produce síntomas"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Si es leve y pasa sola, buscarla en personas sanas trae más molestias que beneficios.",
+        "Detectarla antes no sirve si no hay nada que ofrecer para cambiar su curso.",
+        "El tamizaje se justifica cuando la enfermedad es un problema importante, se puede detectar antes de los síntomas y tratarla temprano mejora el pronóstico.",
+        "El tamizaje busca la enfermedad en personas sin síntomas. Si no se puede detectar antes, no hay nada que adelantar."
+      ]
+    },
+    {
+      "id": "rp-61",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Un ensayo prueba un antidiabético en pacientes muy seleccionados, con controles semanales y vigilancia estricta de que tomen el fármaco. Otro ensayo lo prueba en CESFAM, con los pacientes habituales y la atención habitual. ¿Qué mide cada uno?",
+      "opciones": [
+        "El primero mide efectividad y el segundo mide eficacia",
+        "El primero mide eficacia y el segundo mide efectividad",
+        "Los dos miden eficacia, porque ambos son ensayos clínicos",
+        "Los dos miden efectividad, porque ambos tratan a pacientes"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Está al revés. Las condiciones ideales corresponden a eficacia.",
+        "Eficacia: si funciona en condiciones ideales, con más validez interna. Efectividad: si ayuda en condiciones reales, con más validez externa.",
+        "El segundo ensayo se hace en condiciones reales. Eso es efectividad.",
+        "El primer ensayo se hace en condiciones ideales y muy controladas. Eso es eficacia."
+      ]
+    },
+    {
+      "id": "rp-62",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Para estudiar si fumar causa cáncer de pulmón se usaron estudios de cohorte y de casos y controles, en vez de un ensayo aleatorizado. ¿Cuál es la razón principal?",
+      "opciones": [
+        "Porque los ensayos aleatorizados no permiten estudiar relaciones de causa",
+        "Porque el cáncer de pulmón es demasiado frecuente para un ensayo",
+        "Porque las personas que fuman rechazan participar en investigaciones",
+        "Porque no es ético asignar por sorteo una exposición dañina"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Es al revés. El ensayo aleatorizado es el mejor diseño para hablar de causa, cuando se puede hacer.",
+        "La frecuencia no es el problema. El problema es obligar a alguien a fumar.",
+        "Las personas que fuman sí participan en estudios. Así se hicieron las cohortes.",
+        "Solo se sortea una intervención cuando de verdad no se sabe si daña o beneficia. Si no se puede sortear, se usan estudios observacionales."
+      ]
+    },
+    {
+      "id": "rp-63",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Se quiere probar un antibiótico nuevo para la neumonía, una enfermedad que ya tiene tratamientos eficaces. ¿Qué debe recibir el grupo control del ensayo?",
+      "opciones": [
+        "Un placebo, para medir el efecto real del antibiótico nuevo",
+        "El tratamiento habitual, porque no es ético dejar sin tratar",
+        "Ningún tratamiento, para observar la evolución de la enfermedad",
+        "El antibiótico nuevo, pero en una dosis más baja que el otro grupo"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El placebo se usa cuando no existe un tratamiento eficaz. Aquí sí existe.",
+        "Si ya hay un tratamiento que funciona, el nuevo se compara contra ese. Nadie puede quedar sin tratamiento por participar.",
+        "Dejar sin tratar una neumonía pone en riesgo a los participantes.",
+        "Eso compararía dos dosis del mismo fármaco. No diría si el nuevo es mejor o peor que lo que ya se usa."
+      ]
+    },
+    {
+      "id": "rp-64",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "El sedentarismo aumenta el riesgo de infarto. Hay personas sedentarias que llegan a viejas sin un infarto, y personas activas que sí lo tienen. Según el modelo de Rothman, ¿qué tipo de causa es el sedentarismo?",
+      "opciones": [
+        "Necesaria y suficiente",
+        "Necesaria, pero no suficiente",
+        "Suficiente, pero no necesaria",
+        "Ni necesaria ni suficiente"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Si fuera necesaria, no habría infartos en personas activas. Si fuera suficiente, toda persona sedentaria tendría uno.",
+        "No es necesaria, porque hay personas activas que tienen un infarto.",
+        "No es suficiente, porque hay personas sedentarias que no tienen un infarto.",
+        "Es una causa componente: forma parte de algunas tortas causales, junto con otros factores. En las enfermedades crónicas es lo más común."
+      ]
+    },
+    {
+      "id": "rp-65",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo terminó de analizar sus datos y encontró que la polifarmacia se asocia con más caídas en personas mayores. Ahora discute qué significa ese hallazgo y qué medidas propone para los CESFAM. ¿En qué etapa del método está?",
+      "opciones": [
+        "Planificación del estudio",
+        "Recolección de los datos",
+        "Conclusiones y sugerencias",
+        "Informe y difusión"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La planificación ocurre antes de recoger los datos.",
+        "Los datos ya se recogieron y se analizaron.",
+        "Con los resultados analizados, el equipo concluye y propone qué hacer (etapa 8).",
+        "Eso viene después: es cuando el estudio completo se escribe y se comunica."
+      ]
+    },
+    {
+      "id": "rp-66",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un estudio de casos y controles sobre anticonceptivos orales y trombosis venosa obtiene OR = 3. ¿Qué frase lo interpreta bien?",
+      "opciones": [
+        "Las usuarias tienen 3 veces el riesgo de trombosis que las no usuarias",
+        "Los casos tienen 3 veces las odds de haber usado anticonceptivos",
+        "El 3% de las usuarias de anticonceptivos desarrolla una trombosis",
+        "Las usuarias tienen 3 puntos porcentuales más de riesgo de trombosis"
+      ],
+      "correcta": 1,
+      "retro": [
+        "En casos y controles no se puede calcular riesgo, porque el investigador fijó cuántos casos y controles hay.",
+        "Se comparan las odds de exposición entre casos y controles. Las mujeres con trombosis tienen 3 veces las odds de haber usado anticonceptivos que las mujeres sin trombosis.",
+        "El OR no es un porcentaje de personas que enferman.",
+        "El OR es una razón, no una diferencia en puntos porcentuales."
+      ]
+    },
+    {
+      "id": "rp-67",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una cohorte registra cuánto tiempo estuvo en riesgo cada persona. Hubo 8 casos por 1.000 personas-año en expuestos y 4 por 1.000 personas-año en no expuestos. Fíjate en el denominador. ¿Qué frase interpreta bien el resultado?",
+      "opciones": [
+        "El riesgo de enfermar es el doble en los expuestos",
+        "La tasa de incidencia es el doble en los expuestos",
+        "La prevalencia de la enfermedad es el doble en los expuestos",
+        "Los expuestos tienen 4 puntos porcentuales más de riesgo"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El riesgo (incidencia acumulada) es la proporción de personas inicialmente en riesgo que desarrolla el evento en un plazo definido. Aquí el denominador es tiempo, no personas. Con esas dos tasas solas no puedes afirmar que el riesgo sea el doble.",
+        "8 dividido por 4 = 2: es la razón de tasas de incidencia. La tasa divide los casos nuevos por el tiempo total que las personas estuvieron en riesgo. Personas-año en el denominador: interpreta una tasa.",
+        "La prevalencia cuenta los casos que existen en un momento. Aquí se cuentan casos nuevos por tiempo en riesgo.",
+        "La diferencia es de 4 casos por 1.000 personas-año. Es una diferencia de tasas, no de riesgos ni en puntos porcentuales."
+      ]
+    }
+  ]
+}

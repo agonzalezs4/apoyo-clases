@@ -395,3 +395,13 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
      - rp-59 (estándar de referencia): enunciado y retro más orientadores.
      - rp-67 (nueva): tasa de incidencia vs. riesgo, con personas-año.
        Redactada por Claude a partir de la nota del profesor: POR REVISAR.
+
+[62] 2026-11-24 · Claude
+     refuerzo-examen troceado en 6 repasos más cortos
+     - Las 67 preguntas, en su orden, quedan en refuerzo-examen (rp-01 a rp-11),
+       refuerzo-examen2 (rp-12 a rp-22), refuerzo-examen3 (rp-23 a rp-33),
+       refuerzo-examen4 (rp-34 a rp-44), refuerzo-examen5 (rp-45 a rp-55) y
+       refuerzo-examen6 (rp-56 a rp-67). Mismo contenido e ids; todos con
+       "recopilar": true. Se abren con repasar.html?clase=refuerzo-examenN.
+     - Los seis nombres están en REPASOS_CON_REGISTRO del Apps Script publicado
+       (en el repositorio la lista sigue vacía).

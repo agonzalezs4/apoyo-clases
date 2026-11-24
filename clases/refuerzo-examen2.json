@@ -1,0 +1,226 @@
+{
+  "nombre": "refuerzo-examen2",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-12",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "Una encuesta hecha en un solo día encuentra que las personas con depresión pasan más horas en redes sociales que las personas sin depresión. Un diario titula que las redes sociales causan depresión. ¿Qué criterio de Bradford Hill falta para sostener ese titular?",
+      "opciones": [
+        "Secuencia temporal, porque no se sabe qué ocurrió primero",
+        "Fuerza de asociación, porque las encuestas dan asociaciones débiles",
+        "Plausibilidad, porque no existe un mecanismo que lo explique",
+        "Gradiente, porque no se midió cuántas horas usa cada persona"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Puede que la depresión lleve a usar más las redes, y no al revés. Es el único criterio indispensable: la causa tiene que ir antes que el efecto.",
+        "La fuerza se ve en el tamaño de la medida, no en el tipo de estudio. Una encuesta puede mostrar una asociación fuerte, por ejemplo una razón de prevalencias de 10.",
+        "Sí hay mecanismos posibles, como dormir menos o compararse con otros. El problema es el orden en el tiempo.",
+        "Las horas sí se midieron. Y aunque hubiera gradiente, seguiría sin saberse qué fue primero."
+      ]
+    },
+    {
+      "id": "rp-13",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un test de cribado se aplica a 5.000 adultos sin síntomas: 100 tienen la enfermedad y 4.900 no (prevalencia de 2%, considerada baja). El test sale positivo en 80 de los enfermos y en 490 de los sanos. Una persona recibe un resultado positivo. ¿Cuál es la probabilidad de que tenga la enfermedad?",
+      "opciones": [
+        "1,6%",
+        "14%",
+        "80%",
+        "86%"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Dividiste por todos los examinados (80 de 5.000). La pregunta parte de quienes dieron positivo.",
+        "Valor predictivo positivo: 80 enfermos entre 570 positivos (80 más 490) = 14%. Con prevalencia baja, la mayoría de los positivos son falsos positivos.",
+        "Esa es la sensibilidad (80 de 100). Parte de los enfermos, no del resultado positivo.",
+        "Esa es la parte de los positivos que están sanos (490 de 570)."
+      ]
+    },
+    {
+      "id": "rp-14",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Una farmacia quiere ofrecer un test rápido como primer filtro para una infección grave que tiene tratamiento. Quienes salgan positivos se confirmarán después con otro examen. ¿Qué prueba es más útil como primer filtro?",
+      "opciones": [
+        "Una muy sensible, porque un resultado negativo permite descartar la infección",
+        "Una muy sensible, porque un resultado positivo permite confirmar la infección",
+        "Una muy específica, porque un resultado negativo permite descartar la infección",
+        "Una muy específica, porque un resultado positivo permite confirmar la infección"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Una prueba muy sensible deja pocos falsos negativos. Por eso sirve para tamizaje: si sale negativa, es poco probable que la persona esté infectada.",
+        "Una prueba sensible puede dar muchos falsos positivos. Por eso los positivos se confirman después.",
+        "La específica deja pocos falsos positivos, no pocos falsos negativos. Con ella se pueden escapar infectados.",
+        "Es cierto, y por eso la específica se usa en el segundo paso. Como primer filtro dejaría escapar infectados."
+      ]
+    },
+    {
+      "id": "rp-15",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Un equipo usa los registros de dispensación de una cadena de farmacias para describir cómo se distribuye el consumo de ansiolíticos por comuna, sexo y edad. ¿A qué ámbito de la epidemiología corresponde?",
+      "opciones": [
+        "Poblacional",
+        "Clínica",
+        "Social",
+        "Ocupacional"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Describe frecuencia y distribución en la población. El ámbito se define por el objeto y el propósito, no por la fuente de los datos.",
+        "Los datos salen de farmacias, pero no se usan para decidir sobre pacientes individuales.",
+        "Lo sería si el foco fueran las condiciones sociales y económicas que explican el consumo.",
+        "No se estudia una exposición laboral ni a un grupo de trabajadores."
+      ]
+    },
+    {
+      "id": "rp-16",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo quiere estudiar si la polifarmacia se asocia con caídas en personas mayores. Ya planteó el problema, fijó sus objetivos, revisó la literatura y formuló su hipótesis. Ahora decide que medirá la polifarmacia como 5 o más medicamentos al día, que usará una cohorte y que tomará una muestra de tres CESFAM. ¿En qué etapa del método está?",
+      "opciones": [
+        "Formulación de hipótesis",
+        "Planificación del estudio",
+        "Recolección de los datos",
+        "Procesamiento, análisis e interpretación de los resultados"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Ya la formuló. Ahora decide cómo ponerla a prueba.",
+        "Operacionalizar las variables, elegir el diseño y definir la muestra son parte de la planificación (etapa 5).",
+        "Todavía no mide a nadie. Está decidiendo cómo medir.",
+        "Aún no hay datos que analizar."
+      ]
+    },
+    {
+      "id": "rp-17",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un estudio necesita medir la adherencia a antihipertensivos. ¿Cuál de estas es una definición operacional?",
+      "opciones": [
+        "Grado en que la conducta del paciente coincide con las indicaciones acordadas con su equipo",
+        "Compromiso activo y voluntario del paciente con un tratamiento que comprende y acepta",
+        "Proporción de días cubiertos según retiros de farmacia en 6 meses. Adherente si es 80% o más",
+        "Variable cualitativa ordinal que refleja la responsabilidad del paciente con su terapia"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Es la definición conceptual. Dice qué es, no cómo se medirá.",
+        "También es conceptual. No indica instrumento, fuente ni punto de corte.",
+        "Dice cómo se mide (el indicador), de dónde sale el dato (los retiros) y cómo se clasifica (80%).",
+        "Clasifica la variable, pero no dice cómo obtener el dato."
+      ]
+    },
+    {
+      "id": "rp-18",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Tras confirmarse un caso de sarampión en un jardín infantil, el equipo de epidemiología visita el jardín y va casa por casa en el barrio preguntando por niños con fiebre y manchas en la piel. ¿Qué tipo de vigilancia es?",
+      "opciones": [
+        "Pasiva",
+        "Activa",
+        "Centinela",
+        "De laboratorio"
+      ],
+      "correcta": 1,
+      "retro": [
+        "En la pasiva el equipo espera que los establecimientos notifiquen los casos que atienden. Aquí sale a buscarlos.",
+        "El equipo sale a buscar los casos en vez de esperar la notificación.",
+        "La centinela vigila un evento de forma permanente, solo en algunos establecimientos elegidos de antemano.",
+        "Esa se basa en laboratorios que informan los agentes que identifican."
+      ]
+    },
+    {
+      "id": "rp-19",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Una comuna tiene 40.000 hombres y 45.000 mujeres. En 2025 murieron 250 hombres, 20 de ellos por cáncer de próstata. Ese año había 500 hombres con cáncer de próstata. ¿Cuál es la tasa de mortalidad por cáncer de próstata en hombres?",
+      "opciones": [
+        "4 por cada 100 hombres con cáncer de próstata",
+        "8 por cada 100 defunciones de hombres",
+        "24 por cada 100.000 habitantes",
+        "50 por cada 100.000 hombres"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Esa es la letalidad (20 de 500): muertes entre los enfermos.",
+        "Esa es la mortalidad proporcional (20 de 250): qué parte de las muertes se debió a esa causa.",
+        "Usaste la población total (20 de 85.000). En una tasa específica, numerador y denominador son del mismo grupo.",
+        "20 muertes entre 40.000 hombres = 5 por cada 10.000 = 50 por cada 100.000 hombres."
+      ]
+    },
+    {
+      "id": "rp-20",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un piloto en una farmacia compara si hubo o no una reacción adversa entre 20 personas que recibieron consejería y 20 que no. Hubo 2 reacciones en un grupo y 5 en el otro. ¿Qué prueba corresponde?",
+      "opciones": [
+        "Chi-cuadrado",
+        "Exacta de Fisher",
+        "t de Student",
+        "U de Mann-Whitney"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Es la prueba habitual para dos variables categóricas. Pero aquí las frecuencias esperadas son menores que 5 (se esperan 3,5 reacciones por grupo).",
+        "Dos variables categóricas con frecuencias esperadas bajas: prueba exacta de Fisher.",
+        "Compara promedios de una variable cuantitativa. Aquí el resultado es sí o no.",
+        "Compara una variable cuantitativa u ordinal entre dos grupos. Aquí el resultado es sí o no."
+      ]
+    },
+    {
+      "id": "rp-21",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un estudio con 300 personas mayores quiere saber si la edad (en años) se relaciona con el número de medicamentos que toma cada una. El número de medicamentos no distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "ANOVA",
+        "Kruskal-Wallis",
+        "Pearson",
+        "Spearman"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Compara promedios entre tres o más grupos. Aquí no hay grupos, hay dos variables numéricas.",
+        "Es la alternativa a ANOVA cuando no hay normalidad. También necesita tres o más grupos.",
+        "Sirve para dos variables cuantitativas, pero supone normalidad. Aquí no se cumple.",
+        "Dos variables cuantitativas y sin normalidad: correlación de Spearman."
+      ]
+    },
+    {
+      "id": "rp-22",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Un ensayo con 20.000 personas compara dos antihipertensivos. La presión sistólica bajó en promedio 0,8 mmHg más con el fármaco nuevo, con p = 0,001 y α = 0,05. ¿Cuál es la lectura correcta de la diferencia?",
+      "opciones": [
+        "Es significativa, y por lo tanto es importante para los pacientes",
+        "No es significativa, porque la diferencia es menor que 1 mmHg",
+        "Es significativa, pero demasiado pequeña para importar en la clínica",
+        "No es significativa, porque con tantas personas el valor p pierde validez"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Significativa solo dice que la diferencia es difícil de explicar por azar. No dice que sea grande.",
+        "La significancia se decide comparando p con α, no mirando el tamaño de la diferencia. Aquí p es menor que 0,05.",
+        "Con muestras muy grandes, diferencias mínimas salen significativas. Significancia estadística y relevancia clínica son preguntas distintas.",
+        "El valor p sigue siendo válido. Lo que cambia es que detecta diferencias cada vez más pequeñas."
+      ]
+    }
+  ]
+}

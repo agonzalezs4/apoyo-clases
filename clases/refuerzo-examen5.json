@@ -1,0 +1,226 @@
+{
+  "nombre": "refuerzo-examen5",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-45",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Un servicio de salud calcula cuántas personas con diabetes hay en cada comuna para decidir cuántos químicos farmacéuticos contratar en cada CESFAM. ¿Cuál es el uso principal de la epidemiología en este caso?",
+      "opciones": [
+        "Diagnóstico de la situación de salud",
+        "Planificación y gestión de recursos",
+        "Investigación de causas",
+        "Vigilancia epidemiológica"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Contar cuántas personas hay es un paso. Pero el objetivo del caso es decidir cómo repartir recursos.",
+        "La información se usa para asignar recursos donde más se necesitan.",
+        "No se busca explicar por qué hay más diabetes en una comuna que en otra.",
+        "La vigilancia sigue un evento en el tiempo para detectar cambios y actuar. Aquí se toma una decisión de recursos."
+      ]
+    },
+    {
+      "id": "rp-46",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "En una semana, 15 personas que almorzaron en el mismo casino de una empresa consultan por diarrea y vómitos. En el resto de la comuna, las consultas por diarrea siguen como de costumbre. ¿Cómo se llama esta situación?",
+      "opciones": [
+        "Brote",
+        "Epidemia",
+        "Endemia",
+        "Pandemia"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Es un aumento localizado de casos con un vínculo común, que aquí es el casino.",
+        "Una epidemia es un número de casos por sobre lo esperado en un territorio, como varias comunas o una región. Aquí el aumento está limitado a un lugar.",
+        "Es la presencia habitual de una enfermedad en una zona. Aquí hay un aumento repentino.",
+        "Es una epidemia que se extiende a muchos países."
+      ]
+    },
+    {
+      "id": "rp-47",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo estudia el uso de antibióticos sin receta. Ya definió sus variables, eligió una muestra de ferias libres y construyó su cuestionario. Esta semana los encuestadores lo están aplicando a 400 personas. ¿En qué etapa del método está?",
+      "opciones": [
+        "Formulación de hipótesis",
+        "Planificación del estudio",
+        "Recolección de los datos",
+        "Procesamiento, análisis e interpretación de los resultados"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La hipótesis se formula antes de planificar el estudio.",
+        "La planificación ya terminó: variables, muestra y cuestionario están listos.",
+        "Aplicar el instrumento para obtener la información es la recolección de los datos (etapa 6).",
+        "Eso viene después, cuando ya estén todas las respuestas."
+      ]
+    },
+    {
+      "id": "rp-48",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Para estudiar el consumo de antidepresivos en una comuna, un equipo usa la base de recetas despachadas que la farmacia del CESFAM ya tenía registrada. ¿Qué tipo de fuente de datos es?",
+      "opciones": [
+        "Primaria, porque los datos vienen directo de la farmacia",
+        "Primaria, porque el equipo analiza los datos por primera vez",
+        "Secundaria, porque los datos se registraron antes y con otro fin",
+        "Secundaria, porque los datos son menos confiables que una encuesta"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Primaria es cuando el equipo recoge los datos para su propio estudio, por ejemplo con una encuesta.",
+        "No importa quién los analiza primero. Importa para qué y por quién fueron recogidos.",
+        "Son registros que ya existían. Se crearon para despachar recetas, no para este estudio.",
+        "Secundaria no quiere decir de peor calidad. Quiere decir que los datos ya existían."
+      ]
+    },
+    {
+      "id": "rp-49",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Una encuesta a 400 personas adultas registra dos variables dicotómicas: si fuman (sí o no) y si tienen hipertensión (sí o no). ¿Qué prueba permite evaluar si las dos variables están asociadas?",
+      "opciones": [
+        "Chi-cuadrado",
+        "t de Student",
+        "Spearman",
+        "ANOVA"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Las dos variables son categóricas dicotómicas, es decir, tienen dos categorías cada una. Con una muestra grande y frecuencias esperadas suficientes corresponde chi-cuadrado. Si fueran bajas, se usaría la prueba exacta de Fisher.",
+        "Compara promedios de una variable cuantitativa entre dos grupos. Aquí las dos variables son dicotómicas (sí o no).",
+        "Relaciona dos variables cuantitativas u ordinales. Aquí las dos son dicotómicas.",
+        "Compara promedios entre tres o más grupos. Aquí no hay ninguna variable cuantitativa."
+      ]
+    },
+    {
+      "id": "rp-50",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un estudio compara el colesterol LDL promedio (mg/dL) entre 150 personas que retiran sus estatinas todos los meses y 150 que no. El colesterol distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "Chi-cuadrado",
+        "U de Mann-Whitney",
+        "ANOVA",
+        "t de Student"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Es para dos variables categóricas. El colesterol es cuantitativo.",
+        "Sirve para la misma comparación cuando no hay normalidad o los grupos son pequeños. Aquí hay normalidad y grupos grandes.",
+        "Se usa con tres o más grupos. Aquí hay dos.",
+        "Una variable cuantitativa con normalidad, comparada entre dos grupos independientes."
+      ]
+    },
+    {
+      "id": "rp-51",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "El 1 de marzo, 50 de los 1.000 funcionarios de un hospital tenían dermatitis de manos. Entre el 1 de marzo y el 31 de agosto, otros 100 funcionarios la presentaron por primera vez. No entró ni salió personal. ¿Cuál es la prevalencia de período entre marzo y agosto?",
+      "opciones": [
+        "5%",
+        "10%",
+        "10,5%",
+        "15%"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Esa es la prevalencia puntual del 1 de marzo (50 de 1.000).",
+        "Contaste solo los casos nuevos (100 de 1.000). La prevalencia de período incluye también a quienes ya tenían dermatitis.",
+        "Esa es la incidencia acumulada: 100 casos nuevos entre 950 personas en riesgo.",
+        "Suma los casos que ya existían y los nuevos del período: 50 más 100 = 150 de 1.000."
+      ]
+    },
+    {
+      "id": "rp-52",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una cohorte sigue por un año a 200 personas que usan corticoides y a 400 que no los usan. Tuvieron una fractura 40 personas de cada grupo. ¿Cuál es el RR de fractura?",
+      "opciones": [
+        "0,5",
+        "1",
+        "2",
+        "10"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Está invertido. Dividiste el riesgo de quienes no usan por el de quienes usan.",
+        "Los casos son los mismos (40 y 40), pero los grupos no tienen el mismo tamaño. Se comparan riesgos, no cantidades de casos.",
+        "Riesgo con corticoides: 40 de 200 = 20%. Riesgo sin corticoides: 40 de 400 = 10%. RR = 20 dividido por 10 = 2.",
+        "Restaste los riesgos (20% menos 10%). Esa es la diferencia de riesgos, no el RR."
+      ]
+    },
+    {
+      "id": "rp-53",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Una SEREMI quiere saber qué proporción de los estudiantes de enseñanza media de su región usa hoy cigarrillos electrónicos, para diseñar una campaña. ¿Qué diseño responde esa pregunta de forma más directa?",
+      "opciones": [
+        "Cohorte, porque sigue a los estudiantes para ver casos nuevos",
+        "Casos y controles, porque compara a quienes tienen y no tienen el evento",
+        "Ecológico, porque trabaja con datos agregados de la región",
+        "Transversal, porque mide la prevalencia en un momento"
+      ],
+      "correcta": 3,
+      "retro": [
+        "La pregunta es cuántos usan hoy, no cuántos empiezan a usar. No hace falta seguimiento.",
+        "Ese diseño sirve para buscar causas. No entrega la proporción en la población.",
+        "Un dato agregado no dice qué hace cada estudiante.",
+        "Una encuesta a una muestra de estudiantes entrega la prevalencia actual. Es rápido y barato."
+      ]
+    },
+    {
+      "id": "rp-54",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un estudio recluta hoy a 2.000 personas sin demencia, registra quiénes usan benzodiazepinas y las sigue 10 años para ver quiénes desarrollan demencia. ¿Qué ventaja tiene este diseño frente a un estudio transversal?",
+      "opciones": [
+        "Es más rápido y más barato de realizar",
+        "Muestra que la exposición ocurrió antes que el desenlace",
+        "Sirve mejor para estudiar desenlaces muy poco frecuentes",
+        "Elimina la confusión, porque hay seguimiento"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Es al revés. La cohorte es lenta y cara.",
+        "Es una cohorte: parte de personas sin el desenlace y las sigue. Por eso muestra la secuencia temporal y permite medir incidencia.",
+        "Para desenlaces raros conviene casos y controles.",
+        "El seguimiento no elimina la confusión. Hay que medir los confusores y ajustar por ellos."
+      ]
+    },
+    {
+      "id": "rp-55",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un test rápido para detectar infección urinaria tiene una especificidad de 95%. ¿Qué frase lo interpreta bien?",
+      "opciones": [
+        "De cada 100 personas enfermas, 95 obtienen un resultado positivo",
+        "De cada 100 resultados negativos, 95 son de personas sanas",
+        "De cada 100 personas sanas, 95 obtienen un resultado negativo",
+        "De cada 100 personas examinadas, 95 quedan bien clasificadas"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Eso describe la sensibilidad, que parte de los enfermos.",
+        "Eso es el valor predictivo negativo, que parte del resultado del test.",
+        "La especificidad parte de los sanos: qué proporción de ellos sale negativa.",
+        "Eso describe la exactitud del test, que mezcla sanos y enfermos."
+      ]
+    }
+  ]
+}
