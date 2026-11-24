@@ -23,7 +23,7 @@
   #zona button:disabled { cursor: default; }
   #zona button:disabled:not(.bien):not(.mal) { opacity: .5; }
   #zona button.accion, #aviso div button { text-align: center; background: var(--barra); border-color: var(--barra); color: #fff; }
-  #retro { font-size: 17px; margin-top: 18px; }
+  #retro { font-size: 17px; margin-top: 18px; white-space: pre-line; }
 </style>
 </head>
 <body>
@@ -49,6 +49,7 @@ const olvidar = k => { delete mem[k]; try { localStorage.removeItem(k); } catch 
 
 let clase, validas, omitidas, porId = {};
 let ronda = null; // { ids: orden de esta vuelta, i: posición, primeros: {id: 1|0} primer intento, rep: repaso de las falladas }
+let pendiente = null; // vuelta guardada al cargar: el inicio ofrece retomarla en vez de saltarse el menú
 
 const temaDe = p => p.tema || "Otros";
 function mezclar(a) {
@@ -74,16 +75,18 @@ const cuantas = n => `${n} ${n === 1 ? "pregunta" : "preguntas"}`;
 
 function inicio() {
   ronda = null;
-  olvidar(CLAVE);
+  if (!pendiente) olvidar(CLAVE);
   pantalla("", `Repaso: ${cuantas(validas.length)} para practicar`);
   if (omitidas) $("error").textContent = `Se ${omitidas === 1 ? "omitió" : "omitieron"} ${cuantas(omitidas)} de alternativas sin «correcta» o sin una «retro» por alternativa.`;
   if (Recopilar.aviso(nombre, clase, $("aviso"), inicio)) return; // falta elegir si envía sus respuestas
   const temas = [...new Set(validas.map(temaDe))];
-  boton(`Todo mezclado (${validas.length})`, () => empezar(validas), true);
+  if (pendiente) boton(`Seguir donde quedé (${Object.keys(pendiente.primeros).length} de ${pendiente.ids.length} respondidas)`, () => { ronda = pendiente; pendiente = null; avanzar(); }, true);
+  boton(`Todo mezclado (${validas.length})`, () => empezar(validas), !pendiente);
   if (temas.length > 1) temas.forEach(t => { const ps = validas.filter(p => temaDe(p) === t); boton(`${t} (${ps.length})`, () => empezar(ps)); });
 }
 
 function empezar(ps, rep) {
+  pendiente = null;
   ronda = { ids: mezclar(ps.map(p => p.id)), i: 0, primeros: {}, rep: !!rep };
   avanzar();
 }
@@ -96,17 +99,20 @@ function mostrar() {
   const p = porId[ronda.ids[ronda.i]];
   pantalla(`${p.tema ? p.tema + " · " : ""}${ronda.i + 1} de ${ronda.ids.length}`, p.texto);
   // se mezclan los índices: "correcta" y "retro" siguen a su alternativa
-  mezclar(p.opciones.map((_, k) => k)).forEach(k => boton(p.opciones[k], b => {
+  const orden = mezclar(p.opciones.map((_, k) => k));
+  orden.forEach(k => boton(p.opciones[k], b => {
     const bien = k === p.correcta;
-    $("retro").textContent = (bien ? "✓ Correcto. " : "✗ Incorrecto. ") + p.retro[k] + (bien && p.explicacion ? " " + p.explicacion : "");
+    // al acertar se ven también las razones de las demás: repasarlas refuerza aunque haya acertado
+    const otras = bien ? orden.filter(j => j !== k).map(j => `\n\n✗ «${p.opciones[j]}»: ${p.retro[j]}`).join("") : "";
+    $("retro").textContent = (bien ? "✓ Correcto. " : "✗ Incorrecto. ") + p.retro[k] + (bien && p.explicacion ? " " + p.explicacion : "") + otras;
     b.disabled = true;
     b.textContent = (bien ? "✓ " : "✗ ") + p.opciones[k];
     b.className = bien ? "bien" : "mal";
-    if (!(p.id in ronda.primeros)) { // el puntaje (y el envío opcional) solo cuentan el primer intento
+    if (!(p.id in ronda.primeros)) { // el puntaje solo cuenta el primer intento
       ronda.primeros[p.id] = bien ? 1 : 0;
       guardar(CLAVE, JSON.stringify(ronda));
-      if (!ronda.rep) Recopilar.registrar(p.id, p.tema, p.opciones[k], bien);
     }
+    if (!ronda.rep) Recopilar.registrar(p.id, p.tema, p.opciones[k], bien); // cada intento: muestra cuánto se falla cada pregunta
     if (!bien) { $("retro").scrollIntoView({ block: "nearest" }); return; } // puede intentar de nuevo; la correcta no se revela
     $("zona").querySelectorAll("button").forEach(x => { x.disabled = true; });
     boton(ronda.i + 1 < ronda.ids.length ? "Siguiente" : "Terminar", () => { ronda.i++; avanzar(); }, true).focus();
@@ -137,8 +143,8 @@ cargarClase(nombre).then(c => {
   validas.forEach(p => { porId[p.id] = p; });
   let previa = null;
   try { previa = JSON.parse(leer(CLAVE)); } catch (e) {}
+  if (previa && Array.isArray(previa.ids) && previa.ids.length && previa.ids.every(id => porId[id]) && previa.primeros) pendiente = previa;
   inicio(); // también deja listo el modo recopilación con la elección recordada
-  if (previa && Array.isArray(previa.ids) && previa.ids.length && previa.ids.every(id => porId[id]) && previa.primeros) { ronda = previa; avanzar(); }
 }).catch(e => { $("pregunta").textContent = ""; $("error").textContent = e.message; });
 </script>
 </body>

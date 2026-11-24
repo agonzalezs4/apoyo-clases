@@ -52,7 +52,7 @@
  *    cerraste sesión; también olvida los computadores recordados) y "desbloquearAcceso" (si te bloqueaste tú).
  *
  * Registro anónimo del repaso (nuevo, opcional):
- *  - "repaso" guarda en la hoja «Repaso» el primer intento de cada pregunta de repasar.html: clase, pregunta,
+ *  - "repaso" guarda en la hoja «Repaso» cada intento en las preguntas de repasar.html: clase, pregunta,
  *    tema, alternativa elegida, si fue correcta y un identificador de sesión al azar. Sin nombre ni código de sorteo.
  *  - Solo acepta las clases anotadas en REPASOS_CON_REGISTRO (parte vacía: no se guarda nada de ningún repaso).
  *    Además el archivo de la clase debe traer "recopilar": true y el estudiante debe elegir «Practicar y enviar».

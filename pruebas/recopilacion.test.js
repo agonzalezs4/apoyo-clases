@@ -71,10 +71,10 @@ const tick = () => new Promise(r => setImmediate(r));
   p.entrar({ recopilar: true }, "0"); assert.ok(p.cont.innerHTML.includes("no se envían")); responder(p.R, 7); p.R.terminar();
   assert.strictEqual(llamadas.length, 0);
 
-  p = pagina(api); // «enviar»: grupos de 5 + resto al terminar, solo primer intento
+  p = pagina(api); // «enviar»: grupos de 5 + resto al terminar, cada intento (la misma pregunta dos veces = 2 filas)
   p.entrar({ recopilar: true }, "1");
   responder(p.R, 7); responder(p.R, 7); p.R.terminar(); p.R.terminar();
-  assert.deepStrictEqual(llamadas.map(l => JSON.parse(l.d).length), [5, 2]);
+  assert.deepStrictEqual(llamadas.map(l => JSON.parse(l.d).length), [5, 5, 4]);
   assert.deepStrictEqual(Object.keys(llamadas[0]).sort(), ["accion", "clase", "d", "s", "v"]);
   assert.strictEqual(llamadas[0].s, llamadas[1].s);
 
