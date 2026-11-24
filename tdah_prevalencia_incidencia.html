@@ -65,7 +65,7 @@
     <button data-m="ia" aria-pressed="false">Incidencia acumulada</button>
     <button data-m="tasa" aria-pressed="false">Tasa de incidencia</button>
   </div>
-  <label class="chk" id="chkrow"><input type="checkbox" id="desc"> <span>Descartar a quienes ya tenían TDAH al inicio (no pueden ser un caso nuevo)</span></label>
+  <label class="chk" id="chkrow"><input type="checkbox" id="desc"> <span>Descartar casos previos (ya tenían TDAH)</span></label>
 
   <div class="sliderrow">
     <label for="tcut">Corte t = <b id="tval"></b></label>
@@ -75,9 +75,9 @@
   <svg id="chart" role="img" aria-label="Seguimiento de cada escolar por escuela, con línea de corte t que se puede mover"></svg>
 
   <div class="cards" id="cards"></div>
-  <p class="nota"><b>Prevalencia de período:</b> quienes tuvieron TDAH en algún momento entre 0 y t (ya lo tenían o se diagnosticaron) sobre todos los escolares observados.
-     <b>Incidencia acumulada:</b> solo diagnósticos nuevos hasta t, sobre quienes estaban en riesgo al inicio (sin TDAH). Supone que todos se observaron hasta t: quien se cambió de colegio sigue en el denominador aunque no sepamos qué le pasó.
-     <b>Tasa de incidencia:</b> los mismos diagnósticos nuevos sobre el tiempo que cada escolar en riesgo estuvo observado (persona-meses); quien se cambió de colegio aporta solo sus meses.</p>
+  <p class="nota"><b>Prevalencia de período:</b> previos + nuevos / todos.
+     <b>Incidencia acumulada:</b> nuevos / sin TDAH al inicio.
+     <b>Tasa:</b> nuevos / persona-meses en riesgo.</p>
 
 </div>
 
@@ -93,7 +93,7 @@
 const rep = (n, t, e) => Array.from({length:n}, () => [t, e]);
 
 const TITULO     = "TDAH en dos escuelas: prevalencia e incidencia";
-const SUBTITULO  = "Escolares de 1° básico seguidos un año (datos hipotéticos). Cambie de medida, mueva la línea t y descarte los casos previos.";
+const SUBTITULO  = "1° básico seguido un año (datos hipotéticos). Mueva la línea t.";
 const UNIDAD     = "meses";   // unidad de tiempo
 const POR        = 100;       // la tasa se muestra "por 100 persona-meses"
 const T_INICIAL  = 12;        // dónde parte la línea t
@@ -256,9 +256,8 @@ function renderCards(S){
   GRUPOS.forEach((g,gi)=>{
     const s = S[gi];
     const pts = (k,n) => `<span class="dot ${k}"></span>`.repeat(n);
-    const ten = s.pre===1 ? "tenía" : "tenían";
     const malPre = !descartar && s.pre>0
-      ? `<br><span class="aviso">⚠ Incluye ${s.pre} que ya ${ten} TDAH: no estaba${s.pre===1 ? "" : "n"} en riesgo de un diagnóstico nuevo.</span>` : "";
+      ? `<br><span class="aviso">⚠ Incluye ${s.pre} caso${s.pre===1 ? "" : "s"} previo${s.pre===1 ? "" : "s"}</span>` : "";
 
     // De qué está hecho el denominador de la tasa
     const cuenta = {};
@@ -269,11 +268,11 @@ function renderCards(S){
     const c = document.createElement("div"); c.className="card";
     c.innerHTML = `<h2>${g.nombre}</h2>
       <div class="m ${mode==="pp"?"on":""}">Prevalencia de período (0 a ${tcut} ${UNIDAD}) = <span class="nb">(${s.pre} + ${s.ev})/${s.n}</span> = <span class="nb">${fmt(100*s.pp)} %</span>
-        ${mode==="pp" ? `<div class="den">Numerador: ${s.pre} que ya ${ten} TDAH + ${s.ev} diagnósticos nuevos. Denominador: los ${s.n} escolares.<br>${pts("p",s.pre)}${pts("c",s.ev)}${pts("",s.n-s.pre-s.ev)}</div>` : ""}</div>
+        ${mode==="pp" ? `<div class="den">${pts("p",s.pre)}${pts("c",s.ev)}${pts("",s.n-s.pre-s.ev)}</div>` : ""}</div>
       <div class="m ${mode==="ia"?"on":""}">Incidencia acumulada = <span class="nb">${s.ev}/${s.nR}</span> = <span class="nb">${fmt(100*s.ia)} %</span>
-        ${mode==="ia" ? `<div class="den">Numerador: solo diagnósticos nuevos. Denominador: ${s.nR} escolares${descartar ? ` sin TDAH al inicio (${s.pre===1 ? "se descartó" : "se descartaron"} ${s.pre})` : ""}, cada uno cuenta 1.${malPre}<br>${pts("c",s.ev)}${pts("",s.nR-s.ev-(descartar?0:s.pre))}${descartar?pts("x",s.pre):pts("p",s.pre)}</div>` : ""}</div>
+        ${mode==="ia" ? `<div class="den">${malPre ? malPre.slice(4) + "<br>" : ""}${pts("c",s.ev)}${pts("",s.nR-s.ev-(descartar?0:s.pre))}${descartar?pts("x",s.pre):pts("p",s.pre)}</div>` : ""}</div>
       <div class="m ${mode==="tasa"?"on":""}">Tasa de incidencia = <span class="nb">${s.ev}/${s.pt} persona-${UNIDAD}</span> = <span class="nb">${fmt(s.tasa)} por ${POR_TXT}</span>
-        ${mode==="tasa" ? `<div class="den">Denominador: ${UNIDAD} que aportó cada escolar${descartar ? " en riesgo" : ""} hasta t${malPre}<br>${suma} = ${s.pt} persona-${UNIDAD}</div>` : ""}</div>`;
+        ${mode==="tasa" ? `<div class="den">${malPre ? malPre.slice(4) + "<br>" : ""}${suma} = ${s.pt} persona-${UNIDAD}</div>` : ""}</div>`;
     box.appendChild(c);
   });
 }
