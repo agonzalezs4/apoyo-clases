@@ -434,3 +434,13 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
      Repaso para el examen: clases/repaso-examen.json
      - 60 preguntas (repaso-01 a repaso-60) en una sola página, con
        "recopilar": true. Se abre con repasar.html?clase=repaso-examen
+
+[67] 2026-11-24 · agonzalezs4
+     tdah_prevalencia_incidencia.html (nuevo), como policonsumo_prevalencia_vs_tasa.html
+     - Dos escuelas hipotéticas de 1° básico seguidas 12 meses: casos de TDAH
+       previos, diagnósticos nuevos y cambios de colegio.
+     - Pestañas: prevalencia de período, incidencia acumulada y tasa de
+       incidencia; línea t movible; casilla para descartar a quienes ya tenían
+       TDAH al inicio (sin descartarlos, la incidencia sale con aviso).
+     - La escuela A tiene más prevalencia (40 % vs 26,7 %) pero menos
+       incidencia (18,2 % vs 21,4 %; 1,8 vs 2,8 por 100 persona-meses).
