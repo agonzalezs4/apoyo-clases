@@ -1,0 +1,350 @@
+---
+pagetitle: "Pruebas diagnósticas · Epidemiología USS"
+lang: es
+format:
+  html:
+    minimal: true
+    html-table-processing: none
+    theme: none
+    embed-resources: true
+    toc: false
+---
+
+```{=html}
+<style>
+:root { --navy:#102b42; --ink:#18394c; --muted:#475c69; --gold:#cfb47c; --line:#d9e0e1; --paper:#f6f6f2; --teal:#12655b; }
+* { box-sizing:border-box }
+body { margin:0; max-width:none; color:var(--ink); background:var(--paper); font:16px/1.45 Montserrat,"Segoe UI",Arial,sans-serif }
+main { max-width:none; padding:0; margin:0 }
+.wrap { width:min(1020px,calc(100% - 48px)); margin:auto }
+.mast { background:var(--navy); color:white; border-bottom:4px solid var(--gold) }
+.brand { display:flex; align-items:center; justify-content:space-between; min-height:58px; border-bottom:1px solid #ffffff32; font-size:.86rem }
+.brand img { display:block; width:119px; height:auto }
+.intro { padding:24px 0 29px }
+h1,h2,h3,p { margin:0 }
+h1,h2 { font-family:Georgia,"Times New Roman",serif; font-weight:normal; line-height:1.12 }
+h1 { color:white; font-size:clamp(2.1rem,5vw,3.7rem); letter-spacing:-.035em }
+.intro p { color:#e0e6e9; margin-top:8px }
+.reader { margin:16px auto 38px }
+.deck-nav { position:sticky; top:0; z-index:2; display:flex; gap:8px; align-items:center; margin-bottom:8px; padding-block:4px; background:var(--paper) }
+.reader [tabindex="-1"] { scroll-margin-top:64px }
+.deck-nav strong { margin-right:auto; font-size:.92rem }
+.deck-nav button { width:44px; height:44px; border:1px solid #aebfc3; border-radius:8px; background:white; font-size:1.25rem }
+.deck-nav button[aria-disabled="true"] { color:#77858d; background:#f3f3ef }
+#forward { width:auto; min-width:44px; padding:0 10px; font-size:.92rem; font-weight:600 }
+#deck { display:grid; grid-auto-flow:column; grid-auto-columns:100%; align-items:start; gap:16px; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scrollbar-width:thin }
+#deck:focus-visible { outline:2px solid var(--teal); outline-offset:2px }
+#deck > section { scroll-snap-align:start; min-width:0 }
+.content { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start }
+.card { min-width:0; padding:clamp(18px,3vw,30px); border:1px solid var(--line); background:white; border-radius:12px }
+.meta { display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:.82rem; font-weight:650 }
+.eyebrow { text-transform:uppercase; font-weight:700; letter-spacing:.11em; font-size:.7rem }
+h2 { font-size:clamp(1.65rem,3vw,2.1rem); margin:12px 0 10px }
+.case p,.prompt { color:var(--muted) }
+table { width:100%; border-collapse:separate; border-spacing:3px; table-layout:fixed; font-variant-numeric:tabular-nums; margin:17px -3px 0 }
+caption { text-align:left; font-size:.8rem; color:var(--muted); padding:0 3px 5px }
+td,th { border-radius:4px; padding:10px 3px; text-align:center; line-height:1.25 }
+th { font-size:.81rem; font-weight:600 }
+thead th:first-child { width:31%; text-align:left }
+tbody th,tfoot th { text-align:left }
+td { background:#edf2f3; font-size:1.2rem; font-weight:650 }
+td:last-child,tfoot td { background:#f6f2e9 }
+.group { box-shadow:inset 0 0 0 2px #89723f; background:#fff1c9!important }
+.hit { background:var(--navy)!important; color:white; box-shadow:none }
+.progress { display:flex; gap:4px }
+.progress i { width:23px; height:5px; background:#dfe5e5; border-radius:8px }
+.progress i.done { background:var(--teal) }
+.progress i.current { background:#987736 }
+.choices { display:grid; gap:8px; margin:16px 0 0 }
+button { font:inherit; cursor:pointer; color:var(--ink); touch-action:manipulation }
+.choice { background:white; border:1px solid #b7c5ca; border-radius:7px; padding:10px 14px; display:flex; align-items:center; gap:12px; text-align:left; min-height:46px; font-weight:600 }
+.choice::before { content:""; width:.78em; height:.78em; flex:none; border:1.5px solid #73848e; border-radius:50% }
+.choice:hover:enabled { border-color:var(--navy); background:#f4f7f7 }
+button:focus-visible,[tabindex="-1"]:focus-visible { outline:3px solid #277aab; outline-offset:3px }
+.choice:disabled { opacity:1; cursor:default }
+.choice.correct { border-color:var(--teal); background:#eaf6f1 }
+.choice.correct::before { content:"✓"; width:auto; height:auto; border:0; color:var(--teal) }
+.choice.wrong { border-color:#995941; background:#fff3eb }
+.choice.wrong::before { content:"×"; width:auto; height:auto; border:0; color:#884023 }
+.feedback { margin-top:14px; font-size:.95rem }
+.feedback strong { display:block }
+.action { margin-top:14px; border:0; border-radius:7px; background:var(--navy); color:white; font-weight:650; padding:11px 18px }
+.action:hover { background:#21485e }
+.recap { grid-column:1/-1 }
+.switch small { display:block; font-size:.82rem }
+.switch { display:flex; flex-wrap:wrap; gap:5px; margin:12px 0 }
+.switch button { border:1px solid #aebfc3; border-radius:6px; background:white; padding:8px 12px; min-height:44px }
+.switch button[aria-pressed="true"] { color:white; background:var(--navy); border-color:var(--navy) }
+.bar { display:flex; background:repeating-linear-gradient(135deg,#dfd1ae 0 5px,#eee5cf 5px 10px); height:25px; overflow:hidden; border-radius:4px; margin:10px 0 }
+.bar span { display:block; height:100%; background:var(--teal) }
+.bar-key { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 18px; font-size:.88rem }
+.bar-key span:first-child { color:var(--teal); font-weight:700 }
+.readout { margin-top:8px; color:var(--ink) }
+.roc-chart { display:block; width:min(100%,330px); height:auto; margin:8px 0; font:13px "Segoe UI",Arial,sans-serif }
+.roc-chart text { fill:var(--ink) }
+#auc-label { display:flex; gap:8px; align-items:center; font-size:.9rem; font-weight:650 }
+#auc-label::before { content:""; width:16px; height:16px; border-radius:3px; background:var(--area-color); opacity:.5 }
+.recap dl { margin:20px 0; display:grid; grid-template-columns:1fr 1fr; gap:13px 25px }
+.recap dl div { border-top:1px solid var(--line); padding-top:10px }
+dt { font-weight:bold } dd { margin:3px 0 0; color:var(--muted) }
+[hidden] { display:none!important }
+@media(max-width:720px) {
+ .wrap { width:calc(100% - 24px) } .content { grid-template-columns:1fr; gap:12px }
+ .intro { padding:14px 0 18px } .brand { min-height:46px } .brand img { width:98px }
+ .card { padding:16px } h2 { margin:6px 0 } table { margin-top:10px } td,th { padding:6px 2px }
+ .recap dl { grid-template-columns:1fr }
+}
+</style>
+<header class="mast"><div class="wrap">
+  <div class="brand"><img width="240" height="75" src="data:image/png;base64,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" alt="Universidad San Sebastián"><span>Epidemiología · Clase 21</span></div>
+  <div class="intro"><h1>Pruebas diagnósticas</h1><p>Un caso, cuatro preguntas. Practica cómo elegir el denominador.</p></div>
+</div></header>
+<main class="wrap reader">
+<nav class="deck-nav" aria-label="Recorrer la práctica y los gráficos">
+  <strong id="position" aria-live="polite">1 de 3 · Práctica</strong>
+  <button type="button" id="back" aria-controls="deck" aria-label="Tarjeta anterior" aria-disabled="true">←</button>
+  <button type="button" id="forward" aria-controls="deck" aria-label="Ir al gráfico del VPP">VPP →</button>
+</nav>
+<div id="deck" tabindex="0" role="region" aria-label="Práctica y gráficos. Desliza o usa las flechas para avanzar.">
+<section class="content" id="practice" aria-label="Práctica de la farmacia">
+  <section class="card case" id="case-panel" aria-labelledby="case-name">
+    <div class="meta"><span class="eyebrow">Caso de clase</span><span>500 personas</span></div>
+    <h2 id="case-name">En la farmacia</h2>
+    <p>En este caso hipotético, 500 personas se hicieron un test rápido. El examen de referencia confirmó 100 infecciones.</p>
+    <table id="matrix" aria-label="Personas según infección y resultado del test rápido">
+    <thead><tr><th scope="col">Referencia</th><th scope="col">Test +</th><th scope="col">Test −</th><th scope="col">Total</th></tr></thead>
+    <tbody><tr><th scope="row">Con infección</th><td id="tp">90</td><td id="fn">10</td><td id="sick">100</td></tr>
+    <tr><th scope="row">Sin infección</th><td id="fp">60</td><td id="tn">340</td><td id="well">400</td></tr></tbody>
+    <tfoot><tr><th scope="row">Total</th><td id="pos">150</td><td id="neg">350</td><td>500</td></tr></tfoot></table>
+  </section>
+  <section class="card" id="quiz" aria-labelledby="metric">
+    <div class="meta"><span id="step"></span><span class="progress" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div>
+    <h2 id="metric" tabindex="-1"></h2><p class="prompt" id="prompt"></p>
+    <div class="choices" role="group" aria-labelledby="prompt" id="choices"></div>
+    <div class="feedback" id="feedback" role="status"></div>
+    <button class="action" id="next" hidden></button>
+    <noscript>Activa JavaScript para responder las cuatro preguntas.</noscript>
+  </section>
+  <section class="card recap" id="recap" hidden aria-labelledby="end">
+    <span class="eyebrow">Repaso para el examen</span>
+    <h2 id="end" tabindex="-1">¿Qué grupo va abajo?</h2>
+    <p>Para sensibilidad y especificidad, empieza por el examen de referencia. Para VPP y VPN, empieza por el resultado del test rápido.</p>
+    <dl id="summary"></dl><button class="action" id="again">Volver a practicar</button>
+  </section>
+  </section>
+  <section class="content" id="rare" aria-labelledby="rare-title" inert>
+      <div class="card">
+        <span class="eyebrow">Valor predictivo positivo</span>
+        <h2 id="rare-title">Di positivo. ¿Qué probabilidad hay de que tenga la enfermedad?</h2>
+        <p>Imagina una comuna de 100.000 personas y un test con <b>99 % de sensibilidad y especificidad</b>. Elige una prevalencia hipotética.</p>
+        <div class="switch" role="group" aria-label="Prevalencia de la enfermedad">
+          <button data-cases="100" aria-pressed="true">1 de cada 1.000 <small>(ej., fibrosis quística)</small></button>
+          <button data-cases="10000" aria-pressed="false">1 de cada 10 <small>(ej., resfrío común)</small></button>
+        </div>
+      </div>
+        <div class="card" aria-live="polite" aria-atomic="true">
+          <span class="eyebrow">Entre quienes dieron positivo</span>
+          <h2 id="positives"></h2>
+          <div class="bar" aria-hidden="true"><span id="true-share"></span></div>
+          <div class="bar-key"><span id="true-count"></span><span id="false-count"></span></div>
+          <p class="readout" id="ppv-note"></p>
+        </div>
+  </section>
+  <section class="content" id="roc" aria-labelledby="roc-heading" inert>
+      <div class="card">
+        <span class="eyebrow">Curva ROC</span>
+        <h2 id="roc-heading">¿Qué curva elegirías?</h2>
+        <p>Un puntaje alto indica mayor sospecha. Cada punto de la curva representa un corte distinto para dar positivo.</p>
+        <svg class="roc-chart" viewBox="0 0 284 254" role="img" aria-labelledby="roc-title roc-desc">
+          <title id="roc-title">Tres pruebas, tres curvas ROC</title>
+          <desc id="roc-desc">A se acerca a la esquina superior izquierda, B sigue la diagonal y C se acerca a la esquina inferior derecha.</desc>
+          <path d="M46 17 V207 H236" fill="none" stroke="#71848b"/>
+          <path d="M46 17 H236 V207 M46 112 H236 M141 17 V207" fill="none" stroke="#dce3e4" stroke-dasharray="3 4"/>
+          <path id="roc-area" fill-opacity="0.5"/>
+          <path id="curve-A" d="M46 207 V169 L65 74 L84 36 L141 17 H236" fill="none" stroke="#9e4030" stroke-width="3.5" stroke-linejoin="round"/>
+          <path id="curve-B" d="M46 207 L236 17" fill="none" stroke="#785b30" stroke-width="3" stroke-dasharray="6 5"/>
+          <path id="curve-C" d="M46 207 H141 L198 188 L217 150 L236 55 V17" fill="none" stroke="#305c67" stroke-width="3.5" stroke-linejoin="round"/>
+          <text x="90" y="51" font-weight="700">A</text><text x="162" y="113" font-weight="700">B</text><text x="204" y="188" font-weight="700">C</text>
+          <g font-size="12"><text x="34" y="211">0</text><text x="36" y="21">1</text><text x="43" y="224">0</text><text x="232" y="224">1</text></g>
+          <text x="141" y="246" text-anchor="middle">Tasa de falsos positivos (1 − especificidad)</text>
+          <text text-anchor="middle" transform="translate(17 112) rotate(-90)"><tspan x="0">Sensibilidad</tspan><tspan x="0" dy="14">(tasa de verdaderos positivos)</tspan></text>
+        </svg>
+        <p id="auc-label" hidden></p>
+      </div>
+      <div class="card">
+        <span class="eyebrow">Pregunta de solemne</span>
+        <h2>Compara los puntajes</h2>
+        <p>Si eliges una persona con la enfermedad y otra sin ella, ¿qué prueba suele dar más puntaje a la primera?</p>
+        <div class="switch" role="group" aria-label="Elige una curva">
+          <button data-curve="A" aria-pressed="false">Prueba A</button>
+          <button data-curve="B" aria-pressed="false">Prueba B</button>
+          <button data-curve="C" aria-pressed="false">Prueba C</button>
+        </div>
+        <p class="readout" id="roc-note" role="status"></p>
+      </div>
+  </section>
+</div>
+</main>
+<script>
+(() => {
+  const byId = id => document.getElementById(id);
+  const deck = byId("deck");
+  const slides = [...deck.children];
+  const names = ["Práctica", "Gráfico del VPP", "Curva ROC"];
+  let active = -1;
+  let stride;
+  function measureDeck() {
+    stride = slides[1].offsetLeft - slides[0].offsetLeft;
+    syncDeck();
+  }
+  function syncDeck() {
+    const index = Math.max(0, Math.min(slides.length-1, Math.round(deck.scrollLeft / stride)));
+    if (index===active) return;
+    active = index;
+    slides.forEach((slide,i) => { slide.inert = i !== active; });
+    byId("position").textContent = (active+1)+" de 3 · "+names[active];
+    byId("back").setAttribute("aria-disabled", String(active===0));
+    byId("forward").setAttribute("aria-disabled", String(active===slides.length-1));
+    byId("back").setAttribute("aria-label", active ? "Volver a "+names[active-1] : "Primera tarjeta");
+    byId("forward").setAttribute("aria-label", active<slides.length-1 ? "Avanzar a "+names[active+1] : "Última tarjeta");
+    byId("forward").textContent = ["VPP →","ROC →","→"][active];
+  }
+  function moveDeck(delta) {
+    const index = active+delta;
+    if (!slides[index]) return;
+    deck.scrollLeft = index*stride;
+    syncDeck();
+  }
+  byId("back").onclick = () => moveDeck(-1);
+  byId("forward").onclick = () => moveDeck(1);
+  deck.addEventListener("onscrollend" in deck ? "scrollend" : "scroll", syncDeck, {passive:true});
+  window.addEventListener("resize", measureDeck);
+  deck.addEventListener("keydown", event => {
+    if (event.key==="ArrowRight" || event.key==="ArrowLeft") {
+      event.preventDefault();
+      deck.focus({preventScroll:true});
+      moveDeck(event.key==="ArrowRight" ? 1 : -1);
+    }
+  });
+  measureDeck();
+  const count = id => Number(byId(id).textContent);
+  const decimal = new Intl.NumberFormat("es-CL",{maximumFractionDigits:1});
+  const percent = (n,d) => decimal.format(100*n/d)+" %";
+  const thousands = new Intl.NumberFormat("es-CL",{useGrouping:"always"});
+  const prevalenceButtons = document.querySelectorAll("[data-cases]");
+  function showPrevalence(button) {
+    const cases = Number(button.dataset.cases);
+    const truePos = cases*99/100;
+    const falsePos = (100000-cases)/100;
+    const total = truePos+falsePos;
+    const ppv = percent(truePos,total);
+    prevalenceButtons.forEach(item => item.setAttribute("aria-pressed",String(item===button)));
+    byId("positives").textContent = thousands.format(total)+" resultados positivos";
+    byId("true-share").style.width = (100*truePos/total)+"%";
+    byId("true-count").textContent = thousands.format(truePos)+" con la enfermedad";
+    byId("false-count").textContent = thousands.format(falsePos)+" sin la enfermedad";
+    byId("ppv-note").textContent = "Si diste positivo, tu probabilidad de tener la enfermedad es aproximadamente "+ppv+" (VPP: valor predictivo positivo). "+
+      (cases===100?"Como hay tantas personas sanas, sus falsos positivos son mayoría.":"Con el mismo test y más enfermedad, sube el VPP.");
+  }
+  prevalenceButtons.forEach(button => { button.onclick = () => showPrevalence(button); });
+  showPrevalence(prevalenceButtons[0]);
+  console.assert(byId("true-count").textContent.startsWith("99 ") && byId("false-count").textContent.startsWith("999 "), "Revisar escenario de baja prevalencia");
+  const curveButtons = document.querySelectorAll("[data-curve]");
+  const rocResults = {
+    A:["0,91","¡Así es! A se acerca a la esquina superior izquierda. En 91 de cada 100 pares, la persona con la enfermedad recibe el puntaje más alto."],
+    B:["0,50","B sigue la diagonal. La persona con la enfermedad recibe el puntaje más alto en 50 de cada 100 pares, como al lanzar una moneda."],
+    C:["0,09","C queda bajo la diagonal. La persona con la enfermedad recibe el puntaje más alto en solo 9 de cada 100 pares. El puntaje funciona al revés."]
+  };
+  curveButtons.forEach(button => {
+    button.onclick = () => {
+      curveButtons.forEach(item => item.setAttribute("aria-pressed",String(item===button)));
+      const key = button.dataset.curve;
+      const curve = byId("curve-"+key);
+      const color = curve.getAttribute("stroke");
+      const [auc, feedback] = rocResults[key];
+      byId("roc-area").setAttribute("d",curve.getAttribute("d")+" V207 Z");
+      byId("roc-area").setAttribute("fill",color);
+      const label = byId("auc-label");
+      label.style.setProperty("--area-color",color);
+      label.textContent = "Área bajo la curva "+key+" (AUC) = "+auc;
+      label.hidden = false;
+      byId("roc-note").textContent = "AUC "+auc+". "+feedback;
+    };
+  });
+  const questions = [
+    {name:"Sensibilidad", ask:"De las personas con infección, ¿qué porcentaje dio positivo?", group:["tp","fn","sick"], hit:"tp", meaning:"De las 100 personas con infección, 90 dieron positivo."},
+    {name:"Especificidad", ask:"De las personas sin infección, ¿qué porcentaje dio negativo?", group:["fp","tn","well"], hit:"tn", meaning:"De las 400 personas sin infección, 340 dieron negativo."},
+    {name:"Valor predictivo positivo", abbr:"VPP / PPV", ask:"Si el test dio positivo, ¿qué porcentaje de ese grupo tenía la infección?", group:["tp","fp","pos"], hit:"tp", meaning:"De las 150 personas con test positivo, 90 tenían la infección."},
+    {name:"Valor predictivo negativo", abbr:"VPN / NPV", ask:"Si el test dio negativo, ¿qué porcentaje de ese grupo estaba libre de la infección?", group:["fn","tn","neg"], hit:"tn", meaning:"De las 350 personas con test negativo, 340 estaban libres de la infección."}
+  ];
+  const options = [[2,0,1],[3,0,1],[2,1,0],[1,3,2]];
+  const result = q => percent(count(q.hit),count(q.group[2]));
+  console.assert(questions.map(result).join("|")==="90 %|85 %|60 %|97,1 %","Revisar cálculos del caso");
+  let step = 0;
+  function clearMarks() {
+    document.querySelectorAll("#matrix .group").forEach(cell => cell.classList.remove("group","hit"));
+  }
+  function showQuestion(focus) {
+    clearMarks();
+    const q = questions[step];
+    byId("step").textContent = "Pregunta "+(step+1)+" de 4";
+    document.querySelectorAll(".progress i").forEach((bar,i) => { bar.className = i<step?"done":i===step?"current":""; });
+    byId("metric").textContent = q.name+(q.abbr?" ("+q.abbr+")":"");
+    byId("prompt").textContent = q.ask;
+    byId("feedback").replaceChildren();
+    byId("next").hidden = true;
+    byId("choices").replaceChildren();
+    for (const index of options[step]) {
+      const item = questions[index];
+      const button = document.createElement("button");
+      button.className = "choice";
+      const rounded = (1000*count(item.hit)) % count(item.group[2]) !== 0;
+      button.textContent = count(item.hit)+" / "+count(item.group[2])+(rounded?" ≈ ":" = ")+result(item);
+      button.onclick = () => answer(index);
+      byId("choices").append(button);
+    }
+    if (focus) byId("metric").focus();
+  }
+  function answer(index) {
+    const q = questions[step];
+    [...byId("choices").children].forEach((button,i) => {
+      const option = options[step][i];
+      button.disabled = true;
+      if (option===step) button.classList.add("correct");
+      else if (option===index) button.classList.add("wrong");
+    });
+    q.group.forEach(id => byId(id).classList.add("group"));
+    byId(q.hit).classList.add("hit");
+    const title = document.createElement("strong");
+    title.textContent = index===step?"¡Así es!":"Esa fracción mide "+questions[index].name.toLowerCase()+".";
+    byId("feedback").replaceChildren(title, q.meaning+" Eso da "+result(q)+".");
+    byId("next").textContent = step===3?"Ver resumen →":"Siguiente pregunta →";
+    byId("next").hidden = false;
+    byId("next").focus({preventScroll:true});
+  }
+  byId("next").onclick = () => {
+    step++;
+    if (step<questions.length) return showQuestion(true);
+    byId("case-panel").hidden = byId("quiz").hidden = true;
+    byId("recap").hidden = false;
+    byId("end").focus();
+  };
+  for (const q of questions) {
+    const row = document.createElement("div");
+    const term = document.createElement("dt");
+    term.textContent = (q.abbr || q.name)+" · "+result(q);
+    const detail = document.createElement("dd");
+    detail.textContent = q.meaning;
+    row.append(term,detail);
+    byId("summary").append(row);
+  }
+  byId("again").onclick = () => {
+    step = 0;
+    byId("recap").hidden = true;
+    byId("case-panel").hidden = byId("quiz").hidden = false;
+    showQuestion(true);
+  };
+  showQuestion(false);
+})();
+</script>
+```

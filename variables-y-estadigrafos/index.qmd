@@ -1,0 +1,332 @@
+---
+pagetitle: "De la variable al análisis · Epidemiología USS"
+lang: es
+format:
+  html:
+    minimal: true
+    theme: none
+    embed-resources: true
+    html-table-processing: none
+    toc: false
+---
+
+```{=html}
+<style>
+:root { color-scheme:light; --azul:#102b42; --tinta:#18394c; --oro:#cfb47c; --verde:#12655b; --linea:#d5dfe0 }
+* { box-sizing:border-box }
+body { margin:0; background:#f6f6f2; color:var(--tinta); font:16px/1.45 "Segoe UI",Arial,sans-serif }
+.ancho { width:min(880px,calc(100% - 28px)); margin-inline:auto }
+header { background:var(--azul); color:white; border-bottom:4px solid var(--oro) }
+.marca { padding:12px 0; display:flex; justify-content:space-between; gap:12px; align-items:center; font-size:.85rem; border-bottom:1px solid #ffffff40 }
+h1,h2 { font:normal clamp(1.65rem,4vw,2.5rem)/1.12 Georgia,serif; margin:0 }
+h1 { padding:16px 0 20px }
+main { margin-block:20px; padding:clamp(16px,3vw,28px); background:white; border-radius:12px; border:1px solid var(--linea) }
+h2 { font-size:clamp(1.45rem,3vw,1.9rem); margin:8px 0 }
+p { margin:8px 0 }
+.paso { color:#48606c; font-weight:600; font-size:.88rem }
+fieldset { padding:0; margin:16px 0 0; border:0 }
+legend { padding:0; font-weight:650 }
+.opciones { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 }
+button { font:inherit; color:var(--azul); background:white; border:1px solid #9bacb2; border-radius:8px; min-height:44px; padding:9px 14px; cursor:pointer; touch-action:manipulation }
+button:hover:enabled { border-color:var(--azul); background:#f2f6f7 }
+button[disabled] { cursor:default; opacity:1 }
+button.acierto { background:#e7f4ed; border-color:var(--verde) }
+button.error,button.error:hover:enabled { background:#fff3e9; border-color:#965534 }
+button:focus-visible,h2:focus-visible { outline:3px solid #277aab; outline-offset:2px }
+#siguiente { background:var(--azul); color:white; margin-top:9px }
+#siguiente:hover { background:#264759 }
+#respuesta { font-weight:600 }
+#respuesta.pista { padding:10px 14px; border-left:4px solid #965534; border-radius:4px; background:#fff3e9; color:#63351e }
+.ejemplo { max-width:550px; margin:12px 0; padding:12px 14px; background:#f5f4ef; border-radius:7px }
+.fila { display:grid; grid-template-columns:56px 1fr 64px; gap:8px; align-items:center; font-size:.89rem; margin:4px 0 }
+.fila i { display:block; height:11px; background:var(--verde); border-radius:2px }
+table { width:100%; border-collapse:collapse; font-size:.92rem; font-variant-numeric:tabular-nums }
+td,th { padding:5px 4px; border-bottom:1px solid var(--linea); text-align:right }
+th:first-child { text-align:left }
+.imc-filas { margin:9px 0; font-variant-numeric:tabular-nums }
+.imc-filas .fila { grid-template-columns:20px 1fr 32px }
+#valores-imc { color:var(--azul); font-weight:650 }
+#histograma { display:flex; max-width:340px; margin:4px 0 10px; text-align:center; font-size:.82rem }
+#histograma span { flex:1; display:flex; flex-direction:column; justify-content:flex-end; min-height:85px }
+#histograma i { flex-shrink:0; background:var(--verde); border-inline:1px solid #f5f4ef }
+#histograma b { border-top:1px solid #758790; font-weight:500 }
+#mosaico summary { cursor:pointer; font-weight:650; padding:7px 0 }
+#mosaico button[aria-pressed="true"] { background:var(--azul); color:white }
+#teselas { display:flex; height:110px; gap:2px; margin-top:8px }
+#teselas > div { display:flex; flex-direction:column }
+#teselas span { display:grid; place-items:center; font-weight:650 }
+.asiste { background:var(--verde); color:white }
+.falta { background:#e6d8b9; color:var(--azul) }
+#grupos-mosaico { display:flex; gap:2px; text-align:center; font-size:.87rem }
+#cierre dl { margin:10px 0 18px }
+#cierre dt { margin-top:10px; font-weight:650 }
+#cierre dd { margin:2px 0 0 }
+[hidden] { display:none!important }
+</style>
+<header><div class="ancho"><div class="marca"><strong>Universidad San Sebastián</strong><span>Epidemiología</span></div><h1>De la variable al análisis</h1></div></header>
+<main class="ancho">
+  <div class="paso" id="paso"></div>
+  <h2 id="titulo" tabindex="-1"></h2><p id="contexto"></p>
+  <div class="ejemplo" id="grafico" hidden>
+    <b>Número de hijos de 100 personas</b>
+    <div class="fila"><span>0 hijos</span><i style="width:100%"></i><span>50 %</span></div>
+    <div class="fila"><span>1 hijo</span><i style="width:60%"></i><span>30 %</span></div>
+    <div class="fila"><span>2 hijos</span><i style="width:30%"></i><span>15 %</span></div>
+    <div class="fila"><span>3 hijos</span><i style="width:10%"></i><span>5 %</span></div>
+  </div>
+  <div class="ejemplo" id="tabla" hidden>
+    <table aria-label="Asistencia al control según si la persona tiene hijos">
+      <thead><tr><th scope="col">¿Tiene hijos?</th><th scope="col">Asistió</th><th scope="col">Faltó</th></tr></thead>
+      <tbody><tr><th scope="row">Sí</th><td>30</td><td>20</td></tr><tr><th scope="row">No</th><td>20</td><td>30</td></tr></tbody>
+    </table>
+  </div>
+  <div class="ejemplo" id="imc" hidden>
+    <strong>IMC de cinco escolares (kg/m²)</strong>
+    <div class="imc-filas" id="barras-imc"></div>
+    <button type="button" id="extremo" aria-pressed="false">Cambiar el último IMC de 20 a 35</button>
+    <p id="valores-imc" role="status"></p>
+  </div>
+  <div class="ejemplo" id="edad" hidden>
+    <strong>Cinco escolares, por ejemplo</strong>
+    <p id="edades"></p>
+    <small>Escolares por edad (años)</small><div id="histograma" aria-hidden="true"></div>
+    <button type="button" id="separar" aria-pressed="false">Separar las edades de los extremos</button>
+    <p id="dispersion" role="status"></p>
+  </div>
+  <fieldset id="pregunta"><legend id="consigna"></legend><div class="opciones" id="opciones"></div></fieldset>
+  <p id="respuesta" role="status" aria-atomic="true"></p>
+  <details id="mosaico" class="ejemplo" hidden>
+    <summary>Explorar el mosaico · ¿Chi-cuadrado o Fisher?</summary>
+    <div class="opciones" role="group" aria-label="Tamaño del ejemplo">
+      <button type="button" data-muestra="100" aria-pressed="true">Caso original · 100</button>
+      <button type="button" data-muestra="10" aria-pressed="false">Otro ejemplo · 10</button>
+    </div>
+    <p>El ancho muestra el tamaño de cada grupo. La altura de la franja verde muestra qué proporción asistió.</p>
+    <div id="teselas" role="img"></div><div id="grupos-mosaico" aria-hidden="true"></div>
+    <p id="prueba-mosaico" role="status"></p>
+  </details>
+  <div id="codigos" class="ejemplo" hidden>
+    <button type="button" id="invertir" aria-pressed="false">Intercambiar los códigos 1 y 2</button>
+    <p id="promedio-codigos" role="status"></p>
+  </div>
+  <button type="button" id="siguiente" hidden></button>
+  <section id="cierre" hidden>
+    <dl>
+      <dt>Categorías sin orden · nacionalidad, sexo</dt><dd>Cuenta personas y calcula porcentajes. La categoría más frecuente es la moda.</dd>
+      <dt>Categorías ordenadas · valoración, nivel educacional</dt><dd>Muestra los porcentajes en orden. También puedes identificar la categoría mediana.</dd>
+      <dt>Conteos · número de hijos</dt><dd>Cada persona aporta un entero desde cero. El promedio del grupo puede tener decimales.</dd>
+      <dt>Mediciones · edad, IMC</dt><dd>Si la distribución es simétrica, usa media y desviación estándar. Si es muy asimétrica o tiene valores extremos, prefiere mediana y rango intercuartílico.</dd>
+      <dt>Dos variables categóricas · hijos y asistencia</dt><dd>Compara porcentajes entre grupos. El chi-cuadrado permite evaluar asociación si las observaciones son independientes y las frecuencias esperadas son suficientes.</dd>
+    </dl>
+    <button id="reiniciar" type="button">Volver a practicar</button>
+  </section>
+  <noscript>Activa JavaScript para responder.</noscript>
+</main>
+<script>
+const pasos = [
+  { titulo:"¿Cuántos hijos tienes?", contexto:"En un CESFAM, 100 personas responden esta pregunta. Imagina que ingresas una respuesta individual.",
+    pregunta:"¿Cuál de estos valores aceptarías?",
+    opciones:["−1","0","1,5"], correcta:1,
+    pistas:["−1 quedaría por debajo del mínimo posible. Una persona que nunca ha tenido hijos registra 0.","","1,5 puede ser el promedio de un grupo. Para una sola persona, los hijos se cuentan en números enteros."],
+    clave:"Sí. Cero hijos es posible. El número de hijos es una variable cuantitativa discreta: se cuenta en enteros desde cero." },
+  { titulo:"Del dato al resumen", contexto:"Ya tienes las 100 respuestas del CESFAM.",
+    pregunta:"¿Cómo mostrarías cuántas personas tienen 0, 1, 2 o 3 hijos?",
+    opciones:["Con una prueba de chi-cuadrado","Con frecuencias y porcentajes"], correcta:1,
+    pistas:["Imagina que una prueba de chi-cuadrado da p = 0,03. ¿Cuántas personas tienen un hijo? Ese resultado no te lo dice. Para responder, cuenta a las personas de esa categoría.",""],
+    clave:"Exacto. Hay 30 personas con un hijo. Como participaron 100, representan el 30 %." },
+  { titulo:"Ahora cruzas dos variables (de la descripción al análisis de asociación)", contexto:"Con las mismas 100 personas, preguntas si tener hijos se asocia con asistir al control.",
+    pregunta:"¿Cómo compararías la asistencia de los dos grupos?",
+    opciones:["Comparar el porcentaje que asistió en cada grupo","Correlacionar los cuatro números de la tabla"], correcta:0,
+    pistas:["","Para correlacionar estatura y peso, por ejemplo, necesitas ambas medidas de cada persona. Aquí 30 y 20 son totales de grupos distintos. Correlacionar esos totales no te dice quiénes asistieron con más frecuencia. Compara 30 de 50 con 20 de 50."],
+    clave:"Asistió el 60 % de quienes tienen hijos (30/50) y el 40 % de quienes no (20/50). Aquí sí puedes usar chi-cuadrado para evaluar la asociación." },
+  { titulo:"¿Qué te dice la nacionalidad?", contexto:"En un estudio transversal de 2025 sobre nutrición, participaron 500 escolares de 6 a 12 años en Chile. Su ficha incluye la nacionalidad.",
+    pregunta:"¿Qué tipo de variable contiene esa columna?",
+    opciones:["Cualitativa ordinal","Cualitativa nominal","Cuantitativa discreta"], correcta:1,
+    pistas:["Ordinal significa que hay niveles. La nacionalidad no tiene jerarquía: ninguna es mejor ni vale más que otra.","","Puedes contar cuántos escolares tienen cada nacionalidad. La respuesta individual es una categoría sin jerarquía: ninguna nacionalidad vale más que otra."],
+    clave:"Nominal. Puedes informar, por ejemplo, «50 de 500 escolares tienen nacionalidad peruana (10 %)»." },
+  { titulo:"¿Cómo presentarías el sexo registrado?", contexto:"En la tabla del estudio, cada escolar pertenece a una categoría de sexo.",
+    pregunta:"¿Qué resumen le sirve a quien lee la tabla?",
+    opciones:["Número y porcentaje por categoría","Media de los códigos de sexo"], correcta:0,
+    pistas:["","Prueba intercambiar los códigos. El promedio cambia aunque las mismas 260 personas sigan en una categoría y las otras 240 en la otra."],
+    clave:"Número y porcentaje. Por ejemplo, 260 de 500 escolares en una categoría equivalen al 52 %. La categoría más frecuente es la moda." },
+  { titulo:"¿Cómo estuvo la explicación del médico?", contexto:"La familia elige una respuesta: mala, regular, buena o muy buena.",
+    pregunta:"¿Qué tipo de variable es esa valoración?",
+    opciones:["Cuantitativa continua","Cualitativa nominal","Cualitativa ordinal"], correcta:2,
+    pistas:["Una medición continua admite valores intermedios. Aquí la familia elige entre cuatro etiquetas.","Las opciones sí tienen un orden: «muy buena» expresa una valoración más alta que «buena».",""],
+    clave:"Ordinal. Por ejemplo, si 300 de 500 familias marcan «buena», esa es la valoración más frecuente (60 %). «Muy buena» es un nivel superior." },
+  { titulo:"Del orden al resumen", contexto:"Otra columna registra el nivel educacional alcanzado por la madre: básica, media o superior.",
+    pregunta:"¿Cómo mostrarías la distribución de esos niveles?",
+    opciones:["Promediar las etiquetas codificadas como 1, 2 y 3","Mostrar n y % por nivel, de básica a superior"], correcta:1,
+    pistas:["Imagina que una madre llegó a básica (1) y otra a superior (3). El promedio da 2, aunque ninguna indicó media. Los códigos expresan orden.",""],
+    clave:"Por ejemplo, de 500 madres, 100 alcanzaron educación básica (20 %), 300 educación media (60 %) y 100 educación superior (20 %). Educación media es la categoría más frecuente y la categoría mediana." },
+  { titulo:"¿Cómo resumirías la edad?", contexto:"Las edades de los escolares se distribuyen de forma aproximadamente <strong>simétrica</strong>, sin valores extremos.",
+    pregunta:"Para informar el centro y la dispersión en años, ¿qué elegirías?",
+    opciones:["Media y desviación estándar","Solo la edad más frecuente","Una razón de momios (OR)"], correcta:0,
+    pistas:["","La moda sí aporta algo: 3 de 5 tienen 9 años. Toca el botón de los extremos. La moda sigue en 9 tanto si las edades van de 8 a 10 como si van de 6 a 12.","Si tu informe dice «OR = 2», ¿sabrías si los escolares tienen cerca de 7 o de 11 años? Una OR compara los odds de un evento entre grupos. Aquí te pidieron edades."],
+    clave:"En ambos ejemplos, la media es 9 años. Al separar los extremos, la desviación estándar sube de 0,7 a 2,1 años: las edades están más dispersas." },
+  { titulo:"¿Qué cambia con un IMC extremo?", contexto:"El IMC es una variable cuantitativa continua. Cambia el último valor del ejemplo y observa los dos resúmenes.",
+    pregunta:"Con un IMC muy alejado de los demás, ¿qué par usarías para describir al grupo?",
+    opciones:["Media y desviación estándar","Mediana y rango intercuartílico (RIC)"], correcta:1,
+    pistas:["La media se desplaza hacia el valor extremo y la desviación estándar también aumenta. Fíjate en el valor central de los cinco escolares.",""],
+    clave:"La mediana sigue en 18 al cambiar el último IMC de 20 a 35. El RIC resume la dispersión del 50 % central de los datos." }
+];
+const el = id => document.getElementById(id);
+let paso = 0;
+function mostrarMosaico(n) {
+  const grupos = n===100 ? [[30,20],[20,30]] : [[3,1],[2,4]];
+  const nombres = ["Con hijos","Sin hijos"];
+  el("teselas").replaceChildren();
+  el("grupos-mosaico").replaceChildren();
+  grupos.forEach(([asisten,faltan],i) => {
+    const columna = document.createElement("div");
+    columna.style.flex = asisten+faltan;
+    for (const [clase,cantidad] of [["asiste",asisten],["falta",faltan]]) {
+      const celda = document.createElement("span");
+      celda.className = clase;
+      celda.style.flex = cantidad;
+      celda.textContent = clase==="asiste" ? cantidad+" asistieron" : cantidad===1 ? "1 faltó" : cantidad+" faltaron";
+      columna.append(celda);
+    }
+    el("teselas").append(columna);
+    const etiqueta = document.createElement("span");
+    etiqueta.style.flex = asisten+faltan;
+    etiqueta.textContent = nombres[i];
+    el("grupos-mosaico").append(etiqueta);
+  });
+  el("teselas").setAttribute("aria-label",grupos.map(([a,f],i) => nombres[i]+". Asistencia: "+a+". Ausencias: "+f).join(". "));
+  document.querySelectorAll("[data-muestra]").forEach(b => b.setAttribute("aria-pressed",String(Number(b.dataset.muestra)===n)));
+  el("prueba-mosaico").textContent = n===100
+    ? "Si tener hijos y asistir fueran independientes, esperaríamos 25 personas en cada celda. Con estos recuentos, la aproximación de chi-cuadrado funciona bien."
+    : "Si fueran independientes, esperaríamos 2 y 2 personas en el grupo con hijos, y 3 y 3 en el otro. Con celdas esperadas tan pequeñas, conviene la prueba exacta de Fisher.";
+}
+document.querySelectorAll("[data-muestra]").forEach(b => { b.onclick = () => mostrarMosaico(Number(b.dataset.muestra)); });
+function mostrarCodigos(invertidos) {
+  const a = invertidos ? 2 : 1;
+  const b = 3-a;
+  const promedio = ((260*a+240*b)/500).toLocaleString("es-CL");
+  el("promedio-codigos").textContent = "A (52 %): código "+a+" · B (48 %): código "+b+". Promedio de códigos: "+promedio+".";
+  el("invertir").setAttribute("aria-pressed",String(invertidos));
+}
+el("invertir").onclick = () => mostrarCodigos(el("invertir").getAttribute("aria-pressed")!=="true");
+function mostrarEdades(amplias) {
+  const edades = amplias ? [6,9,9,9,12] : [8,9,9,9,10];
+  const media = edades.reduce((suma,x) => suma+x,0)/edades.length;
+  const de = Math.sqrt(edades.reduce((suma,x) => suma+(x-media)**2,0)/(edades.length-1));
+  el("edades").textContent = edades.join(" · ")+" años";
+  const barras = el("histograma");
+  barras.replaceChildren();
+  for (let edad=6; edad<=12; edad++) {
+    const frecuencia = edades.filter(x => x===edad).length;
+    const columna = document.createElement("span");
+    const barra = document.createElement("i");
+    barra.style.height = (frecuencia*14)+"px";
+    const etiqueta = document.createElement("b");
+    etiqueta.textContent = edad;
+    columna.append(frecuencia || "",barra,etiqueta);
+    barras.append(columna);
+  }
+  el("dispersion").textContent = "Media "+media+" · Moda 9 · Desviación estándar "+de.toLocaleString("es-CL",{maximumFractionDigits:1})+" años";
+  el("separar").textContent = amplias ? "Volver a concentrar las edades" : "Separar las edades de los extremos";
+  el("separar").setAttribute("aria-pressed",String(amplias));
+}
+el("separar").onclick = () => mostrarEdades(el("separar").getAttribute("aria-pressed")!=="true");
+function mostrarIMC(extremo) {
+  const valores = [16,17,18,19,extremo ? 35 : 20];
+  const barras = el("barras-imc");
+  barras.replaceChildren();
+  valores.forEach((valor,i) => {
+    const fila = document.createElement("div");
+    fila.className = "fila";
+    const nombre = document.createElement("span");
+    nombre.textContent = "ABCDE"[i];
+    const barra = document.createElement("i");
+    barra.style.width = (100*valor/35)+"%";
+    const dato = document.createElement("span");
+    dato.textContent = valor;
+    fila.append(nombre,barra,dato);
+    barras.append(fila);
+  });
+  const media = valores.reduce((suma,v) => suma+v,0)/valores.length;
+  el("valores-imc").textContent = "Media "+media+" · Mediana "+valores[2]+" kg/m²";
+  el("extremo").setAttribute("aria-pressed", String(extremo));
+  el("extremo").textContent = extremo ? "Restablecer el último IMC a 20" : "Cambiar el último IMC de 20 a 35";
+}
+el("extremo").onclick = () => mostrarIMC(el("extremo").getAttribute("aria-pressed")!=="true");
+function mostrar() {
+  const fin = paso===pasos.length;
+  el("cierre").hidden = !fin;
+  el("pregunta").hidden = fin;
+  el("mosaico").open = false;
+  el("mosaico").hidden = true;
+  el("codigos").hidden = true;
+  el("edad").hidden = paso!==7;
+  if (paso===7) mostrarEdades(false);
+  el("tabla").hidden = paso!==2;
+  el("imc").hidden = paso!==pasos.length-1;
+  el("grafico").hidden = true;
+  el("siguiente").hidden = true;
+  el("respuesta").className = "";
+  el("respuesta").textContent = "";
+  if (fin) {
+    el("paso").textContent = "Repaso para la solemne";
+    el("titulo").textContent = "¿Qué tienes y qué quieres saber?";
+    el("contexto").textContent = "";
+    return;
+  }
+  const actual = pasos[paso];
+  el("paso").textContent = "Paso "+(paso+1)+" de "+pasos.length;
+  el("titulo").textContent = actual.titulo;
+  el("contexto").innerHTML = actual.contexto;
+  el("consigna").textContent = actual.pregunta;
+  if (!el("imc").hidden) mostrarIMC(false);
+  el("opciones").replaceChildren();
+  actual.opciones.forEach((texto,i) => {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.textContent = texto;
+    boton.onclick = () => {
+      const anterior = el("opciones").querySelector(".error");
+      if (anterior) anterior.classList.remove("error");
+      if (i!==actual.correcta) {
+        boton.className = "error";
+        el("respuesta").className = "pista";
+        el("respuesta").textContent = actual.pistas[i]+" Intenta otra opción.";
+        if (paso===4) {
+          el("codigos").hidden = false;
+          mostrarCodigos(false);
+        }
+        el("respuesta").scrollIntoView({block:"nearest"});
+        return;
+      }
+      for (const opcion of el("opciones").children) opcion.disabled = true;
+      boton.className = "acierto";
+      el("codigos").hidden = true;
+      el("respuesta").className = "";
+      el("respuesta").textContent = actual.clave;
+      if (paso===1) el("grafico").hidden = false;
+      if (paso===2) {
+        mostrarMosaico(100);
+        el("mosaico").hidden = false;
+      }
+      el("siguiente").textContent = paso===pasos.length-1 ? "Ver mi resumen →" :
+        (["Resumir las respuestas →","Ver la tabla 2×2 →","Ver el estudio escolar →"][paso] || "Continuar →");
+      el("siguiente").hidden = false;
+      el("siguiente").focus({preventScroll:true});
+    };
+    el("opciones").append(boton);
+  });
+}
+el("siguiente").onclick = () => {
+  paso++;
+  mostrar();
+  el("titulo").focus();
+};
+el("reiniciar").onclick = () => {
+  paso = 0;
+  mostrar();
+  el("titulo").focus();
+};
+console.assert(pasos.every(p => p.correcta>=0 && p.correcta<p.opciones.length && p.pistas.length===p.opciones.length));
+mostrar();
+</script>
+```
