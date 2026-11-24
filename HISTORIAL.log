@@ -429,3 +429,8 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
        clic). Las filas con correcta = 0 de una pregunta son sus fallos. El
        puntaje del final sigue contando el primer intento. Sin cambios en el
        Apps Script publicado (solo se corrigió un comentario en el repositorio).
+
+[66] 2026-11-24 · agonzalezs4
+     Repaso para el examen: clases/repaso-examen.json
+     - 60 preguntas (repaso-01 a repaso-60) en una sola página, con
+       "recopilar": true. Se abre con repasar.html?clase=repaso-examen

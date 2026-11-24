@@ -1,0 +1,1206 @@
+{
+  "nombre": "repaso-examen",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "repaso-01",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Un equipo estudia la salud bucal de un liceo. ¿Cuál de estas preguntas corresponde a la epidemiología?",
+      "opciones": [
+        "¿Qué diente le duele a una estudiante?",
+        "¿Qué tratamiento necesita un alumno con caries?",
+        "¿En qué cursos es más frecuente la caries?",
+        "¿Qué muela de este paciente necesita una radiografía?"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Localizar el dolor ayuda a evaluar a una persona.",
+        "Elegir un tratamiento es una decisión clínica individual.",
+        "Comparar cursos permite estudiar cómo se distribuye un problema de salud.",
+        "Indicar una radiografía forma parte de la atención de un paciente."
+      ]
+    },
+    {
+      "id": "repaso-02",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Un estadio instaló bebederos tras varios casos de deshidratación. ¿Qué dato debería vigilar en los próximos partidos para saber si el problema disminuye?",
+      "opciones": [
+        "La proporción de asistentes que consulta por deshidratación.",
+        "La cantidad de bebederos instalados.",
+        "Los litros de agua repartidos.",
+        "La proporción de asistentes que usa los bebederos."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Usar el total de asistentes como referencia permite comparar partidos con distinta cantidad de público.",
+        "Los bebederos instalados indican qué se hizo para prevenir el problema.",
+        "Los litros repartidos indican cuánta agua se entregó.",
+        "Usar los bebederos indica que la medida llegó al público, pero aún falta observar las consultas."
+      ]
+    },
+    {
+      "id": "repaso-03",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Varios estudiantes de teatro quedaron roncos después de ensayar. ¿Cuál de estas frases plantea una hipótesis que se puede investigar?",
+      "opciones": [
+        "Ayer consultaron tres estudiantes por ronquera.",
+        "Mañana se harán entrevistas al elenco.",
+        "Conviene hacer una pausa durante el ensayo.",
+        "Ensayar sin pausas aumenta el riesgo de ronquera."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Es una observación de lo que ya ocurrió.",
+        "Es una actividad para recoger información.",
+        "Es una recomendación para el elenco.",
+        "Propone una explicación que se puede comprobar comparando ensayos con y sin pausas."
+      ]
+    },
+    {
+      "id": "repaso-04",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "La ayuda para vestirse se registra como 0 (ninguna), 1 (parcial) o 2 (total). ¿Qué tipo de variable representan esos números?",
+      "opciones": [
+        "Cualitativa nominal.",
+        "Cualitativa ordinal.",
+        "Cuantitativa discreta.",
+        "Cuantitativa continua."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Una variable nominal usa categorías sin un orden propio.",
+        "Los códigos ordenan la ayuda necesaria, aunque la distancia entre dos niveles consecutivos puede variar.",
+        "Una variable discreta serviría, por ejemplo, para contar cuántas ayudas se usaron.",
+        "Una medida continua sería el tiempo que la persona tarda en vestirse."
+      ]
+    },
+    {
+      "id": "repaso-05",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "En un taller se mide la fuerza de agarre en kilos. Los valores tienen distribución normal. ¿Qué pregunta se puede responder con la t de Student?",
+      "opciones": [
+        "¿Qué porcentaje tiene poca fuerza en cada oficio?",
+        "¿Difiere la fuerza promedio entre panaderos y mecánicos?",
+        "¿Hay relación entre la edad y la fuerza?",
+        "¿Difieren los promedios de tres oficios a la vez?"
+      ],
+      "correcta": 1,
+      "retro": [
+        "La pregunta pide porcentajes de personas en una categoría.",
+        "La prueba contrasta los dos promedios teniendo en cuenta cuánto varía la fuerza dentro de cada oficio.",
+        "Para evaluar la relación entre edad y fuerza se puede usar una correlación.",
+        "Para comparar los tres promedios a la vez se puede usar ANOVA."
+      ]
+    },
+    {
+      "id": "repaso-06",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Un instituto quiere usar chi cuadrado para ver si la asistencia de hoy se relaciona con la jornada diurna o vespertina. ¿Qué datos necesita?",
+      "opciones": [
+        "El número total de estudiantes de cada jornada.",
+        "El número de presentes y ausentes de todo el instituto.",
+        "El porcentaje de presentes por jornada, sin los totales.",
+        "El número de presentes y ausentes en cada jornada."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Esos totales indican el tamaño de cada jornada, pero falta saber quiénes asistieron.",
+        "Al juntar ambas jornadas se pierde la información necesaria para compararlas.",
+        "Un mismo porcentaje puede corresponder a grupos de tamaños muy distintos.",
+        "La prueba compara los recuentos con los que se esperarían si la asistencia fuera igual de frecuente en ambas jornadas."
+      ]
+    },
+    {
+      "id": "repaso-07",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Un equipo compara el descanso promedio de dos turnos y fija un umbral de 0,05. ¿Cuál de estas conclusiones interpreta bien el valor p?",
+      "opciones": [
+        "Con p = 0,50 se demuestra que ambos turnos descansan igual.",
+        "Con p = 0,01 se demuestra que la diferencia es grande.",
+        "Con p = 0,01 hay evidencia de una diferencia entre turnos.",
+        "Con p = 0,50 la diferencia entre turnos es significativa."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Superar el umbral deja abierta la posibilidad de una diferencia que el estudio no detectó.",
+        "Para juzgar el tamaño de la diferencia hay que conocer las horas de descanso de cada turno.",
+        "Al quedar bajo el umbral, el resultado aporta evidencia contra la hipótesis de igual descanso promedio.",
+        "El valor 0,50 supera el umbral de 0,05 fijado para declarar significación."
+      ]
+    },
+    {
+      "id": "repaso-08",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Una residencia quiere medir la prevalencia de anemia hoy. ¿A quiénes debe contar en el numerador?",
+      "opciones": [
+        "A los residentes que tienen anemia hoy.",
+        "A todos los residentes que viven allí hoy.",
+        "Solo a quienes recibieron el diagnóstico hoy.",
+        "A quienes tuvieron anemia y ya se recuperaron."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Para estimar la carga actual cuentan tanto los diagnósticos recientes como los anteriores que siguen vigentes.",
+        "El total de residentes corresponde al denominador.",
+        "Esta selección dejaría fuera a quienes ya tenían anemia y siguen con ella.",
+        "Las personas recuperadas ya no tienen anemia en la fecha de la medición."
+      ]
+    },
+    {
+      "id": "repaso-09",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "De 100 personas que sufrieron quemaduras, 5 murieron por esas lesiones en los 30 días siguientes. ¿Qué medida describe ese 5 %?",
+      "opciones": [
+        "Prevalencia de quemaduras.",
+        "Mortalidad general.",
+        "Mortalidad por quemaduras en la población.",
+        "Letalidad por quemaduras."
+      ],
+      "correcta": 3,
+      "retro": [
+        "La prevalencia indica cuántas personas tienen una condición en un momento o período.",
+        "La mortalidad general incluye las muertes por todas las causas.",
+        "Esa medida usa como referencia a toda la población.",
+        "El denominador incluye solo a las personas con quemaduras y las muertes se cuentan hasta el día 30."
+      ]
+    },
+    {
+      "id": "repaso-10",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "En una caminata se compararon dos tipos de calcetines. El riesgo relativo (RR) de presentar ampollas fue 1. ¿Qué se puede concluir?",
+      "opciones": [
+        "Ningún grupo tuvo ampollas.",
+        "Ambos grupos tuvieron la misma cantidad de personas con ampollas.",
+        "Ambos grupos tuvieron el mismo riesgo observado.",
+        "El riesgo de tener ampollas fue del 1 %."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Un RR de 1 puede observarse aunque haya casos en ambos grupos.",
+        "Para comparar el número de personas afectadas también hay que conocer el tamaño de los grupos.",
+        "Dividir dos riesgos iguales da 1, incluso si un grupo tiene más participantes que el otro.",
+        "Para saber el porcentaje afectado necesitas el riesgo de cada grupo."
+      ]
+    },
+    {
+      "id": "repaso-11",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "En un taller, a mayor exposición al polvo, mayor frecuencia de tos. ¿Qué criterio de Bradford Hill ilustra ese patrón?",
+      "opciones": [
+        "Secuencia temporal.",
+        "Gradiente (dosis-respuesta).",
+        "Plausibilidad.",
+        "Fuerza de asociación."
+      ],
+      "correcta": 1,
+      "retro": [
+        "La secuencia temporal pregunta si la exposición ocurrió antes del efecto.",
+        "El gradiente se reconoce al comparar varios niveles de exposición y observar que el efecto cambia progresivamente.",
+        "La plausibilidad pregunta si hay un mecanismo que explique la relación.",
+        "La fuerza describe la magnitud de una asociación entre grupos."
+      ]
+    },
+    {
+      "id": "repaso-12",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "En junio, un municipio relaciona la superficie de parques de cada barrio con el porcentaje de vecinos que caminan a diario. Según la unidad de análisis, ¿qué diseño utiliza?",
+      "opciones": [
+        "Ecológico.",
+        "De casos y controles.",
+        "De cohorte.",
+        "Transversal individual."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Cada barrio aporta una observación, por lo que el resultado describe barrios sin establecer qué ocurre con cada vecino.",
+        "En casos y controles se seleccionan personas según presenten o no el desenlace.",
+        "Una cohorte sigue a un grupo para observar qué ocurre con el tiempo.",
+        "Un transversal individual relacionaría la exposición y la caminata de cada persona evaluada ese mes."
+      ]
+    },
+    {
+      "id": "repaso-13",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "En un club de natación se estudia la otitis. Si los casos son nadadores del club con otitis, ¿quiénes serían buenos controles?",
+      "opciones": [
+        "Nadadores del mismo club con otitis leve.",
+        "Nadadores del mismo club sin otitis.",
+        "Vecinos sin otitis que nunca van al club.",
+        "Socios sin otitis que no nadan en el club."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Una otitis leve también cumple la condición que define a los casos.",
+        "Estos nadadores habrían podido formar parte de los casos si hubieran desarrollado otitis.",
+        "Estos vecinos pertenecen a una población distinta de la que aportó los casos.",
+        "Ser socio del club no basta para pertenecer a la población de nadadores estudiada."
+      ]
+    },
+    {
+      "id": "repaso-14",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Un club sortea quién hace un calentamiento nuevo para prevenir lesiones y quién sigue con el habitual. ¿Para qué sirve el grupo que mantiene su rutina?",
+      "opciones": [
+        "Para ocultar a cada deportista qué rutina realiza.",
+        "Para garantizar que todos partan con el mismo riesgo de lesión.",
+        "Para elegir qué deportistas pueden entrar al ensayo.",
+        "Para comparar el riesgo de lesión con la rutina habitual."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Ocultar qué intervención recibe una persona se llama enmascaramiento.",
+        "El sorteo favorece grupos comparables, aunque el riesgo inicial puede variar entre deportistas.",
+        "La selección de participantes ocurre antes de formar los grupos.",
+        "Las lesiones del grupo habitual ayudan a estimar qué habría ocurrido sin cambiar el calentamiento."
+      ]
+    },
+    {
+      "id": "repaso-15",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Un tamizaje auditivo dio negativo. El examen de referencia confirmó que la persona sí tenía pérdida auditiva. ¿Cómo se clasifica el resultado del tamizaje?",
+      "opciones": [
+        "Verdadero negativo.",
+        "Falso positivo.",
+        "Falso negativo.",
+        "Verdadero positivo."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Un verdadero negativo corresponde a una persona sin la condición.",
+        "Un falso positivo corresponde a una prueba positiva en alguien sin la condición.",
+        "Si se derivara solo a quienes dan positivo, esta persona quedaría sin evaluación pese a necesitarla.",
+        "Un verdadero positivo requiere que el tamizaje también haya dado positivo."
+      ]
+    },
+    {
+      "id": "repaso-16",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Una biblioteca registró molestias de cuello entre sus usuarios. ¿Qué pregunta permitiría estudiar un posible factor asociado?",
+      "opciones": [
+        "¿En qué semana hubo más consultas?",
+        "¿Varían las molestias según la postura de lectura?",
+        "¿Cuántas consultas hubo en cada sede?",
+        "¿Qué edades tenían quienes consultaron?"
+      ],
+      "correcta": 1,
+      "retro": [
+        "La semana con más consultas describe cuándo ocurrió el problema.",
+        "Comparar a lectores que adoptan distintas posturas permite explorar su asociación con las molestias.",
+        "Contar consultas por sede describe dónde se registraron.",
+        "Las edades describen a las personas que consultaron."
+      ]
+    },
+    {
+      "id": "repaso-17",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Las urgencias de una comuna notifican las picaduras de avispas. ¿Qué actividad añadiría vigilancia activa para este problema?",
+      "opciones": [
+        "Recibir los avisos enviados por cada urgencia.",
+        "Archivar cada aviso según su fecha.",
+        "Buscar casos en las fichas de urgencia.",
+        "Difundir un resumen mensual de los avisos."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Recibir los avisos habituales corresponde a vigilancia pasiva.",
+        "Archivar avisos organiza la información ya recibida.",
+        "Así el equipo puede encontrar atenciones por picaduras que nunca generaron un aviso.",
+        "Difundir resultados comunica lo encontrado con los avisos recibidos."
+      ]
+    },
+    {
+      "id": "repaso-18",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo sospecha que el ruido de las salas favorece el dolor de cabeza. ¿Qué comparación ayudaría a contrastar esa hipótesis?",
+      "opciones": [
+        "La frecuencia de dolor en salas ruidosas y silenciosas.",
+        "La intensidad del dolor en dos salas igualmente ruidosas.",
+        "La duración del dolor antes y después de tomar analgésicos.",
+        "El ruido de dos salas donde nadie registró los síntomas."
+      ],
+      "correcta": 0,
+      "retro": [
+        "La comparación incluye grupos con distinta exposición al ruido y observa el mismo problema en ambos.",
+        "Al mantener igual el ruido, la comparación no contrasta la exposición de interés.",
+        "El uso de analgésicos plantea una pregunta sobre el alivio del dolor.",
+        "Sin registrar el dolor falta el resultado necesario para contrastar la hipótesis."
+      ]
+    },
+    {
+      "id": "repaso-19",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un centro quiere medir cuánto tiempo pasa cada persona en la sala de espera. ¿Qué par de horarios permite obtener ese dato?",
+      "opciones": [
+        "Hora de pedir la cita y hora de llegada.",
+        "Inicio y término de la consulta.",
+        "Hora de llegada y hora de salida del centro.",
+        "Hora de llegada e inicio de la consulta."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Este intervalo mide el tiempo desde la solicitud hasta la llegada.",
+        "Esos horarios miden cuánto dura la consulta.",
+        "El tiempo total en el centro también incluye la atención.",
+        "La diferencia entre ambos horarios mide la espera sin incluir los minutos de atención."
+      ]
+    },
+    {
+      "id": "repaso-20",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "La estatura y la longitud del brazo tienen distribuciones normales. El gráfico muestra una relación lineal, sin valores atípicos. ¿Qué prueba evalúa esa relación?",
+      "opciones": [
+        "Correlación de Pearson.",
+        "Chi cuadrado.",
+        "ANOVA.",
+        "t de Student."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Pearson evalúa la asociación lineal entre estas dos mediciones cuantitativas.",
+        "Chi cuadrado evalúa asociaciones entre categorías.",
+        "ANOVA compara promedios entre grupos.",
+        "La t de Student contrasta medias."
+      ]
+    },
+    {
+      "id": "repaso-21",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Al comparar la espera promedio de dos salas se obtiene p = 0,02. ¿Qué representa ese valor?",
+      "opciones": [
+        "La proporción de tiempos de espera mal registrados.",
+        "La probabilidad de que exista una diferencia real.",
+        "La probabilidad de una diferencia tan extrema o mayor, suponiendo igualdad.",
+        "El porcentaje en que difieren los resultados de las salas."
+      ],
+      "correcta": 2,
+      "retro": [
+        "El valor p no cuenta errores en las mediciones.",
+        "El valor p se obtiene suponiendo que la hipótesis nula es cierta.",
+        "Si los promedios reales fueran iguales, sería poco probable obtener una diferencia así de extrema o mayor.",
+        "La magnitud de la diferencia se estima comparando los resultados entre salas."
+      ]
+    },
+    {
+      "id": "repaso-22",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Un liceo quiere conocer el riesgo de desarrollar migraña durante el semestre. Entre escolares sin antecedentes, ¿qué evento debe contar?",
+      "opciones": [
+        "Cada visita a enfermería por el mismo dolor.",
+        "Su primera migraña durante el semestre.",
+        "Cada día que falte a clases por migraña.",
+        "Su última migraña antes de terminar el semestre."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Una misma migraña puede motivar varias consultas.",
+        "El primer episodio identifica a quien desarrolla la condición durante el seguimiento.",
+        "Las ausencias miden días de clase perdidos.",
+        "La fecha del último episodio puede ser posterior a la aparición de la condición."
+      ]
+    },
+    {
+      "id": "repaso-23",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Hubo mareos en ambos grupos, con mayor riesgo entre quienes viajaron de pie. Si los pasajeros sentados son la referencia, ¿qué riesgo relativo esperarías?",
+      "opciones": [
+        "Igual a cero.",
+        "Entre cero y uno.",
+        "Igual a uno.",
+        "Mayor que uno."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Cero implicaría que nadie del grupo que viajó de pie se mareó.",
+        "Un valor menor que uno indicaría menor riesgo al viajar de pie.",
+        "Uno correspondería a riesgos iguales en ambos grupos.",
+        "El RR divide el riesgo al viajar de pie por el riesgo al viajar sentado, que aquí es menor."
+      ]
+    },
+    {
+      "id": "repaso-24",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "Un equipo estudia si un limpiador irrita la piel y describe cómo podría dañar su barrera protectora. ¿Qué criterio de Bradford Hill respalda esa explicación?",
+      "opciones": [
+        "Plausibilidad.",
+        "Gradiente.",
+        "Fuerza de asociación.",
+        "Secuencia temporal."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Un mecanismo biológico que pueda explicar la irritación apoya la plausibilidad.",
+        "Un gradiente relaciona distintos niveles de exposición con cambios en el efecto.",
+        "La fuerza se aprecia en la magnitud de la asociación observada.",
+        "La secuencia temporal requiere establecer qué ocurrió primero."
+      ]
+    },
+    {
+      "id": "repaso-25",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Una escuela de danza quiere comparar el riesgo de dolor de talón durante un semestre según el calzado de cada bailarín. ¿Qué diseño elegirías?",
+      "opciones": [
+        "Un estudio transversal.",
+        "Una serie de casos.",
+        "Una cohorte.",
+        "Un estudio ecológico."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Un solo corte indica cuántos bailarines tienen dolor en ese momento.",
+        "Describir únicamente a quienes ya tienen dolor impide comparar el riesgo según el calzado.",
+        "Se puede seguir a bailarines sin dolor y registrar cuándo aparece en cada grupo.",
+        "Un diseño ecológico compara datos colectivos y aquí interesa el seguimiento de cada bailarín."
+      ]
+    },
+    {
+      "id": "repaso-26",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un termómetro registra la temperatura de una sala en grados Celsius. ¿Por qué esta medición corresponde a una escala de intervalo?",
+      "opciones": [
+        "El cero representa la ausencia total de temperatura.",
+        "Los grados son uniformes y el cero es convencional.",
+        "Los valores indican un orden, con distancias variables.",
+        "Los números identifican categorías que carecen de orden."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Cero grados Celsius es una temperatura y no indica ausencia de temperatura.",
+        "Subir un grado representa el mismo cambio en cualquier parte de la escala, incluso al pasar por cero.",
+        "Los grados permiten comparar también el tamaño de las diferencias.",
+        "Las mediciones tienen un orden y las diferencias entre ellas son comparables."
+      ]
+    },
+    {
+      "id": "repaso-27",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un vendaje nuevo redujo en cuatro puntos porcentuales el riesgo de rozaduras frente al habitual. ¿Cómo se comunica esa diferencia?",
+      "opciones": [
+        "El nuevo vendaje dejó el riesgo en una cuarta parte.",
+        "Cuatro personas menos con rozaduras por cada cien tratadas.",
+        "Cuatro personas tratadas para evitar una rozadura.",
+        "Cuatro rozaduras menos por cada cien rozaduras previas."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Una diferencia en puntos porcentuales expresa una disminución absoluta.",
+        "Los puntos porcentuales comparan casos por cada cien personas tratadas, incluidas quienes nunca tuvieron rozaduras.",
+        "El número necesario a tratar es una medida distinta de la diferencia expresada en puntos porcentuales.",
+        "El denominador corresponde a las personas de cada grupo que podían desarrollar rozaduras."
+      ]
+    },
+    {
+      "id": "repaso-28",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Una biblioteca quiere estimar qué proporción de sus usuarios tiene dolor de muñeca hoy. ¿Qué muestra conviene para una encuesta transversal?",
+      "opciones": [
+        "Usuarios sorteados del registro completo de la biblioteca.",
+        "Lectores que pidieron un soporte para la muñeca.",
+        "Usuarios que pasan más horas leyendo.",
+        "Lectores que llegan al abrir la biblioteca."
+      ],
+      "correcta": 0,
+      "retro": [
+        "El registro incluye a la población de interés y el sorteo permite seleccionar usuarios con distintas características.",
+        "Pedir soporte puede estar relacionado con tener dolor de muñeca.",
+        "Elegir solo a quienes más leen deja fuera otros hábitos de lectura.",
+        "Quienes acuden a primera hora pueden ser distintos de los usuarios de otros horarios."
+      ]
+    },
+    {
+      "id": "repaso-29",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Se invita a vecinos a un ensayo que comparará dos programas de caminatas. ¿Cuándo se les debe pedir el consentimiento para participar?",
+      "opciones": [
+        "Al completar la primera caminata del programa.",
+        "Al terminar la última visita del seguimiento.",
+        "Al comunicar la asignación a cada participante.",
+        "Al terminar la explicación previa al sorteo."
+      ],
+      "correcta": 3,
+      "retro": [
+        "La participación ya habría comenzado cuando se realizara la primera caminata.",
+        "Al final ya se habrían realizado todas las actividades del ensayo.",
+        "La persona debe poder aceptar o rechazar participar antes de la asignación.",
+        "Así cada vecino puede valorar los riesgos y decidir libremente si quiere participar."
+      ]
+    },
+    {
+      "id": "repaso-30",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Una persona sin molestias obtiene un resultado positivo en un tamizaje visual escolar. ¿Qué corresponde hacer para saber si realmente tiene el problema?",
+      "opciones": [
+        "Repetir la encuesta de síntomas.",
+        "Realizar la evaluación diagnóstica de confirmación.",
+        "Declarar confirmado el problema visual.",
+        "Esperar hasta que aparezcan molestias."
+      ],
+      "correcta": 1,
+      "retro": [
+        "La ausencia de síntomas puede persistir aunque exista un problema visual.",
+        "El tamizaje señala a quién ofrecer una evaluación que confirme o descarte el problema.",
+        "Un tamizaje positivo puede corresponder a una persona sin el problema.",
+        "Esperar síntomas posterga la evaluación de un posible problema detectado tempranamente."
+      ]
+    },
+    {
+      "id": "repaso-31",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Hace siglos, algunas ciudades comenzaron a clasificar sus defunciones por edad y estación del año. ¿Qué aportó esa práctica?",
+      "opciones": [
+        "Identificar qué tratamiento alargaba más la vida.",
+        "Determinar el origen de cada muerte individual.",
+        "Medir cuántas personas vivían con cada enfermedad.",
+        "Reconocer patrones de mortalidad en la población."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Comparar tratamientos requiere saber quién recibió cada uno y qué ocurrió después.",
+        "La edad y la estación no identifican por sí solas la causa individual.",
+        "Un registro de defunciones solo reúne información de quienes murieron.",
+        "Agrupar los registros permitió reconocer a qué edades y en qué estaciones se concentraban las muertes."
+      ]
+    },
+    {
+      "id": "repaso-32",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "La vigilancia municipal detecta que las caídas en buses se concentran al bajar del vehículo. ¿Qué acción preventiva responde mejor al hallazgo?",
+      "opciones": [
+        "Revisar los peldaños y las condiciones de descenso.",
+        "Mejorar la sujeción del equipaje durante el viaje.",
+        "Ampliar la señalización sobre asientos preferentes.",
+        "Reorganizar el espacio para pasajeros que viajan de pie."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Inspeccionar el lugar de las caídas puede revelar un peldaño suelto o una superficie resbaladiza.",
+        "Sujetar el equipaje aborda un riesgo durante el trayecto.",
+        "La señalización de asientos se dirige al uso del espacio dentro del vehículo.",
+        "El espacio para viajar de pie afecta principalmente las condiciones durante el trayecto."
+      ]
+    },
+    {
+      "id": "repaso-33",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Tras entrevistar a ambos turnos de un taller sobre fatiga ocular, un equipo inicia el análisis. ¿Qué tarea corresponde a esa etapa?",
+      "opciones": [
+        "Recomendar una pausa a mitad de jornada.",
+        "Redactar conclusiones sobre el origen de la fatiga.",
+        "Comparar la frecuencia de molestias entre turnos.",
+        "Probar el cuestionario con personal de otro taller."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Las recomendaciones se formulan una vez interpretados los hallazgos.",
+        "Las conclusiones requieren analizar primero las respuestas.",
+        "Si las molestias se concentran en uno de los turnos, ese patrón orientará la interpretación.",
+        "Probar el cuestionario ayuda a mejorarlo antes de recoger los datos."
+      ]
+    },
+    {
+      "id": "repaso-34",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un centro expresa la asistencia a rehabilitación como el porcentaje de citas programadas que se cumplieron. ¿Qué representa ese porcentaje?",
+      "opciones": [
+        "La fuente de datos.",
+        "La población del estudio.",
+        "El instrumento de registro.",
+        "El indicador de asistencia."
+      ],
+      "correcta": 3,
+      "retro": [
+        "La fuente podría ser la agenda donde aparecen las citas.",
+        "La población corresponde a las personas que se quiere estudiar.",
+        "El instrumento podría ser una ficha usada para registrar las citas.",
+        "El porcentaje permite comparar la asistencia entre meses con distinto número de citas programadas."
+      ]
+    },
+    {
+      "id": "repaso-35",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Dos postas registraron las esperas de ocho pacientes cada una. ¿Qué característica favorece usar Mann–Whitney frente a la t de Student para comparar los grupos?",
+      "opciones": [
+        "En ambas postas las esperas se registraron en minutos.",
+        "Las dos postas atendieron al mismo número de pacientes.",
+        "Las esperas dibujan una campana simétrica en ambos grupos.",
+        "Predominan las esperas cortas, con algunas mucho más largas."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Los minutos sirven como unidad de medida con cualquiera de las dos pruebas.",
+        "Ambas pruebas admiten grupos del mismo tamaño.",
+        "Con una distribución aproximadamente normal, la t de Student permite comparar las medias.",
+        "Con pocos datos y mucha asimetría, Mann–Whitney permite comparar los grupos ordenando los tiempos de espera."
+      ]
+    },
+    {
+      "id": "repaso-36",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Los estudiantes califican de 1 a 7 su cansancio y su dificultad para concentrarse. ¿Qué prueba aprovecha el orden de las respuestas para relacionarlas?",
+      "opciones": [
+        "t de Student.",
+        "ANOVA.",
+        "Correlación de Spearman.",
+        "Prueba exacta de Fisher."
+      ],
+      "correcta": 2,
+      "retro": [
+        "La t de Student evalúa diferencias de medias.",
+        "ANOVA compara los promedios de una variable cuantitativa entre grupos.",
+        "Spearman utiliza el orden de ambas calificaciones para evaluar si varían en el mismo sentido.",
+        "Fisher evalúa asociaciones en tablas de categorías sin aprovechar su orden."
+      ]
+    },
+    {
+      "id": "repaso-37",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "La diferencia media en minutos de caminata entre dos barrios tiene un intervalo de confianza del 95 % de −1 a 3 minutos. ¿Qué interpretación corresponde?",
+      "opciones": [
+        "Los datos son compatibles con una diferencia nula.",
+        "En ambos barrios se camina exactamente lo mismo.",
+        "Cada vecino camina entre uno y tres minutos.",
+        "Todas las medias posibles favorecen al primer barrio."
+      ],
+      "correcta": 0,
+      "retro": [
+        "El intervalo incluye cero minutos de diferencia, el valor que corresponde a dos promedios iguales.",
+        "Incluir el cero no demuestra igualdad exacta.",
+        "El intervalo se refiere a la diferencia entre promedios de los barrios.",
+        "El intervalo contiene valores de ambos signos."
+      ]
+    },
+    {
+      "id": "repaso-38",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "El informe municipal solo registra las causas de todas las defunciones del año pasado. ¿Qué puede determinarse con esos datos?",
+      "opciones": [
+        "La prevalencia de lesiones por accidentes.",
+        "El riesgo de morir de cada habitante.",
+        "La letalidad entre quienes sufrieron accidentes.",
+        "La proporción de muertes debidas a accidentes."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Conocer las muertes deja fuera a quienes sufrieron lesiones y sobrevivieron.",
+        "Calcular el riesgo de morir requiere conocer la población de referencia.",
+        "La letalidad necesita el total de personas que sufrieron el accidente.",
+        "La mortalidad proporcional compara las muertes por una causa con todas las defunciones."
+      ]
+    },
+    {
+      "id": "repaso-39",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Un liceo mide la prevalencia de dolor de cabeza durante una semana. Una alumna tuvo dolor el lunes y el jueves. ¿Cómo se cuenta en el numerador?",
+      "opciones": [
+        "Dos veces, una por cada día con dolor.",
+        "Una vez, porque estuvo afectada durante esa semana.",
+        "Solo si continuó con dolor al finalizar la semana.",
+        "Solo si antes de esa semana nunca tuvo dolor."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Contar los días mediría duración o repetición del dolor.",
+        "La prevalencia de período cuenta a cada persona que tuvo la condición en algún momento de la semana.",
+        "La medición abarca toda la semana, incluidos los síntomas que ya cedieron.",
+        "La prevalencia incluye tanto casos nuevos como casos previos presentes durante ese período."
+      ]
+    },
+    {
+      "id": "repaso-40",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Para prevenir el primer esguince de la temporada, dos programas tienen números necesarios a tratar (NNT) de 8 y 25 frente al calentamiento habitual. ¿Cuál ofrece mayor reducción absoluta del riesgo?",
+      "opciones": [
+        "El de 25, porque protege a más participantes.",
+        "Ambos, porque se evaluaron durante una temporada.",
+        "El de 8, porque necesita menos participantes por esguince evitado.",
+        "Ambos, porque se compararon con el mismo calentamiento."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Un NNT mayor indica que se necesita incluir a más personas para evitar un evento adicional.",
+        "Compartir el plazo facilita la comparación, pero los beneficios estimados difieren.",
+        "Con el mismo comparador y plazo, un NNT menor indica un beneficio absoluto mayor por participante.",
+        "Compartir el comparador permite interpretar la diferencia entre ambos NNT."
+      ]
+    },
+    {
+      "id": "repaso-41",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "En una excursión, quienes bebieron agua de vertiente tuvieron ocho veces el riesgo de diarrea de quienes bebieron solo agua embotellada. ¿Qué criterio de Hill describe esa magnitud?",
+      "opciones": [
+        "Fuerza de asociación.",
+        "Gradiente.",
+        "Plausibilidad.",
+        "Secuencia temporal."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Un RR de ocho muestra cuánto se alejan los dos grupos de la igualdad de riesgos, que correspondería a uno.",
+        "Un gradiente exige comparar varios niveles de exposición.",
+        "La plausibilidad requiere un mecanismo que explique la relación.",
+        "La magnitud expresada por el riesgo relativo no indica el orden de los acontecimientos."
+      ]
+    },
+    {
+      "id": "repaso-42",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un informe describe a seis pasajeros que sintieron vértigo tras un viaje en barco. ¿Qué puede aportar esta serie de casos?",
+      "opciones": [
+        "Estimar el riesgo de cada pasajero.",
+        "Comparar el riesgo entre dos rutas.",
+        "Proponer una posible exposición para investigar.",
+        "Medir la frecuencia de vértigo entre todos los viajeros."
+      ],
+      "correcta": 2,
+      "retro": [
+        "La serie describe solo a personas con vértigo y no informa cuántos pasajeros estuvieron en riesgo.",
+        "Comparar rutas exige conocer los casos y el total de pasajeros en ambas.",
+        "Una experiencia compartida por varios casos puede orientar una pregunta para un estudio posterior.",
+        "Para estimar esa frecuencia se necesita conocer el total de viajeros."
+      ]
+    },
+    {
+      "id": "repaso-43",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Una cohorte de ciclistas registra lesiones durante un año. Algunos dejan de responder en marzo. ¿Cómo deben interpretarse sus datos de los meses siguientes?",
+      "opciones": [
+        "Como meses sin ninguna lesión.",
+        "Como meses con alguna lesión.",
+        "Como meses sin actividad ciclista.",
+        "Como meses con datos faltantes."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Dejar de responder no demuestra que la persona siguiera sin lesiones.",
+        "La falta de respuesta tampoco confirma que la persona se haya lesionado.",
+        "El equipo desconoce si los ciclistas continuaron practicando el deporte.",
+        "Una lesión posterior al último contacto podría haber ocurrido sin quedar registrada."
+      ]
+    },
+    {
+      "id": "repaso-44",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Dos rutinas de descanso se asignaron por sorteo. Un grupo quedó con más personas mayores. ¿Qué se puede concluir sobre la asignación?",
+      "opciones": [
+        "La diferencia de edad pudo ocurrir por azar.",
+        "Los participantes debieron elegir sus grupos.",
+        "El sorteo asegura igual edad en ambos grupos.",
+        "El ensayo quedó automáticamente invalidado."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Dar a cada participante la misma oportunidad de asignación no garantiza edades iguales en ambos grupos.",
+        "La diferencia de edad no prueba que los participantes hayan elegido su rutina.",
+        "La asignación por sorteo no garantiza una distribución idéntica de edades.",
+        "El equipo puede considerar la diferencia de edad al interpretar los resultados del ensayo."
+      ]
+    },
+    {
+      "id": "repaso-45",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Entre quienes dieron negativo en una prueba de anemia, ¿qué medida indica la proporción que realmente estaba libre de anemia según el examen de referencia?",
+      "opciones": [
+        "Valor predictivo positivo.",
+        "Valor predictivo negativo.",
+        "Sensibilidad.",
+        "Especificidad."
+      ],
+      "correcta": 1,
+      "retro": [
+        "El valor predictivo positivo se calcula entre quienes dieron positivo.",
+        "Se dividen los negativos verdaderos por todos los resultados negativos, incluidos los falsos.",
+        "La sensibilidad toma como grupo de referencia a quienes realmente tienen la condición.",
+        "La especificidad se calcula entre quienes realmente están libres de la condición."
+      ]
+    },
+    {
+      "id": "repaso-46",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Un equipo sigue a personas desde su primer episodio de lumbago y registra cuándo vuelve el dolor. ¿Qué busca describir?",
+      "opciones": [
+        "El curso del problema a lo largo del tiempo.",
+        "El beneficio de un tratamiento para el lumbago.",
+        "La precisión de una prueba para detectar lumbago.",
+        "La distribución geográfica de los primeros episodios."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Registrar nuevos episodios muestra si las recaídas se concentran poco después del primero o si aparecen más tarde.",
+        "Evaluar un tratamiento exigiría registrar cuál recibió cada persona.",
+        "Evaluar una prueba requiere comparar sus resultados con una referencia.",
+        "Estudiar la distribución geográfica requiere saber dónde ocurren los episodios."
+      ]
+    },
+    {
+      "id": "repaso-47",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Las consultas por alergia suelen subir cada primavera. ¿Con qué datos del mismo centro conviene comparar esta semana para saber si el aumento es inusual?",
+      "opciones": [
+        "Con el promedio de todo el año pasado.",
+        "Con la semana de menor demanda del último invierno.",
+        "Con la misma semana de primaveras anteriores.",
+        "Con la semana de mayor demanda registrada hasta hoy."
+      ],
+      "correcta": 2,
+      "retro": [
+        "El promedio anual mezcla semanas con niveles de consulta habitualmente distintos.",
+        "Una semana de baja demanda en invierno representa otra estación.",
+        "Comparar el mismo período en varios años toma en cuenta el aumento que suele ocurrir en primavera.",
+        "Un máximo aislado puede ser excepcional y no representa lo esperado para esta semana."
+      ]
+    },
+    {
+      "id": "repaso-48",
+      "tipo": "alt",
+      "tema": "Método",
+      "multi": false,
+      "texto": "Un equipo formuló una pregunta sobre mochilas y dolor de espalda en escolares. Antes de proponer una hipótesis, ¿qué tarea ayudaría a fundamentarla?",
+      "opciones": [
+        "Seleccionar los cursos que responderán la encuesta.",
+        "Comparar los resultados de varios artículos científicos.",
+        "Ensayar el cuestionario con un grupo pequeño.",
+        "Clasificar las respuestas según el curso de procedencia."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Seleccionar participantes define quiénes responderán la encuesta.",
+        "Los resultados de otros equipos permiten proponer una explicación respaldada por evidencia y reconocer qué dudas siguen abiertas.",
+        "Probar las preguntas permite evaluar si los escolares las entienden.",
+        "Clasificar las respuestas requiere haber recogido datos de la encuesta."
+      ]
+    },
+    {
+      "id": "repaso-49",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un equipo quiere registrar la dificultad que siente cada persona al tragar durante el almuerzo. ¿Qué dato recoge esa experiencia de forma directa?",
+      "opciones": [
+        "La consistencia anotada por quien prepara el menú.",
+        "Las consultas anotadas en su ficha de nutrición.",
+        "La duración del almuerzo registrada por el personal.",
+        "Su propia puntuación en una escala de dificultad."
+      ],
+      "correcta": 3,
+      "retro": [
+        "La consistencia caracteriza la comida ofrecida.",
+        "Las consultas indican uso del servicio y no describen necesariamente lo que ocurre al comer.",
+        "Un almuerzo prolongado puede tener varias explicaciones.",
+        "Solo la persona puede indicar cuánta dificultad percibe, incluso si termina toda la comida."
+      ]
+    },
+    {
+      "id": "repaso-50",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "Una tabla cruza vómitos y mareos, ambos registrados como sí o no. El equipo descarta chi cuadrado por frecuencias esperadas muy bajas. ¿Qué prueba puede usar?",
+      "opciones": [
+        "Correlación de Spearman.",
+        "ANOVA.",
+        "t de Student.",
+        "Prueba exacta de Fisher."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Spearman se usa para evaluar asociaciones mediante rangos.",
+        "ANOVA compara medias de una variable cuantitativa.",
+        "La t de Student responde preguntas sobre medias.",
+        "Fisher calcula probabilidades exactas para los recuentos sin exigir un número grande de casos en cada casilla."
+      ]
+    },
+    {
+      "id": "repaso-51",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Dos estudios obtienen p = 0,03. Con tapones para dormir, el sueño aumentó 5 minutos en uno y 40 en el otro. ¿Qué muestran estos resultados?",
+      "opciones": [
+        "El segundo estudio tiene un valor p menor.",
+        "Cambios distintos pueden dar el mismo valor p.",
+        "El primer estudio reunió a más personas.",
+        "Ambos estudios observaron la misma mejoría del sueño."
+      ],
+      "correcta": 1,
+      "retro": [
+        "El valor p informado es igual en ambos estudios.",
+        "Los minutos miden el cambio, mientras que el valor p también depende del tamaño y la variabilidad de la muestra.",
+        "Los resultados presentados no indican cuántas personas participaron.",
+        "El aumento observado fue distinto en los dos estudios."
+      ]
+    },
+    {
+      "id": "repaso-52",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Una comuna creció mucho. Para comparar su tasa bruta de mortalidad con la del año anterior, ¿qué dato se necesita además de las defunciones de cada año?",
+      "opciones": [
+        "La edad media de quienes fallecieron.",
+        "El número de consultas de urgencia de cada año.",
+        "La población media de la comuna en cada año.",
+        "La causa de muerte más frecuente de cada año."
+      ],
+      "correcta": 2,
+      "retro": [
+        "La edad de quienes fallecieron no da el denominador de la tasa bruta.",
+        "Las consultas representan atenciones y una persona puede generar varias.",
+        "La tasa bruta anual relaciona todas las defunciones con la población media del mismo año.",
+        "La tasa bruta incluye todas las causas."
+      ]
+    },
+    {
+      "id": "repaso-53",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un equipo seleccionó casos de irritación de manos y controles sin irritación. ¿Qué medida de asociación conviene para comparar el antecedente de uso de guantes?",
+      "opciones": [
+        "Odds ratio (OR).",
+        "Riesgo relativo (RR).",
+        "Diferencia de riesgos.",
+        "Razón de prevalencias."
+      ],
+      "correcta": 0,
+      "retro": [
+        "El OR compara, entre casos y controles, la relación entre expuestos y no expuestos.",
+        "La selección por desenlace impide estimar directamente los riesgos en expuestos y no expuestos.",
+        "La diferencia de riesgos necesita conocer los riesgos en los grupos de exposición.",
+        "El número de casos y controles seleccionados no permite estimar las prevalencias de irritación en cada grupo."
+      ]
+    },
+    {
+      "id": "repaso-54",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "Se sospecha que un ruido intenso provocó el inicio de zumbidos en el oído. Según el criterio de secuencia temporal, ¿qué hallazgo descartaría esa explicación?",
+      "opciones": [
+        "Los zumbidos duraron solo unos minutos.",
+        "Los zumbidos aparecieron después del ruido.",
+        "Otras personas expuestas al ruido no tuvieron zumbidos.",
+        "Los zumbidos ya estaban presentes antes del ruido."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Un episodio breve también puede aparecer después de una exposición.",
+        "Que aparezcan después es compatible con la secuencia propuesta.",
+        "La misma exposición puede afectar de manera diferente a distintas personas.",
+        "Para explicar el inicio de los zumbidos, el ruido tendría que haber ocurrido primero."
+      ]
+    },
+    {
+      "id": "repaso-55",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Se agrupa a repartidores según su turno en 2019 y se revisan sus accidentes registrados hasta 2022. El análisis comienza en 2024. ¿Qué diseño se reconstruye?",
+      "opciones": [
+        "Una cohorte retrospectiva.",
+        "Un estudio transversal.",
+        "Un estudio de casos y controles.",
+        "Un ensayo aleatorizado."
+      ],
+      "correcta": 0,
+      "retro": [
+        "Los registros permiten seguir en el pasado a grupos definidos por su turno inicial.",
+        "El turno se registró antes de los accidentes y hay varios años de seguimiento.",
+        "Los repartidores se agruparon por turno, mientras que en casos y controles se selecciona por desenlace.",
+        "El equipo revisó turnos ya existentes y no asignó las condiciones laborales."
+      ]
+    },
+    {
+      "id": "repaso-56",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Una ficha codifica la mano dominante con 1 para derecha, 2 para izquierda y 3 para ambas. ¿Qué resumen conserva el sentido de esos datos?",
+      "opciones": [
+        "El promedio de los códigos.",
+        "El porcentaje de personas en cada categoría.",
+        "La diferencia entre el código mayor y el menor.",
+        "La suma de los códigos del grupo."
+      ],
+      "correcta": 1,
+      "retro": [
+        "Promediar estas etiquetas no describe qué mano predomina.",
+        "La mano dominante es cualitativa nominal y los porcentajes describen la frecuencia de cada categoría.",
+        "La distancia entre dos códigos no mide una diferencia de habilidad.",
+        "Sumar etiquetas mezcla categorías distintas en un número sin interpretación."
+      ]
+    },
+    {
+      "id": "repaso-57",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una encuesta comparó hoy la miopía en dos cursos. ¿Qué medida indica cuántas veces más frecuente es en un curso que en el otro?",
+      "opciones": [
+        "Incidencia acumulada.",
+        "Razón de prevalencias.",
+        "Riesgo atribuible.",
+        "Número necesario a tratar."
+      ],
+      "correcta": 1,
+      "retro": [
+        "La incidencia acumulada requiere observar la aparición de casos nuevos.",
+        "La razón de prevalencias compara por cociente las proporciones que tienen miopía en los dos grupos.",
+        "El riesgo atribuible expresa una diferencia de riesgos.",
+        "El número necesario a tratar expresa el beneficio absoluto de una intervención."
+      ]
+    },
+    {
+      "id": "repaso-58",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Se comparan personas con y sin migraña para investigar el trabajo nocturno. ¿Qué dato del año anterior conviene recoger en ambos grupos?",
+      "opciones": [
+        "La duración habitual de las crisis.",
+        "El número de turnos nocturnos trabajados.",
+        "El tratamiento indicado para la migraña.",
+        "Los días de reposo tras cada crisis."
+      ],
+      "correcta": 1,
+      "retro": [
+        "La duración de las crisis describe la migraña en quienes la presentan.",
+        "Los turnos previos permiten comparar la exposición al trabajo nocturno entre los casos y los controles.",
+        "El tratamiento informa sobre la atención recibida después de tener migraña.",
+        "El reposo describe una consecuencia de la migraña y no mide el trabajo nocturno previo."
+      ]
+    },
+    {
+      "id": "repaso-59",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En algunas salas se prueban señales para prevenir caídas. Solo esas salas instalan también barandas. ¿Por qué cuesta atribuir a las señales un descenso de caídas?",
+      "opciones": [
+        "Las salas registraron el mismo desenlace.",
+        "Las caídas se contaron después del cambio.",
+        "Esas salas recibieron dos cambios a la vez.",
+        "Se usó el mismo plazo en las salas."
+      ],
+      "correcta": 2,
+      "retro": [
+        "Usar el mismo desenlace en las salas facilita la comparación.",
+        "Observar las caídas después del cambio permite evaluar lo que ocurrió durante la intervención.",
+        "Las barandas también podrían explicar un descenso de las caídas en esas salas.",
+        "Un plazo común permite comparar las caídas observadas bajo condiciones de seguimiento similares."
+      ]
+    },
+    {
+      "id": "repaso-60",
+      "tipo": "alt",
+      "tema": "Pruebas diagnósticas",
+      "multi": false,
+      "texto": "Dos pruebas detectan la misma proporción de enfermos. La segunda tiene mayor especificidad. ¿Qué se espera si ambas se aplican a las mismas personas sanas?",
+      "opciones": [
+        "Más falsos negativos con la segunda.",
+        "Menos verdaderos positivos con la segunda.",
+        "Más falsos positivos con la segunda.",
+        "Menos falsos positivos con la segunda."
+      ],
+      "correcta": 3,
+      "retro": [
+        "Los falsos negativos corresponden a personas enfermas que obtienen un resultado negativo.",
+        "Los verdaderos positivos se cuentan entre las personas enfermas.",
+        "Una mayor especificidad implica que menos personas sanas obtendrán un resultado positivo.",
+        "Con mayor especificidad, una proporción mayor de las personas sanas obtiene un resultado negativo."
+      ]
+    }
+  ]
+}
