@@ -444,3 +444,9 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
        TDAH al inicio (sin descartarlos, la incidencia sale con aviso).
      - La escuela A tiene más prevalencia (40 % vs 26,7 %) pero menos
        incidencia (18,2 % vs 21,4 %; 1,8 vs 2,8 por 100 persona-meses).
+
+[68] 2026-11-24 · agonzalezs4
+     tdah_prevalencia_incidencia.html rehecha con el estilo USS de fisher-te
+     - La incidencia (acumulada y tasa) descarta siempre los casos previos.
+     - Sin d3: SVG propio. Logo en lib/marca-uss.png.
+     - fisher-te/: index.html e index.qmd de la presentación del valor p.

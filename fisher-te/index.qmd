@@ -1,0 +1,1011 @@
+---
+pagetitle: "¿Coca-Cola o Pepsi? El valor p · Epidemiología USS"
+lang: es
+format:
+  revealjs:
+    theme: serif
+    # Los estilos USS viven en este archivo. El reset de Reveal evita incrustar fuentes sin usar.
+    variables:
+      theme: ../reset
+    keyboard: false
+    include-before-body:
+      text: |
+        <header class="barra">
+          <img id="marca" alt="Universidad San Sebastián" width="128" height="40">
+          <span class="curso">Epidemiología</span><button type="button" id="abrir-notas" aria-label="Abrir guion docente de esta diapositiva">Guion</button><span id="posicion">1 / 3</span>
+        </header>
+        <dialog id="notas-docente" aria-labelledby="titulo-notas">
+          <form method="dialog"><h2 id="titulo-notas">Guion docente</h2><button type="submit">Cerrar</button></form>
+          <div id="texto-notas"></div>
+        </dialog>
+        <nav class="pie" id="pie" aria-label="Navegación de las diapositivas">
+          <div class="pasos"><button type="button" data-ir="0" aria-current="step">La cata</button>
+            <button type="button" data-ir="1">Tu valor p</button><button type="button" data-ir="2">El titular</button></div>
+          <div class="viaje">
+            <button type="button" id="anterior" aria-label="Diapositiva anterior" disabled>←</button>
+            <button type="button" id="siguiente" aria-label="Diapositiva siguiente"><span id="destino">Resultado</span> →</button></div>
+        </nav>
+    embed-resources: true
+    html-math-method: mathml
+    slide-level: 2
+    controls: false
+    progress: false
+    slide-number: false
+    menu: false
+    chalkboard: false
+    center: false
+    transition: none
+    navigation-mode: linear
+    touch: false
+    overview: false
+    hash: true
+    view: slide
+    disable-layout: true
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+# Este archivo contiene la presentación entera. Con Quarto, R, knitr, rmarkdown
+# y jsonlite instalados, usa Render o ejecuta: quarto render index.qmd
+# El resultado es index.html. Para GitHub Pages basta con publicar ese HTML.
+# Cada lámina incluye notas para quien presenta. En el HTML las abre «Guion».
+# Primero vienen los cálculos en R, las tres pantallas principales y el laboratorio opcional. Al final están el
+# estilo, los controles y las dos imágenes codificadas para no depender de rutas.
+
+# El HTML guarda los resultados de R. Solo se necesita R al editar y volver
+# a renderizar la presentación. Todo el material del alumno funciona sin red.
+
+# k es el número de vasos de Coca-Cola identificados correctamente.
+# Al elegir exactamente 4 de 8, k aciertos en esa fila implican k en la otra.
+k <- 0:4
+tabla_cata <- function(k) matrix(c(k, 4-k, 4-k, k), nrow = 2, byrow = TRUE)
+formas <- choose(4, k) * choose(4, 4-k)
+fisher <- data.frame(
+  k = k, aciertos = 2*k, formas = formas,
+  cola = rev(cumsum(rev(formas))),
+  p = vapply(k, function(i) {
+    # La pregunta, fijada antes de probar, es si acierta MÁS que al adivinar.
+    fisher.test(tabla_cata(i), alternative = "greater")$p.value
+  }, numeric(1))
+)
+stopifnot(sum(formas) == choose(8, 4),
+          isTRUE(all.equal(fisher$p, fisher$cola / 70)))
+
+# Caso clínico ficticio. Cada paciente recibe un solo tratamiento y se registra
+# una sola vez si tuvo una reacción. Las filas son A/B y las columnas sí/no.
+escenarios <- list(
+  "8 pacientes" = rbind(c(3, 1), c(1, 3)),
+  "40 pacientes" = rbind(c(15, 5), c(5, 15)),
+  "40 iguales" = rbind(c(10, 10), c(10, 10)),
+  "40 leve" = rbind(c(12, 8), c(8, 12))
+)
+ejemplos <- lapply(names(escenarios), function(nombre) {
+  tabla <- escenarios[[nombre]]
+  # La prueba de Pearson también nos da los esperados. El aviso de muestra
+  # pequeña se resuelve abajo en la página usando Fisher si algún esperado < 5.
+  pearson <- suppressWarnings(chisq.test(tabla, correct = FALSE))
+  exacta <- fisher.test(tabla, alternative = "two.sided")
+  list(nombre = nombre, tabla = tabla,
+       resultado = list(x2 = unname(pearson$statistic), pChi = pearson$p.value,
+                        minEsperado = min(pearson$expected), pBilateral = exacta$p.value))
+})
+# Aun con una brecha de 50 puntos en ambos estudios, la evidencia cambia.
+stopifnot(isTRUE(all.equal(ejemplos[[1]]$resultado$pBilateral, 34/70)),
+          isTRUE(all.equal(ejemplos[[2]]$resultado$x2, 10)),
+          ejemplos[[3]]$resultado$pChi == 1)
+
+# qchisq da el límite que deja alfa a su derecha. dchisq da la altura
+# de la curva. Muestreamos con mayor detalle cerca de cero, donde sube mucho.
+alfa <- c(0.01, 0.05, 0.10)
+x <- exp(seq(log(0.001), log(205), length.out = 800))
+datos <- list(fisher = fisher, ejemplos = ejemplos,
+              cortes = data.frame(alfa, critico = qchisq(1-alfa, df = 1)),
+              curva = data.frame(x, y = dchisq(x, df = 1)))
+```
+
+## {#historia aria-label="La cata a ciegas"}
+
+```{=html}
+<div class="pagina inicio">
+  <div class="historia">
+    <p class="ceja">La cata a ciegas</p>
+    <h1 tabindex="-1">¿Coca-Cola<br>o <em>Pepsi?</em></h1>
+    <p class="bajada">Muriel Bristol decía distinguir qué se servía primero, el té o la leche. Fisher la puso a prueba.</p>
+    <p class="credito"><a href="https://www.bbc.com/mundo/articles/cpq0lv5p5vqo" target="_blank" rel="noopener" title="Cómo una taza de té mal servida transformó la estadística y abrió el camino a la ciencia de los datos. Dalia Ventura, 21 de noviembre de 2026.">La historia en BBC News Mundo ↗</a></p>
+    <img id="foto" alt="Taza de té con leche, una recreación de la historia de Muriel." width="100" height="100">
+  </div>
+  <div class="bandeja-panel">
+    <p class="preparacion">Hay 4 vasos de cada marca.</p>
+    <div class="orden"><h2>Toca los cuatro de <em>Coca-Cola.</em></h2><strong id="cuenta">0/4</strong></div>
+    <div id="bandeja" role="group" aria-label="Elige cuatro de los ocho vasos"></div>
+    <p id="ayuda-cata" class="ayuda-cata" aria-live="polite">Al cuarto toque verás cuánto achuntaste.</p>
+    <details id="apostar"><summary>Hacer una apuesta antes de jugar</summary>
+      <p class="ayuda-cata">¿Cuántos aciertos te convencerían?</p>
+      <div class="segmentos" id="apuestas" role="group" aria-label="Mínimo de aciertos"></div>
+    </details>
+    <button id="remezclar" class="enlace claro" type="button" hidden>Mezclar de nuevo</button>
+  </div>
+</div>
+```
+
+::: {.notes}
+
+**Minutos 0–5 · La apuesta.** «Tu compañero dice que reconoce la Coca-Cola y la Pepsi. De ocho vasos, ¿cuántos tendría que acertar para convencerte?» Para hacer la apuesta con el curso, abre «Hacer una apuesta antes de jugar» y pide elegir **4, 6, 7 u 8** antes de tocar los vasos. En un recorrido rápido, basta con marcar directamente los cuatro vasos. Dedica unos 45 segundos a la historia de Muriel y pasa a la apuesta. Guarda el porqué del 7 para la revelación. Di: «Antes de mirar los datos, fijamos qué tan difícil tiene que ser achuntarle por suerte». Más adelante llamaremos α al máximo riesgo de convencernos por azar que estamos dispuestos a aceptar.
+
+**Si llevas Coca-Cola y Pepsi a clases**
+
+1. Numera ocho vasos iguales. Mezcla cuatro tarjetas de cada marca y sirve los vasos en ese orden, con igual cantidad y temperatura. Anota la clave fuera de la vista del curso.
+2. Pide a una persona que pruebe los vasos y entregue cuatro números como Coca-Cola. Los otros cuatro quedan como Pepsi.
+3. Revela la clave y cuenta los aciertos entre los ocho vasos. En la siguiente lámina, abre «¿De dónde salen las 70?» y toca la barra del puntaje real. Si usan solo los celulares, cada estudiante juega a adivinar.
+
+**El origen, en dos frases.** En Rothamsted, Muriel Bristol sostenía que reconocía si habían echado primero la leche o el té. William Roach propuso ponerla a prueba y Ronald Fisher describió el diseño en 1935. Los relatos difieren sobre el puntaje de Bristol. Las bebidas son nuestra adaptación. [Dalia Ventura, «Cómo una taza de té mal servida transformó la estadística y abrió el camino a la ciencia de los datos», BBC News Mundo, 21 de noviembre de 2026](https://www.bbc.com/mundo/articles/cpq0lv5p5vqo) · [R. A. Fisher, *The Design of Experiments*, cap. II, §§5–7, edición de 1937](https://gwern.net/doc/statistics/decision/1937-fisher-thedesignofexperiments.pdf)
+
+:::
+
+## {#valor-p aria-label="Tu valor p"}
+
+```{=html}
+<div class="pagina etapa">
+  <div class="titulo"><p class="ceja">Tu resultado</p><h2 id="puntaje" tabindex="-1">¿Y si achuntas 6 de 8?</h2></div>
+  <div class="par resultado">
+    <div class="lamina">
+      <p class="si-azar">Si eliges al azar…</p>
+      <div class="p-grande" id="frecuencia"></div>
+      <p id="fisher-frase" aria-live="polite" class="lectura"></p>
+      <div id="mapa" aria-hidden="true"></div>
+      <p id="fisher-p" class="valor-simple"></p>
+    </div>
+    <div class="opciones">
+      <h3>Compara los aciertos</h3>
+      <div id="grupo-aciertos" class="segmentos" role="group" aria-label="Compara el mínimo de aciertos que exigirías"></div>
+      <p id="resultado-apuesta" class="nota"></p>
+      <details id="detalle-fisher"><summary>¿De dónde salen las 70?</summary>
+        <p class="nota">Hay 70 maneras de elegir cuatro de los ocho vasos. Cada punto representa una elección. Las barras azules suman las que salen igual de bien o mejor.</p>
+        <figure class="frecuencias" aria-labelledby="titulo-barras"><figcaption id="titulo-barras">Aciertos y frecuencia entre 70 elecciones</figcaption><div id="barras" role="list"></div></figure>
+        <p id="suma-fisher" class="pie-figura"></p>
+        <table><caption>Marca real y respuesta</caption>
+        <thead><tr><th scope="col">Marca real</th><th scope="col">Dijo Coca-Cola</th><th scope="col">Dijo Pepsi</th></tr></thead>
+        <tbody><tr><th scope="row">Coca-Cola</th><td id="f00"></td><td id="f01"></td></tr><tr><th scope="row">Pepsi</th><td id="f10"></td><td id="f11"></td></tr></tbody></table>
+        <p id="detalle-ronda" class="nota"></p>
+      </details>
+      <button type="button" class="enlace abrir-lab">Probar con pacientes</button>
+    </div>
+  </div>
+</div>
+```
+
+::: {.notes}
+
+**Minutos 5–15 · Construyan las cinco barras.** Cada punto azul es una elección que logra el puntaje indicado o uno mayor. Para trabajar las barras, abre «¿De dónde salen las 70?». «Si te equivocas en uno que marcaste como Coca-Cola, ¿qué pasó con la Coca-Cola que quedó entre los marcados como Pepsi?» Cada intercambio deja **dos** etiquetas equivocadas. Así se resuelve la apuesta de siete. Los puntajes posibles son 0, 2, 4, 6 y 8.
+
+Con cuatro vasos de cada marca y la instrucción de elegir cuatro como Coca-Cola, hay 70 selecciones posibles. Si se adivina con la clave al azar, esas selecciones son igual de probables. Las alturas para los cinco puntajes son **1, 16, 36, 16 y 1**. Cada unidad representa una selección completa de cuatro vasos. Pide al curso que compruebe que las cinco barras suman 70.
+
+Elige **6 aciertos**. Hay 16 formas de acertar seis y una de acertar ocho. Por eso, al preguntar desde el principio si alguien acierta **mejor** que al adivinar, el valor p suma 17 de 70 (24,3 %). Con ocho aciertos queda 1 de 70 (1,43 %). Pide a alguien señalar con el dedo qué barras cambian de color. [Ejemplo oficial de la cata de Fisher en R](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/fisher.test.html)
+
+**Para decir en voz alta.** «El valor p mide qué tan raro sería obtener tu resultado o uno mejor si estuvieras puro adivinando». En este juego, un par correcto equivale a una Coca-Cola y una Pepsi bien clasificadas. Pide probar 6, 7 y 8: al pasar de 6 a 7 baja la probabilidad; entre 7 y 8 se mantiene, porque no existe un resultado de siete.
+
+**Minutos 15–18 · Que lo cuenten con sus palabras.** En parejas, da 20 segundos para completar «Si la persona estuviera adivinando, entonces…». Para ocho aciertos, busca esta idea: «Solo una de las 70 selecciones posibles le daría ocho aciertos». Si alguien interpreta 1,4 % como la probabilidad de que la persona esté adivinando, o 98,6 % como la probabilidad de que distinga las marcas, pídele volver al **si** de la primera frase. El valor p describe los datos bajo ese supuesto.
+
+Vuelve a la apuesta. «Si hubiéramos acordado antes un umbral de 5 %, ¿qué puntaje lo cruza?» Solo 8 de 8. Pregunta si alguien podría adivinar y acertar igual: queda precisamente una selección capaz de hacerlo. Para continuar la clase de 28 minutos, pulsa «Probar con pacientes» (18–25). El recorrido corto pasa directamente al titular. [American Statistical Association, principios sobre el valor p, 2016](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf)
+
+:::
+
+## {#veredicto aria-label="La votación sobre el titular"}
+
+```{=html}
+<div class="pagina etapa final">
+  <div class="titulo"><p class="ceja">Titular ficticio</p>
+    <h2 tabindex="-1">«Las energéticas mejoran la memoria un <em>98 %</em>»</h2>
+    <p class="bajada">El estudio solo informa p = 0,02. ¿Publicarías ese titular?</p></div>
+  <div id="pregunta" role="group" aria-label="Vota de forma anónima en este dispositivo">
+    <button type="button" data-respuesta="si">Sí, lo publicaría</button>
+    <button type="button" data-respuesta="correcta">Pediría más datos</button>
+  </div>
+  <p id="quiz-texto" role="status"></p>
+  <div class="salidas"><button type="button" class="enlace volver-jugar">↻ Volver a jugar</button>
+  <button type="button" class="enlace abrir-lab">Probar con pacientes</button></div>
+</div>
+```
+
+::: {.notes}
+
+**Minutos 25–28 · Vota sobre el titular.** Lee el titular ficticio sobre bebidas energéticas, memoria y una mejora de 98 %. Da diez segundos para que cada estudiante elija en su dispositivo. El voto es anónimo y local. Cada persona recibe su devolución al tocar la alternativa. Para conversar como curso, invita a compartir dos razones en voz alta.
+
+Pregunta «Con solo p = 0,02, ¿qué datos le pedirías al periodista para saber cuánto cambió la memoria?». Busca el puntaje o cambio en cada grupo, sus unidades, el número de participantes y la incertidumbre de la diferencia. Bajo la hipótesis de ausencia de diferencia y los supuestos de esa prueba, p = 0,02 corresponde a un 2 % de probabilidad de observar un resultado tan extremo o más. La resta 100 − 2 carece de información sobre cuánto cambió la memoria. Pide que alguien reescriba el titular con lo que efectivamente se sabe. [American Statistical Association, principios 2 y 5](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf)
+
+:::
+
+## {#chi-cuadrado aria-label="Del juego a una tabla clínica"}
+
+```{=html}
+<div class="pagina etapa">
+  <button type="button" id="volver-lab" class="enlace">← Volver a la actividad</button>
+  <div class="titulo"><p class="ceja">Caso opcional · Salud</p>
+    <h2 tabindex="-1">¿Qué grupo tuvo más reacciones?</h2>
+    <p class="bajada">Cada paciente recibió A o B por sorteo. Contamos quién tuvo una reacción adversa.</p>
+  </div>
+  <div id="escenarios" class="segmentos" role="group" aria-label="Escenarios de pacientes"></div>
+  <div class="par lab">
+    <div class="lamina curva">
+      <div class="cifras"><div><span>Grupo A</span><b id="riesgo-a"></b></div><div><span>Grupo B</span><b id="riesgo-b"></b></div><div><span>Valor p</span><b id="chi-p"></b></div></div>
+      <p id="brecha-riesgo" class="lectura"></p>
+      <div id="panel-pearson" hidden>
+        <svg id="curva" viewBox="0 0 360 165" role="img" aria-label="Distribución chi-cuadrado con un grado de libertad"></svg>
+        <div class="leyenda"><span><i class="obs"></i>Observado <b id="chi-x"></b></span><span><i class="crit"></i>Crítico <b id="chi-crit"></b></span><span><i class="area"></i>Área = p</span></div>
+      </div>
+      <p id="chi-frase" class="nota" aria-live="polite"></p>
+    </div>
+    <div class="opciones">
+      <div id="ajuste-alfa" hidden>
+        <label class="umbral" for="alfa"><span>Umbral α</span>
+          <select id="alfa"><option value="0.01">1 %</option><option selected value="0.05">5 %</option><option value="0.10">10 %</option></select></label>
+        <p class="nota">El crítico deja α a su derecha. El observado deja el valor p.</p>
+      </div>
+      <details id="editar"><summary>Editar la tabla 2 × 2</summary>
+        <table><caption>Una fila por tratamiento</caption>
+          <thead><tr><th scope="col">Grupo</th><th scope="col">Con reacción</th><th scope="col">Sin reacción</th></tr></thead>
+          <tbody><tr><th scope="row">A</th><td><input type="number" inputmode="numeric" min="0" max="200" step="1" aria-label="Grupo A, con reacción"></td><td><input type="number" inputmode="numeric" min="0" max="200" step="1" aria-label="Grupo A, sin reacción"></td></tr>
+          <tr><th scope="row">B</th><td><input type="number" inputmode="numeric" min="0" max="200" step="1" aria-label="Grupo B, con reacción"></td><td><input type="number" inputmode="numeric" min="0" max="200" step="1" aria-label="Grupo B, sin reacción"></td></tr></tbody></table>
+        <p class="nota" id="total"></p>
+        <p class="nota">Un p de 0,049 y uno de 0,051 dan evidencias muy parecidas.</p>
+      </details>
+    </div>
+  </div>
+</div>
+```
+
+::: {.notes}
+
+**Minutos 18–25 · Cambia la pregunta.** El ejemplo de reacciones adversas en los esquemas A y B es ficticio. Cada persona aparece una sola vez. Pregunta «¿Hay alguna diferencia, sea a favor de A o de B?». Muestra el caso de ocho personas. Reaccionaron **3 de 4** con A y **1 de 4** con B. El curso puede calcular 75 % menos 25 %: **50 puntos porcentuales** de diferencia observada. Con cuatro personas por grupo queda mucha incertidumbre.
+
+Para elegir el test, calculen una celda **esperada** bajo independencia: total de su fila por total de su columna, dividido por el total general. Aquí da 4 × 4 / 8 = 2 en cada celda. Regla práctica para esta tabla 2 × 2 de personas independientes: si algún esperado es menor que 5, usa Fisher exacto. Si los cuatro son al menos 5, se puede usar la aproximación χ² de Pearson. En la cata buscamos más aciertos. En salud cuentan ambas direcciones y Fisher bilateral da **p ≈ 0,486** en este ejemplo. [CDC, *Field Epidemiology Manual*, «Testing and Interpreting Data in a Two-by-Two Table»](https://www.cdc.gov/field-epi-manual/php/chapters/analyze-interpret-data.html) · [Documentación de Fisher en R](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/fisher.test.html)
+
+Con los escenarios de mayor tamaño, pide señalar el χ² observado y la línea crítica para el α elegido. El valor p es el área a la derecha del **observado**. La línea **crítica** deja α a su derecha. Vuelvan a mirar los porcentajes de los dos grupos para juzgar cuánto difieren y conversen sobre cuánta precisión permiten esos tamaños de muestra. [American Statistical Association, principio 5](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf)
+
+**Antes de decidir.** Escribe p = 0,049 y p = 0,051. Con α = 0,05, la decisión cambia. Los dos valores representan grados de evidencia muy parecidos. Para juzgar si importa en clínica, pide la diferencia de riesgos, su intervalo de confianza y la gravedad de la reacción.
+
+:::
+
+```{r}
+#| results: asis
+# El alumno recibe los resultados de R dentro del HTML como datos JSON.
+cat('<script type="application/json" id="datos-r">',
+    jsonlite::toJSON(datos, auto_unbox = TRUE, digits = 15), '</script>\n', sep = '')
+```
+
+```{=html}
+<style>
+/* Diseño USS. La diapositiva puede crecer en vertical cuando se abre una tabla
+   o el teclado del teléfono. Los controles de navegación quedan al alcance. */
+:root {
+  --azul:#102b42; --tinta:#18394c; --gris:#475c69; --oro:#cfb47c;
+  --miel:#86632d; --papel:#faf8f1; --linea:#d2cfc2; --arena:#f0e9d9;
+  --sans:Montserrat,"Segoe UI",Arial,sans-serif; --serif:Georgia,"Times New Roman",serif;
+  --barra:62px; --pie:58px; --margen:clamp(18px,5vw,80px);
+}
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+html,body.reveal-viewport { background:var(--papel); color:var(--azul); margin:0; }
+body { -webkit-text-size-adjust:100%; }
+.reveal,.barra,.pie { font:normal 17px/1.45 var(--sans); color:var(--azul); }
+.reveal { position:absolute; inset:var(--barra) 0 var(--pie); height:auto; width:100%; }
+.reveal .backgrounds { display:none; }
+.reveal .slides { position:absolute; inset:0; width:100%!important; height:100%!important; margin:0; transform:none!important; text-align:left; }
+.reveal .slides > section { position:absolute; inset:0; width:100%; height:100%; min-height:0; padding:0; overflow:auto; overscroll-behavior:contain; touch-action:pan-y pinch-zoom; }
+.reveal .slides > section > h2:first-child { display:none; }
+.reveal :is(h1,h2,h3,p,figure,table,img) { margin:0; text-align:inherit; }
+.reveal :is(h1,h2,h3) { color:var(--azul); text-transform:none; text-shadow:none; letter-spacing:normal; }
+.reveal :is(h1,h2) { font:400 clamp(42px,5vw,80px)/1.02 var(--serif); letter-spacing:-.055em; }
+.reveal h1 em,.reveal .final em { color:var(--miel); }
+.reveal h3,.reveal caption { font:650 18px/1.3 var(--sans); }
+.reveal strong { font-weight:700; }
+.reveal .bajada { font-size:clamp(17px,1.45vw,22px); line-height:1.45; color:var(--gris); max-width:50ch; margin-top:12px; }
+button,select,input,summary { font:inherit; }
+button,select,summary { cursor:pointer; }
+button,summary { touch-action:manipulation; }
+button { color:var(--azul); }
+button:disabled { cursor:default; }
+:where(button,a,input,select,summary):focus-visible { outline:3px solid #28759e; outline-offset:2px; }
+.reveal :is(h1,h2)[tabindex="-1"]:focus { outline:none; }
+.barra,.pie { position:fixed; z-index:10; left:0; right:0; padding-inline:var(--margen); display:flex; align-items:center; }
+.barra { height:var(--barra); top:0; gap:15px; background:#fff; border-bottom:1px solid var(--linea); }
+.barra img { display:block; width:128px; height:auto; }
+.barra .curso { border-left:1px solid var(--linea); padding-left:15px; font-size:14px; font-weight:600; }
+#posicion { margin-left:auto; font:650 13px var(--sans); letter-spacing:.09em; }
+#abrir-notas { margin-left:auto; min-height:40px; padding:4px 8px; border:0; border-radius:4px; background:transparent; font-size:13px; text-decoration:underline; text-underline-offset:3px; }
+#posicion { margin-left:0; white-space:nowrap; flex-shrink:0; }
+#notas-docente { width:min(640px,94vw); max-height:84vh; padding:20px 24px; background:var(--papel); border:1px solid var(--linea); border-top:4px solid var(--oro); border-radius:8px; color:var(--azul); font:16px/1.5 var(--sans); }
+#notas-docente::backdrop { background:rgba(11,30,45,.68); }
+#notas-docente form { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+#texto-notas p { margin:14px 0; }
+#texto-notas strong { font-weight:700; }
+#texto-notas ol { list-style:decimal; margin:8px 0 16px; padding-left:24px; }
+#texto-notas li { margin-bottom:7px; }
+#notas-docente h2 { margin:0; font:normal 28px var(--serif); }
+#notas-docente button { min-height:44px; border:1px solid var(--linea); background:white; border-radius:4px; }
+#notas-docente a { color:#165671; }
+.pie { bottom:0; background:var(--azul); color:white; height:var(--pie); gap:16px; }
+.pie button { border:0; background:transparent; color:white; padding:0 7px; height:44px; }
+.pie button:disabled { opacity:.32; }
+.pie .pasos { display:flex; align-items:stretch; gap:clamp(12px,3vw,56px); height:100%; }
+.pasos button { height:100%; border-top:3px solid transparent; font-size:14px; }
+.pasos button[aria-current] { border-color:var(--oro); color:#f3dfac; }
+.pie .viaje { margin-left:auto; display:flex; gap:6px; align-items:center; }
+.viaje button { font-size:24px; width:44px; }
+#gesto { font-size:12px; color:#d8e2e7; display:none; }
+.pie :focus-visible, .bandeja-panel :focus-visible { outline-color:var(--oro); }
+.pagina { width:min(100%,1340px); min-height:100%; margin:auto; padding:clamp(24px,5vh,65px) var(--margen); }
+.inicio { display:grid; grid-template-columns:.93fr 1.07fr; gap:clamp(22px,5vw,85px); align-items:center; }
+.historia { position:relative; }
+.reveal .credito { margin-top:7px; font:13px/1.4 var(--sans); color:var(--gris); grid-column:1/-1; }
+.reveal .preparacion { color:#f0d9a5; font:650 14px/1.3 var(--sans); margin-bottom:9px; }
+#apostar .ayuda-cata { margin:15px 0 9px; }
+#apuestas button { background:#f7f0e2; color:var(--azul); border-color:var(--oro); }
+.historia h1 { font-size:clamp(55px,6.2vw,100px); }
+.reveal .ceja { font:700 12px/1.3 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--miel); margin-bottom:13px; }
+.reveal #foto { display:block; width:clamp(86px,10vh,116px); height:auto; aspect-ratio:1; border-radius:50%; margin-top:20px; max-height:none; }
+.bandeja-panel { color:white; background:var(--azul); border-radius:18px; border-bottom:5px solid var(--oro); padding:clamp(18px,3vw,40px); }
+.orden { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+.reveal .orden h2 { font:500 clamp(23px,2.2vw,34px)/1.12 var(--serif); color:white; letter-spacing:-.035em; }
+.orden h2 em { color:#efd59a; }
+#cuenta { color:#efdfb7; white-space:nowrap; font:500 23px var(--serif); font-variant-numeric:tabular-nums; }
+#bandeja { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:20px 0 12px; }
+.vaso-boton { min-width:0; min-height:clamp(70px,9vw,110px); background:transparent; color:white; border:2px solid transparent; border-radius:12px; display:grid; place-items:center; position:relative; padding:8px; }
+.vaso-boton[aria-pressed=true] { background:#28485d; border-color:#e0c68e; }
+@media(hover:hover) { .vaso-boton:enabled:hover,.pie button:enabled:hover { background:#25495e; } }
+.vaso { position:relative; width:clamp(39px,4.25vw,65px); aspect-ratio:.85; display:block; clip-path:polygon(0 0,100% 0,86% 100%,14% 100%); background:linear-gradient(110deg,#eaf3f1,#7d9ba1 65%,#e6f5f4); }
+.vaso b { position:absolute; inset:3px 3px 4px; display:grid; place-items:center; clip-path:polygon(0 0,100% 0,86% 100%,14% 100%); background:linear-gradient(#bad1d3 0 12%,#d7a96d 12% 17%,#7d4828 19%,#3e2114 78%); font:600 19px var(--serif); }
+.vaso-boton .check { position:absolute; right:2px; bottom:0; font-size:13px; color:#f5d681; }
+.reveal .ayuda-cata { font-size:14px; color:#e0e7e8; }
+.etapa { display:flex; flex-direction:column; justify-content:center; gap:20px; }
+.par { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(0,.85fr); gap:clamp(22px,5vw,72px); align-items:center; }
+.lamina { padding:clamp(18px,2.8vw,34px); background:var(--arena); border:1px solid #d9c9a7; border-top:3px solid var(--oro); border-radius:6px; }
+.p-grande { font:400 clamp(44px,5vw,75px)/1.15 var(--serif); letter-spacing:-.045em; }
+.frecuencias { margin-block:10px!important; }
+.frecuencias figcaption { font:650 14px/1.3 var(--sans); margin-bottom:4px; }
+.fila-barra { width:100%; display:grid; grid-template-columns:3ch 1fr 2ch 6ch; gap:9px; align-items:center; min-height:29px; padding:2px; background:transparent; border:0; text-align:left; font:600 14px var(--sans); font-variant-numeric:tabular-nums; }
+.fila-barra b,.fila-barra small { text-align:right; font-size:inherit; }
+.carril { width:100%; height:13px; background:#e4ddce; border-radius:2px; }
+.carril i { display:block; height:100%; min-width:1px; border-radius:2px; background:#929792; }
+.en-cola .carril i { background:var(--azul); }
+.reveal .lectura { font:600 clamp(16px,1.25vw,19px)/1.35 var(--sans); }
+.reveal .pie-figura,.reveal .nota { margin-top:8px; color:var(--gris); font-size:14px; line-height:1.38; }
+.segmentos { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.segmentos button,select,input { background:white; border:1px solid #9caab0; border-radius:5px; min-height:44px; }
+.segmentos button { font-weight:650; font-size:15px; padding:4px 14px; min-width:44px; }
+.segmentos button[aria-pressed=true] { background:var(--azul); color:white; border-color:var(--azul); }
+#grupo-aciertos { margin:10px 0 14px; }
+.reveal details { font-size:15px; border-block-start:1px solid var(--linea); }
+.reveal summary { min-height:44px; padding:12px 0; font-weight:650; }
+.reveal details[open] { padding-bottom:9px; }
+.reveal table { border-collapse:collapse; width:100%; font-size:15px; font-variant-numeric:tabular-nums; }
+.reveal table caption { text-align:left; margin:0 0 8px; font-size:14px; }
+.reveal table :is(td,th) { text-align:center; padding:7px 4px; vertical-align:middle; border:0; border-bottom:1px solid var(--linea); }
+.reveal table :is(td,th):first-child { text-align:left; }
+.reveal table thead th { font-size:13px; }
+.reveal table tbody tr:last-child > * { border-bottom:2px solid var(--azul); }
+.reveal table input { text-align:center; max-width:64px; width:100%; min-width:45px; font:600 16px var(--sans); color:var(--azul); }
+.enlace { background:transparent; border:0; min-height:44px; text-decoration:underline; text-underline-offset:4px; padding:6px 0; font-size:15px; }
+.claro { color:#f3dca6; }
+.curva { background:#fffefa; }
+.cifras { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+.cifras span { display:block; color:var(--gris); font-size:13px; font-weight:600; }
+.cifras b { font:400 clamp(23px,2.65vw,38px)/1.23 var(--serif); }
+#curva { width:100%; display:block; font-family:var(--sans); }
+.leyenda { display:flex; flex-wrap:wrap; gap:4px 12px; margin:0 0 10px; font-size:13px; }
+.leyenda span { display:inline-flex; align-items:center; gap:4px; }
+.leyenda i { width:13px; }
+.obs { border-top:3px solid #075683; }
+.crit { border-top:2px dashed #223c4a; }
+.area { height:8px; background:#dca849; }
+.umbral { display:flex; align-items:center; gap:12px; font-weight:650; }
+.umbral select { color:var(--azul); padding:4px 9px; font-size:16px; }
+#editar { margin-top:14px; }
+.final { max-width:900px; }
+#pregunta { display:grid; gap:8px; }
+#pregunta button { padding:12px 16px; display:flex; align-items:center; gap:13px; min-height:51px; background:white; border:1px solid var(--linea); border-radius:6px; text-align:left; font-size:16px; line-height:1.35; }
+#pregunta button b { color:var(--miel); }
+#pregunta button[aria-pressed=true] { border-color:var(--azul); background:#e6edf0; }
+#quiz-texto { font-weight:650; font-size:16px; }
+#quiz-texto:empty { display:none; }
+.fuentes p { font-size:14px; margin-bottom:6px; }
+.reveal a { color:#165671; text-decoration:underline; }
+.final .enlace { align-self:flex-start; }
+@media(max-width:720px) {
+  :root { --barra:51px; --pie:53px; --margen:clamp(13px,4.4vw,26px); }
+  .barra { gap:10px; }
+  .barra img { width:104px; }
+  .barra .curso { padding-left:10px; font-size:12px; }
+  #posicion { font-size:12px; }
+  .pagina { padding-block:17px 20px; }
+  .inicio,.par { display:grid; grid-template-columns:minmax(0,1fr); }
+  .inicio { align-content:center; gap:20px; }
+  .historia { display:grid; grid-template-columns:1fr clamp(65px,19vw,103px); align-items:center; gap:0 8px; }
+  .historia .ceja { grid-column:1/-1; }
+  .historia h1 { grid-column:1; grid-row:2; font-size:clamp(43px,11vw,64px); }
+  .reveal #foto { grid-column:2; grid-row:2; width:100%; margin:0; }
+  .historia .bajada { grid-column:1/-1; }
+  .reveal .ceja { font-size:10px; margin-bottom:7px; }
+  .reveal .bajada { margin-top:8px; font-size:16px; line-height:1.36; }
+  .reveal h2 { font-size:clamp(34px,8.5vw,48px); }
+  .bandeja-panel { padding:14px; border-radius:13px; }
+  .reveal .orden h2 { font-size:25px; }
+  #bandeja { margin:9px 0; gap:4px; }
+  .vaso-boton { min-height:clamp(59px,16vw,80px); padding:6px; }
+  .vaso { width:clamp(35px,10.4vw,56px); }
+  .vaso b { border-width:4px; }
+  .reveal .ayuda-cata { font-size:13px; }
+  .etapa { gap:14px; }
+  .par { gap:15px; }
+  .lamina { padding:14px; }
+  .p-grande { font-size:42px; }
+  .fila-barra { min-height:32px; }
+  #apuestas { display:flex; flex-wrap:wrap; }
+  .reveal h3 { font-size:16px; }
+  .reveal .lectura { font-size:16px; }
+  .reveal .pie-figura,.reveal .nota { font-size:13px; }
+  .reveal table input { max-width:60px; }
+  .segmentos button { font-size:14px; }
+  #grupo-aciertos { margin:6px 0; }
+  .cifras span { font-size:12px; }
+  .cifras b { font-size:26px; }
+  .leyenda { font-size:12px; }
+  .pie { gap:3px; }
+  .pie .pasos { gap:0; }
+  .pie .pasos button { width:clamp(26px,9vw,43px); padding:0; font-size:0; }
+  .pasos button::after { content:""; display:inline-block; width:8px; height:8px; border:1px solid #cad6dc; border-radius:50%; }
+  .pasos button[aria-current]::after { background:var(--oro); border-color:var(--oro); }
+  .pie .viaje { gap:1px; }
+  #gesto { display:block; }
+}
+@media(max-height:630px) {
+  .pagina { padding-block:12px; }
+  .etapa { justify-content:flex-start; }
+  .inicio { align-content:start; }
+  .reveal #foto { width:min(100%,65px); }
+}
+@supports(padding-bottom:env(safe-area-inset-bottom)) {
+  .pie { height:calc(var(--pie) + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); }
+  .reveal { bottom:calc(var(--pie) + env(safe-area-inset-bottom)); }
+}
+
+body { margin:0; }
+.reveal .slides > section > h2:first-child:empty {display:none;}
+.reveal a { color:#15546c; }
+#apostar { margin-top:5px; border-color:#456174; font-size:13px; color:#f0dfbb; }
+#apostar summary { min-height:38px; padding:8px 0; }
+#apostar .ayuda-cata { margin:2px 0 8px; }
+#apuestas button[aria-pressed=true] { background:var(--oro); color:var(--azul); }
+#mapa { display:grid; grid-template-columns:repeat(14,minmax(0,1fr)); gap:5px; max-width:380px; margin:15px 0; }
+#mapa i { aspect-ratio:1; border:1px solid #a39c87; border-radius:50%; background:#fffcf5; max-width:19px; }
+#mapa i.acierto { background:var(--azul); border-color:var(--azul); }
+.reveal .si-azar { font-size:15px; color:var(--gris); }
+.reveal .valor-simple { font:650 clamp(18px,2vw,26px)/1.35 var(--sans); }
+.resultado .p-grande { margin:3px 0; }
+.resultado .lectura { font-weight:500; }
+.reveal .nota:empty { display:none; }
+#volver-lab { align-self:flex-start; }
+#siguiente { width:auto; min-width:44px; display:flex; align-items:center; gap:8px; }
+#destino { font-size:14px; }
+#pregunta { display:flex; flex-wrap:wrap; gap:9px; }
+#pregunta button { font-weight:600; padding:12px 17px; }
+.salidas { display:flex; flex-wrap:wrap; gap:8px 21px; }
+@media(max-width:720px) {
+  .historia .bajada {font-size:15px;}
+  .inicio {gap:14px;}
+  #mapa {gap:4px; margin:12px 0;}
+  .reveal .etapa {gap:12px;}
+  #destino {font-size:12px;}
+  #apuestas button {font-size:13px; padding:4px 7px;}
+}
+@media(max-width:355px) {
+  .barra {gap:6px;}
+  .barra img {width:92px;}
+  .barra .curso {padding-left:6px;}
+  #abrir-notas {padding-inline:4px;}
+}
+
+</style>
+<script type="application/json" id="imagenes">
+{"marca":"data:image/png;base64,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","taza":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQUFBAYFBQUHBgYHCQ8KCQgICRMNDgsPFhMXFxYTFRUYGyMeGBohGhUVHikfISQlJygnGB0rLismLiMmJyb/2wBDAQYHBwkICRIKChImGRUZJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJib/wAARCADwAPADASIAAhEBAxEB/8QAHQAAAAcBAQEAAAAAAAAAAAAAAAECBAUGBwMICf/EAD8QAAEDAwIEBAQDBgYCAQUAAAECAwQABRESIQYxQVETImFxBxQygUKRoRUjUrHB0RYkM2Jy8EPhgkRTk6Lx/8QAGgEAAgMBAQAAAAAAAAAAAAAAAwQAAQIFBv/EAC0RAAICAQQBAwMDBAMAAAAAAAABAgMRBBIhMSITQVEFMmEUQpFxgbHRI6Hw/9oADAMBAAIRAxEAPwDHvCSdhzrkthSQNQyak3GdAyNz0rkoEtjUME0+KEO40D1x6GmbrXOp5bCVJzjB7mmDzKskVCEStOK5kDfNP3WdOaaOIOKoo4UW/Sl4xRHntVECyaSaXjNEQe1QgnJoqUBRY7VCBUMUdEAc1CAxSaUaLFQgWNqFH0osVRYYNFt0o8UVWUA0AcUMbUKogYwTSTSvaiIqECFCjxRGrIFQoH0os71RAvSiOBypRpJ3FQs0w4cIGdj1rg8wDsM4ptEl7gK29BUgFBaTjf0rZrsZKSUJ0q5U2ca5qH2qRfb1A7YJ7U0KCFEE5xUKwMHGe43pg+zzwKm1hCtxnNNHms507g1CEGts5rmUEcqlHGfvTRxsg8qooaYo8U4bYcedQy02px1xQShCElRUTyAA3J9KvXD/AMOpDriTd1rSvO8NggqT6LXuEn/aMnvig23QqWZBa6pWPETPQhSlJQlJUpRwlIGST6DrU+zwTxQ62l5doditrGUqlqSxkd8LIP6VsFqtEWzJKLay1AWfKp1hH73/APIcq/IinUmCll3ZPiLIypRGT+fOufPXv9qH4aFfuZkkP4eXh4jx5cCOkjP+qXjj2QD/ADqfi/DWEjAemypbnXQER0D89Sj+Qq4LltR5aIzxLSl8i5sk/en8CWzOjIeZWgJGQe+c9aXlqbmu+A0dNUnjBUGfhpZyMuokn0RN3/VuurnwusSmCUIuyHMbaZTSh+qBTS4cX3Fy8fKwJDbSEkpACNROTgbHr6VfInEFrj6YUu5trlDKVFSdOSP0rTd8EnllKNMnjBnEz4O3ZaFO2ucytI5NTMNqPspJKT+lVu4fDnjKCVa7MuQE7n5V1Dx/JJz07VpnEXEao0kuR1SMgAJCVaQMHJJGeu2Kj7VxtGlhUa8MofdK8o+aAT5PfHP1FNQnqNuexeddO7HRjDzTrDy2H2ltOoOFNuJKVJ9wdxXPrXp4W3hni1Co78DKmkBQS+kqGk7ApX9Q+x+1Z/xh8HZsZtcrh5xUlCdzFcV5v/grr7HBokdXHO2xYf8A0BnpXjdB5RkOaA0kUpxtba1IWgpUk4UlQwQexFJpzIpgMCkmgTR4/OrKCoGhviiNUQBpJ7ijIHOhUIEN6JQ2oztQqEyWCLI0nKjvUnFmEYwd6riVYp3GfCSMmtlotSXde+efICjcbQPLkb8zUXFlHGBzPOpAupcQE4wO3aoWNnkEbpT/APymygU7n71Iup1EjOTimricnAG9QgzWnUCUjlTu1cP3C7qV8q0EsoUEuPunDaD2z1PoMn0qY4W4fVdpC3X1OM2+Pjx3G8alE/S2jP41YPsASeVavYYkZnwS4ygIaGlthvZDKT0T3PUk7q5mudqtX6XjDsd0+m9Tyl0QnCHCkSysqejpLkxSSFzHRpWB1S2PwA9/qPccqsdvIi6sBKU4xjlinKltsuKQkAnlgchUDdbgzBKlPr3zyFcOdrm8tnarqUFiKHEgsoV5RrOeZNN59wS3GwlTTagD9SsAn1qk3visqWpuIo/Yb1Up94nyQdbmEp/MUNSyw/pPBbJ5bkTGlTLmXUpIWspOMEcgkdPeq9J4mRapK2bS4643rK3CrTpJJySBjbtzquOvyXFYQtayegNMgysKVlCck7gmn4Tk15dCs6MddlzXdm21C4xfDE+QCUuMsAeGNjhRKv1xmulhXEkruE2Slh2WggMRwrUWyPMFp9jVLU4rSUKGM9KOJMcgveOwrC8YOeRHaiwtkuGDnp12jXI7LqYEiM2hDC5rCl/OqwpIWRvpXnZJO3p2qnT7VPtTQdukdDK05VgLByMjBTjPYnP96jI/Fk5oIXlQ0KCkoICkjvsehp8riiRKjuhtQy55S2rUUAb8kk467dPSma9RtfItZp8rgt9k40uaI6xbWG3riFeDIcUr6W076gnl336YrTeEuLxMfatd4jiJJdSAypeNMjA3ORtk9AKyHhaCzIaS9AmJbltqGzmcrxvgn19RtWy/se1COq4ssMMPtt5RgAI15BBO3cAfeg23aefjHllwquhzIgfid8L4PEWu6WpSId15qyPI9/yxyPr+dec71arhZ5y4NyirjSG+aFjmO4PIj1FeuYN8MuVFiKaWp5Z85OxSAN1Hbv07YPWuXHXAtu4rtKoz6Q1KAKmXhzbV/Y9R96HXqJ0PbLlf4Ksojcsx4Z48oGn13tsu1XKRbp7KmZMZZbcQroRTE12oyUllHIaaeGA0VHzoYFWZEmiO9KPahyqyCCKKlkURFQseZo0kg0k0YOBVlD6M9pOM1KxpGTknAxVfScU7YfxgZqFosSHEqQQD5jXeJFclSW48dlTzrqwhCEDJUonYCm/DMCberk1AgN63nM5JOEoSOalHokDma121WyFw7bHlW8KXLkLMRFwUnzKOnLimx+FABAzzJV6UrqNQqlxyxqih2v8ABzjRI0BmNbYziXI0IFBWnk88f9Rz13Gkf7UjvUtEWkrQ0nZOcGosJQ3HCW9kp2G9Rl2vjNtj5WvCsZwBuT2rzds3y32ehpr6SH/EV4TBUtDenIJ1b8hWbXybMuChJfUWYp/008lOeoH9anZfE1uu2i63uOlaoydDMZJwlwj6QR2HXfc/c1WOIXnHojFxkO6nppV4aAN0oBwDgdOlJQnOUsNHVVEYR3Miy8XVFtnDaBzA6+5qPkOltxSVJ1ddqNmV4TqdGNCTlWRzPaltofuUtelnynfDYxj2roxg4vnoWlJSXD5ObdweZQVtaEdvJn+dcZD7+kKkL86twkACpV+I1Cjh1SApzk22TkZ/iNQvhOSZBbCtRUfMvvTEWsZAyTbwhut5az1UaBQo7qGKttu4eJjpcS2rUr6c8z61LRuD0nC5KgCeSTQf1kG8IP8ApWlmTKAyknPlJ9qWE+YaSdzyq6zLDGQrJfaZA+kBO9NhaIBODOUpXoABU9dMr0EM7bMkRVBQWUqzsobZrQbVxbLXAXEVpWpYA8x2P9veqK7a32l/u3W9J5FW2r78v1rvFalxFanGjg9QcikLPGW+PY1GpWR2S6NAskbiKGuXcos5LgisLGVknKiNlEZ3Vg4+wzWscDSHJEN3x7iqW8jCVoKSnQepwe5+1Y5w9c1OtCC66oMukAjPMZ3Sa3DhtqN46p7K9KXm0pcbHIEcj+W1dCGtWog1JYkcS7RS00+OjOvjzwK1drY7xHCY03GI3rc0j/XbHMH/AHJG/qBXmcJydt69+S2GpLCm1p1JI3HcEYP6E1gvDPAPB0vjNUi5pX4UTUh22BP7tx9K9IIPMpIGdPf0pvS6hVJxl17HP1GndjUo9+5k3CXw+4s4rQXrPaXFxQcGU8Q0z9lK5/bNWK4/Bbi+AyVuPWlSufhiZhXt5gK9aXVcCHDTmSiNEZbyUpUG0pAHL0A7bVlV34g4IcdWh2FDmufSl9TAWCMbK1KG/brWpa2zdwio6SvbyeXrtbJ9pmKh3GK5GfTvoWOY7g8iPUUyOa2XjGyWS8MuN2ktRn0DUhltzKCf+PT7Y+9Y662ptxTa0lK0KKSk9CDyrpUXK2ORC6p1PAnpRHGKLODQwaOAHY5UfWiB6Cj57DpVkAeYpaSRRBGCB1rROCLHEtlvb4gukduROkoUu2RHvpAT/wCZY677JH37UKyxQWQtcHN4JCwNq4d4VERaCm53xSPmdKtLrEX8IA5+Y5UR2xWhXpAjS4dtSB4duhtN9c+I4PEXnPukfaqUbbclXRU12O+vxi06UOEr1OkHOO23rttVx41KmeKLtlX/ANWcDOcDQjA/KuPqX0daiPOCKnS0RwpSyEpGwJ71lfEE1cqe4VLy22ohODkH1qz8dTi3CCUKwpR1Y771nkh1WeeTjf3rn7XJncoSS3MW8+XFgLUdAGAOworpMdkFsrOQ2nSkDoKaLJ2ORj1pDrhIwNxR4VrKZJ2Pa18hJOpKjyV2FWXgxagqQCgFI3JPrsB9yarMYKU8EgElXQVc+FopNvlaU5cKkKGOoHP+eftRLcJYFq2xhfWypfhg+f6R2Hc/lSbHbZTrgUxGLyUKxqx5c+pqfmWtT12ZjBISp9wJ1AfSDitIZbsloYQwtSGWWsJ2G5pC239iHK1te4qltjSGUBclYSoZISncClS1rC/ESsnPMCr0L3wmwlIDIfbOMuBJUd/ejvHD9smR0zIJShJ3Ck/T9xS8acLgt35fKM9xbpg/zDJSsc1DpTKfDiR2FOtHxwDzG23rSuI4b0FR8c6HE5KsHykd6r7F1UpWgtkJO2/UVnY+0NQeSRanQgvwwFEHYj6gftzp+uJoZ+Zt7njNf+Rk80e3pVQeGmQp1v6QRUnGvkqIkBKwWl7aikFQ9K1KvcuBmPiTMZ0B0EAA9SBitg+HF2U+wIyjkghJ/pWIMzmnggkqWrf95jTt61pPwscVIuSGk7+J5NWcaVYyDSDcqbFIvUVxtpefbk3VgZRvvtWEcTXFfD/xLu0lA0huQV49FAKB/wD2rdYygWGlJUFKcSFZFY18ULW87x809HjF8raYddAI20qUkE56bJrvx5x+Tyb4bKN8WuJeIpkOFMWpKIMlS0pbHm8FxGMpUMY1YOcnPPasjefffcLjzzjrh/EtZJr0PxLbYE60uWSerx1SXA40YqQtbStx4ux6cj6VmHDfwzvt64yRYW0j5VIS89cUAlpLB5OJPUnkkc8+xrtUqFUef5OVdvslwT3DNjckfD6Lc5y1lbjizGWs+ZKQvSNKueNj+VZxxYjTenlbanUpWrAx5sYP6jNeofiHGt9n4eiWyG2GYkNtLTKP4UpG33rytfpAl3WS8k5SVaUnPQUvpJ77pSXQbVRUKYxfZHkd6BG1AZzvQ6V1zljvG+aCefLFJCj2roACKhCzfDvh3/E/FEa3Oq0RUhT8tf8ACygal/c/T7mtNism532RcLhDjtwI6iiOk7GO1pASjHb+9Vr4ZMG2cM3u8ulba54TAjaPqWkHW7p9MBIP3q32i0SU2t0JW5HckgBGpzWAjOc4/iIJ/KuXdPM289cf7OnTDEUvnkTHvFzjSmIsiVFVFdc0GYhY0oUc4Tj26Hl1qW44SDdnjn94+zHfO/VTQST9ymjHC8f9lfLxyC6l0up1bAk42OPbnTrjpkNx7NLBBHgKir231IOob/8AFX6Ujc4vDiOVbk+TDONpwcmJY31NHSoH0AP9aq76lblJO5qf45SpriBxahkOgFJ9OlV9KznTzI9OdVtx0dKqea8CmtSilKySTyxThUJxQ1pZUfSjYafWAUpCRnYnpU7AX4CMBAUrqTS9trh9o1CpTXJWWCqO8HQNQSfMO3/d60Phm62V96PGQVxXRjwjjUM43Ch60wuNvYuET5iMyPE05ISMKP8AeoO3WqYJBwwtCR+MgjB96x68LI7nwZ9BxkkumbTK4bdnoan29bZGAcA7ZHUGobiO3PoQJFzW22sIIQlKworOPTkKrL91vwtvyKrkVNYxlIGT98Zpva0Trih7xvMlHJxZOFHtSkrINb/gNGma4JvhOA/crj4DILjSEkvq/CgY2J9zWrcMQXIthfYdyU5KwTvz2AH2FQvwnjPQ7U8y/DUlbsr/AFljBcTpGceg3q13+X8vDdCdlL8jaO5xTEGnHIlZnftMh4qLdyhux8+aM9seq0jYj/vasjlvLRJWEuZ0Kwntirxx5cExbkWoSkuloEuHOU+IeQ25kAVRm4MyQtS/CUTnKlKGKapUUsyNSlPiMTo3MfcXqcWdI6DlT9tYUlbOc53T/amSIbjf+onB6Y3FBpSm3cqydNVNRl9o9VKUV5DmO8ttZSFEAnGK1H4XukTmQVE65DR9hq/91lIKluhXMHritS+FrZFwacUNkKCj9jn+lcn6kkqh/T8qWfhnpazspbiBGSvSVJQT1AUd6yn4ltvzOLU+G46iK0yluQW8ZOSpSU7/AJ7VqcaQiDaPmZJ8NDTRcdUem2T96wqfxLGlXWZNkYQX3dSdQyQNglP5CurprPT2yx0eQthvymTttssRbEphxfgmQtBDreFL0jmgkjG/pV5t91sFisybfCSiM0ykqKQds9cHrWVOcVRWm1JZ1PkDGltJVj7Cq3frtPcjrmONrZaZdSnw1oJU4rnpI7Y/r2o8pW3ywDUa6VkafGDj8XSU5b4bmBnBUPwj+9ZJ19Kl+NLcmLcjOjEGJOJdRp/8as+ZB9Qf0xUGhfc11tNCNcMI5eonKyeWdcUOlDIwKBpwVHG1O7VDfuNyiW6MMvynkMt/8lKAH86aY3qz/DE6fiFw+rbyzkHzchjJzQ7JbYNm4LMkjSJ7kI3hHDcZCWYELTEiOnSrzIzqIHRRVuc881c5MtMW2qfW2pfgJBUlOAcDniqPwsq0O3uWlo/OOPSFvB5Sc+EvJ78iRy9qvngLXHcQ2hDiykhKVnyqOOR9K49iSaizrQb5Y5st1tk1LXgSAVO6ghJ2JKee1drouFcYz9mU8lEhbiQwpfIPYJTv2PmQfeqLEs1wtt7RNkRvl40fW8FNHKXHCNk4PtVhtsRi9SHLnYZzocWcLQoAh4gZJ7AdNqk6IPnPBcbZGUfEe1LMfWpCkuRjjB5gZwfyP9aoDCdJUtW9emuMLA7cISmJrATLS0Vl7G76dPmBx+Ide4GRyNecLvCet016K4khTZ29U9DSkZN+LOrTjGUOrb4kt8IQjIGMZG1Xq1WaC4AFArVjGBtmqXZX0Rm853IBzV54dcS4hCm15yoaj6dq42vlNPjhHboS289nRvhm4tzWzCjKeYDgVo1YOntk7VpNnsTLy1CfCb0bBKSrIHf0puxN8FLbTKRqXyz+EVPQ3Bpx44K1Dlmh1Q343PIrdbL2WDrHslphKU5GiMsLWeaUjc1xbsFtXcRN+SBdaz5/wg+g5ZrhJlvsykMqRspWQT126VYY0nQwlJAyNyMdaNFRlLGOhWUpRjnPZzQymKhUyUvBCfKjP0j1rOL3fnJshx1AUjCFFOTuE42+5OKe8acWK/zcRhJK0JIKhyA67dT0qh2guT4TqXF4kOnWg/wjfnW52Z4iFqpx5SK+/awtTOdTjqjqI5ZUeZptPmrhuiKkADGSEgYqwoizklTSFDbILpOEge/9qr99goXPK44HgobCVOk7LVjcgVmuSlLE2OpNLwQwJjSc+IcLVz82Aa4PwXFnShkoSN89x3pCUSwhS2GnNCdtSU7H712/a83wBFWgJAGM43IptRkn4Fpxf3HJpnDyG077Vs/wktTr8yO2GzhzK3FY2Sgf3O1ZbYIglSwpRJ3yo9q9F8N/KcF8JLut1IaccQFaCd8fhbH/AHn7UpdH17Y1+3bC32rT6dv3fCFfGfiBm32Vq0tPhDkpWV99A3P5kAfY1nNn4bceXHnXFbPyq0BzwW1ZJB5An+eKYzrl/iS5yrpcW0uFxWlDCxkNJG4A/SpqFN0BtC14QpWME4z6V2YwwuezyEpZY/vwXEs62LAyhp5eAkM4RgdTms6akSrJNW1JZdnvvgqeW46dG53wCDyJ51O8ZvTW1tiLcnIzbigAhpPn5881z4b8V6Qu1XGOjwmNakrc3WvzZz9zvTtfhXl9Cs/KeCtXa3R7hbbzDZC1FpHzDRwAhK07YGOuM5+1ZSlQIB71ti4bdvvE1rx1NR5CVAqUrxFKChpClH33rGJkd2HMeivIKHGllCknoRTNUvJi9seEKbVtil9NqbA4NdQcim0xVofgbZNXr4QxUOcRzLgsJUq2W5+W2FHA1gBKT9tWaop6dquXwmfbHGMeC8AWLmy7DcCjgELTn+aRWL1/xs3S8WIu/Dq5kJ2NdVuoMeUsh/SkLGnnsf8AkTvWkWyREfDCmn0fvklSE6hk45474Paswt8+ZN+fhsfLy42pDaISWyFIySNRGARjYE9MinE8TBbWWXGVQhb9bUdXmCSsbggnHPdP2pGdXqS75Ho2bEXXiN+ZDKmZjZfiOk+G+Gd2FYyFZHY7ferDw7Y7Xbflp5W5AdkKCxHedBOSMaf1G1U3hXiCXf8Ahi7h15AVHUFJcfAIUnG6N+oxnPtRvQ+Ip7VvWFOy5ERCxIQw6A82Vq1IcA32I5Z+9V6TxsbwXvX3Lk0TjhD7dkM2IT40ZxKgRzznbHrnb71jnFvDMTimIJ0LRDuQBLbWnCXv4kgdD3TzB5ZGw13gvhgQ7e4qRMlyG5rY1MPKIABG+oH8WcnPpVJ43gqsE9U15CnIi1BuWEjHL6Hk4+lWOvp6Ur6cZeMXyvcZjbKD3Hnt+NMiyVRHmlMupOFJV0/uKtXC8xEdksKc0rCs5zsav9yg2u9JaF3aK0uJKo90jpyojutIG57437gneqffOCbrbGzMiNm5wOYkxP3gA9QNxXN1NTnHZJYO5pdTB8pky/fEoY8NDgKgOercVPcMznEqaeaUvwV4BBOd+9ZGzIcdWpDSPpB1HGK0zhOU2iGhp7BW2keH67ZrnxodXORq2UZLCNHcWh9KVpxltWccz9qMOOuMutJP71SfL6+32qpRbyptxKUgqcUcqHpVjiT2XEpSW9Dh5JI/lUVsZS/Is6pRRmjjDqJEoTdSnEHJSvJUd+eetS9s4LvExkPIZiMBwa0hzJODy2HKrtKtsO4lPzDWtQ+lXJSe+DzqZtUNqIhCUKVpRy1LKifTJrcYLoudzxx2ZDd7DeYbTkKYhTi3B5FNDKMfwjsagGIZYdDUthfiZzkjZI9QRXoWWppYKXUJWlX4TUBc7azMQGvl8pB7bj2NBnBxzhjFWpysNGVRocKalTSPFYUk/Uk7K+xqJuNgcakGMtPjI1YCsYUK2CFwoFZUhoIbSdSlrVhI9yajLxfrTZXFt2hCLjdhzlKT+7a/4jv6miU12SfBLNXXXz2QnCVghcKMt3fiU4WTriW4D99IV0UofhT786iOPb5ceJbjokOBtppWA0g5S2ccvU9Pzqt3O9TXbyqZMeUZClgkuHJKun5c/TapNHhuKSUIISRnzcz1yfWu5Vp1T5Ptnn9Tq5al8sY3Juc3EQuAtTWkELCBz9ai4t1mybpCDz7YDX1HVkAg9hzOKnboyqWx8uh1TYUoA6RkkdvvUZNsKLQwHG06pUhOArPIdcY/WnoWRjHns58oScuCWu3FFvblh0wzLeaThGVbIJ/i6A8vX2pmeO550uOwoxQo4KUE6gPc1BKgFtoMIGc/Wrue1SFj4afus4MpGltCCtxfRCAMqV9hS8mkssPGMm8IsF7bau/D7dxZKtChgthOFKJ5AkchWc/EKK41PgzHkhL0yMFugH8Q2NXS8XEtMNQoelhB2aB5FKVEDPfPWqX8RZKn7nCZ1FXgxR5iMZKiSf6UzQ3iIC5JbirUpK8bCkClAbU+IEsSP/VWr4WxRM+IFkYIyC+VAdyEqOP0qqD1qW4Wuq7JxDbru0CVQ5CHcA8wDuPuM1q1OUGl8FVvE0zZeFJUsrm3R2CjwkLc86cKcSdZBGPbn7Vx4y4ggSCHGmyZCUlsJWFBQUDz09QakRJTDmOsx4rsuPcSmTEDKVZQk7g5Ox5nYflVV4vt8+FxDGnMvLQpqW2UEIClI8wwfOQD7EgY69aUpjGU9zHbG1HCHPDCb81ZZCI8OPEbkI+ZbU7uFJOPKABty82e4zzqSi8c3S2vNMxISI4cIW862BlRBx+8OMhOMEbdavfDrfjNXFp1JXJjqBDGgABGBtvyyQfy61n8nh68tyn2LmHnkpWv/NoJUB5cnGdxtjII6GjxlCcmpIG4yik4s1vg3iVt6A8/drq0UBYDbzhCEqyM6R3I/qKefEC0ruVmXKjNJkLbbIcZIyHmjz+45j0zWE2uG3IvMSGuapseZBZK1NoCxjKgMeXbTkd637geySbRCPj3B2QXvOWy5rQgn+E86R1FUaZb4v8AsM0zlNbWjA7ZPl2x2XZVl0JHmjakj92o76cmusG/pYLT8aRKhyHFEPss5ylWeZP64Oa1r4kcFRJECRc40deyRrbZG6e6kj+nLYVnLdut93Q1KiTtFzYQELWU6SsD+NB5iq9SE1nBFGUXhMTJLFwcWiXBh3F/6fFQBHfV6ahsfvUYqzQWVBUS9vWx/P8AoXFghI/+acg+9WB+HGDrTy4rfjtDBI2Ch1B9KZXWUppkvIDaWW/MWXAcfZWdqQlTCT4HoaiyC7GCra8+R4V3tjryDjWxNRj9SDU1Z2eIGlhp5huQk8loktrA9fqzVUTfrVJdUiXbmUqKMjw9J1Htv1pdqkWqWXFpt7LbYwnWWUg6u2SBS8vpyzkZj9RbWDVojd7GEqhBSQN1+Ik4/WniZaIyf8/OhRlD+OSgfpnNYfxHd4trBjw2069lKC0gAj0xzquMcTpKfDYtra5CydAaTjA9QN6JD6dNrKYGeuhnDR6CuPE9ihDJlruC+iYjef1VgVEu8frDZTAsiEH8K5Lpc/QYFZVapMlf+ZuEhTaAkKSy2NOfc9vc0xv3E0pt3RAjutsg6S+tskKJHT/vSjV6HEvkBPVvaaPdLpd7yB+0LiVDGQyg6UJHokVn02S/Lu6o0bLUKMrS4ScalZ5q9q52OdcFtFlgKdkyshbzpOwxj8hufyrpGsjqkpVMdKGW1K0Mp2Kt9s+p5+1NxrVTeRaVjsSwSEiDGCm3lufMO6T5yO53V/SlF3QOdB4lK9WrUSkU0kK8oVmsZbLO70hTbYLav3ritIHUD8Sh69B96tVl4WuV6YE1XlbQkBtJ/CgDkKoUOewXkKcKfKlJSRzIySRWoJ+IaF2uPbUJ8OI3udIAUR2z9qG8p9BFjBU5lqWy8UaSEJOckbn3qcubsKz2Vu0RADOkpCpLyFeZI/8Atj8xt3qPf4iYcuCZCGPEU2Cplo7jV0J74O9VqfNdadVIWsLkvLPggb6nOqvZOc/8iKBKLskkHjJVxyMbwtqZLVEYUtxDYLCS2RzSPMSfRRP5VVuPw21emIqFajGittrJ56tzv9sVbOHIMdm+IQVLShhIUvKN9sk4/v1zWc3eWqfdZcxWf3zylDJzgZ2H5Yrr1xSaivY5dkspv5G4o+lJHOjpoVJc7AUQIzR0RHXNGYI3vhW5PTvh5w7PaBU7a3lxHglWNknUknofKRz7V244N0uy4yoig0laUKjNp8q9xzVt0wdtxt61nfwru3+YncMSXyyxdkjwHNWnw5CfoOfXl+VbFZ7U3cIlsYedFvuMValuR0rJJSc60jqBvnP965mVTY2/b/B0lm2Cx7lbsFyvCX3WbvNaZubSkIjzktkeNg/QvBwcnHTlnrVnVfrrMkGO5FtsuboKnWWpGlekZwoK5/luMdt6RxKt+C+YkOxtqkuKbDTzatRVpPkUrcaSCef86RYo0a4R/wBvO2URrkzLCpKUoy268gbL23RkE5BGN/vRXJNb2ikmvFMfcOcGxbrcP2hJWUPISCW0nUhsqJJCeue5Oa1O2Mi325ll6QlSWUhHiKASMZwP6CqFdpz1y+HTTgloakurSHVNo8NSFhROAAfKoYG/b3qmReMr/cLKqAt4yrkw/pKMZUQfLvjmAdxQJVWX8t9MIpwr4SN+anRnnEstupcUUnYDIwOdZ3xfwQRPcudjCW3DlTrAGNQO5KD0Od8dd67cNXu2QW2vmrgGyygoWkkqLjiiPfIGPYVeUPx5DaHGHUOoGcLQoKGevKk5qdTDx2yMSmoRFUluQtYWRqIdGnHT/oNVWcu6NuOFmO6WFAnLgSsIHoR/I1unE0CFMZLM6KH4hBOvGFsq6b9U/wAvUVRhbIDaFqYLmkcyk5B/Ll/3asV3R+OTcq5d+xncUMSYXzcmylL+vHiJZBH/ACwe3tVHvYfLywpYUhKirSDjJ77bfpWq3W2SbulTZlJYCfpaeAwo+/8A6qhX/h5uE/4a5KBIRuUtucj0wAKeplHPYtbF4K/DjyJgcVIjvKI0hpgjAcBH1b8xt0p662xa/Fbba1OrAOI7ekAe4zjB2wdzUo24vWy/8vMMiKP3khxQKcdc4wftXZy6ypRWxEjpkPqH+r8qQFfmcD3o7nkGokW0EoZU7c46Yw1BSQrGdOOXv6c6ipS5Vydj29gqwV61pKsn0BJ5VOyeH+ILqpBe/dtg+aQ45gD0T69NhS49qiWdelkiTNPIY8qPU9TWXbCC75J6c5/0GkJExpammlBpA8qlj61D/b2H6mpwam2xnnihEi+EgqVuonJJ6mlLST7UtKbm8sMoqPA0XntzprL0JaUVHAwc0+cBAzTP5FVwfKVK0NNYW6snZIHIe/8AYnpVcInZU2GpDegNkgDOnVuSM5xUgl5QA8dsIJH8QTmufEzrylogW9JYYc5adlL36noPT8+wh2+HZSGVPvavCWdKVnOCee3frR40uay3gE7VB4RZJnEkOPFQ1HaZUWwcoYGxPdS+Z9hXGyIuU6WJyvDVLdThkKThKQOQA6AVG2/hxx0DyuuujzJCE6iOm4q38PF9ESTbkpUiUpZQQEjLZwcgHucfbnRVTCqOV2DdkrHz0MVOsWyBc5qEEqjslJeVk+I4rIAGemf6VloHr96uHH9wYQ4ixQSA1HV4knSokF7H0566evr7VUBW61nMgdj6QYo6FH0owElDnpREHrR5o+ePSjggNLWy6h5pakOIIUlSTggg7GvQXBHF/wDiy3oZDpj8Qsow559KXwPxDHXArz6R60+sN1mWW7xbnCXpfjOBac8jjofelr696yu0Hps2PD6Z7JsrMS4BFwkNaZWEpWF7YUOoGdudcL/cmeHXC5AjwW/EwXlLJQVHflgYJ59/aoXhviCHcrcnia0IU+xJwJURtOVMOY3zvyz6VaW7Za7q1+0dLrD7+FFStloI2xg5A5dPeuUsKWZdHUfKwuzF5XFtualPeNGQwHHAHnI4OojupBJSsfkRTG6RWoFycncOSZL0uTG8rDeFqIWMlbah9QCc7YzuPWprj4cO+K6hyW85DDiU+Oyxq5DfzA+bfP8AY1ZoLPD8ZVpgW5MTwtAehzVpBIKUggJUn8ROdh1J26V19yjFOKfIjhttNkDw3w/FmaYv7KnictrPizFKQ1kY2zyBwQema03hGwxuFbY689cHUoIKnm/F1MoPoO478zVfnT2LW22mTKn6yFCQ6UKCUZxp1DGEc8jv3pTqEXO0vREuFyLKb1a21EOJUOSgobEgjO439aTu3W9vCGK8Q/qXKLcYF0XIairLoYVpUceUn071S+KLVPtzy5tqKFNL3UwvIAPoRyrv8OLZcYjDapN5YfjrQC2hhBT4hxk51DfffnU6bvDlznYCgFt5SkKHTOR5geW42rm3UJTezlIbrtzFbvcyaTxA9HWpM61OtJ7pIUn+1NUXnhxayr9207nJUWN8+4Bqw8WzY1vlvMMMrkFDvhEkeQHnuen37Uxft0J06lRGlE9dAq1CSWWU5JshpV9shQUmdrT1SEKIP6VGfteGlITBjrWCcgJbxVictUBIJEVoH/iKbGM23shtKR0AFWov5K3fgjBNuklJAaRFB5uL86x7DkPvmuDERtjOAVLVupajkk1KrRjIAxVP4lus2BLUmPIaUAAfDKdx6HFFqqy8IxOzjknXzobUsgqwM4HM1S7vfi/IaTCUpKW1algjB+47V2tF7nOvSjJQVsKPk1gjJP8AD3FR0q3s3OYhtthxhYB1lOwA5cvfpTkK1B5kKzm5LxLFbZrl3kNx4LQWo/UpRwBtkn7c/b3FS0lDKB8hFypDav3jhH+o51/L/wBdKZ3NyNwdZWoLOGrpNGk5O7COv3/mr/jUHa7lfJEhDkWGCwg6W28Z1DHU0L03PyXQTeocPsvFs4fYCkynm0lwDCSRnAprfpTakFhi3xpbTKsF0u4De2Ty3FWezrkSIDa5kb5d7GFN5BH2x0rjxHDjKtTjKgltK1JylCN1+gA5ntnasweJYZJLMeCA4Ul/LWp1162JjFLWsvEbOHJxvy61XOIb67ZeHnHmkNsT57ywytvmEZ3WP6H2qyPOQmeH9V1T8hbI7PnY8T6iT06qzy29QKxXiO7rvFyVICPBjoGiOyOTTY5Ci43yaX9zDe2OWReSVZJJOdya6JG1ISK6CnEhNh4FCgBSulbKJPOBRc6GRzwKGd6KCFfpSd+dKG/Oi04+9UQufwv4zVwhfw/JSp+1yR4UtgdUn8QHcVv9nftEG8RZq5g/ZctHix5vzR0uknHhkE8hq3BzucjFeTFDkeVWfhPjO6cOgsMlEuCs5XDkJC2znngHlmkrqXlyh79jlNyWIyPS114YZud2kR0x477IbwwfESlCSck+Ub6hsOXI+tQ3EtlmWGFC+WuUODLYSjSSpLaFqSM5wdtu/PmajeBOIuG+LGmRAedgXGKpSxBcc1hR/wBpUc7dN/TlUhxdAtnE0eVeSp5+dFR4cmIUadAAO6UqGrPIn0OaHTZmSWeEHnBJZS5J4XJTNtTE4gi+IXUJWZcNJW0tOMhWcEn0Cs5qrXHjm0COSwsLQrSCptvmeeEhI+oZz96hbFC4gsSIz1ukXCRBKkJdhEL8IattI7Hc4I2yavt+4CQxaJz8FtlpekLQlCc4IPMg7HG9HxVCWJPsH5yXBRv24qJYlxZDy4irg4r5JUZs/uc8xzGNjj7+lT1rh3ldyam25Dcl11SFytQ0OYO2oBWw0gcxnvtVbnWu8omQH7p8rNBK1R9LYTv1QTyOQM79c96u3DtlbmKiyoapNql+VxtDUcuNpOOZGrGnIIPLtW7dsY5XuZrcnLDHchEaDdmGLtEbuk6W6UuSEsaUhH4dW+CrGNtyapF1uV1dmy27fa8eE+pJbAytpA2yU5z7VqVyiXVm4qkPNNSWWG/GS643lWdgQAMDboMjb1qShMQLiv50wwJKPKpa29Khtv6435GuXKSitzWR5Rb4zgyhKy80lRacaJ5ocTpUPcVH3OVGhFr5hRSHVaQcZxtnJ9K0ziWwJwX4zeB+IAcqyPie23yU4ltMJktpyApAKzj9MZrFWJy54JZmCHYdiOocW3IbUlv6yFbJ96r3EarcywXG2Iz6lklS8BW+NuXWqhclz7UZLUl05I0BCNzz5HuPT86Fjtc5xtBak5ckMKUcDIQjbAxjJVnbtT8aFHyzwJu1y4wd7Y41cSsJcSh0nSEnbQBsNPb8uVXDhWyxrBa3b/c3C4lkFTC3Pxucte/QEgJ7qOehrlwfw8gLQ/PaZaUQNa0p3SCMkDvtucew9T+IF5YuV1/w+2w4qBD0pWGQFYXnAT/8c8/4lKNCnL1JbI9e4WMdkdz7KymGnjC6rkvv+dSyG8JynHbnnYCr1w1w0LKHdEhTyXMbKTjGKhLXJsNuYUUxHjNZT5S63koXjkBz26n1qPkSL4tKmlPLlOSf3oaZf0noEgp+o+wxRXFy4XCB5See2aM7IZZgLmNuJWlAJGlQwo9gf0quzLmlNvfu1+kJjwmljSynIVkfhB21KzjflVTv9/j2JaUz5InT0NgC2sEJjseiiN1HPTb71nXEnEV04hl/MXB/UE/6bSdkNj0FCjXn7f5/0blPHL/g78W8TTuIpvivqLcZs4Yjg7IHT3P/AEVAigKUBTUIqKwhSUm3lihSxRClCiowACgedDejrRRI0Y58vtSCaCSedEBnUYpSjSMijTjfrUIDAI3oiMDIo9ztSgBnNVgg3Q9Jgym50N5bD7ZCkuIOCk1qnDHxfD5aa4qbeRJQjw0XSCQl0DbZQ5KG3L8sVl7iQcjGx2qNebKFEdOhpW2lSe73+Rmu2UePY9t8J8XMXCA3Jj3dq9M/SUxmcOAY2JTnUDsdhnPpVvZvNvUGfFWtoPHSA42U4OOSu3PrXz5gz5tueD8GW9GcHJTSymrzZvi/xjb0hp6YJzB+pqSgOJUOxCh/IikZ0TT+R2N8Gvg9e8QcPW69vRlJlfLPIWheWlA60J5jTy9M0jiyAP8ADfydvacUtvShoNrUFbchqGTjv6ZrFOGvjZw1dnwOI4C7VLI0omRlEpb9QknY+xrT7XxolbIXCnwLw25lSVolJQpCcYSAlRBO/MZ771hOawm+vkJiLTaO/DyrtaroIk1iTJ1toCC5KKtyBnZQAyN+pq7+CgOFaUBKl7KUBgn3qEj30yHYiV2p5eUFanEoyGlgd9wAd8b05ZvEmUt9lu2yGMbNurHP1IIxz6b1ixObz0XHxWBlxNZrk+2t61TZTEhWDoaUkpyOuFbemKzmXw5f7aqfMRJYW68gvKihRWiOATlZVyyT+ECtGek3VyCpm5KdjKwT48NkgpAOyufMjHlx61HtXBEJa0WmIufGcX/mm3CouJXjokJ3J5+Y0SLajjj/AN+TLWXk83GP+1LyiJMgrDbj3huSGkFJUeoCcnrz7b1aIHD+Jhjt4Hggth9RKvDa7E9Tz9hWoG3W6cSxZraiClSip544UsE80A98duQqG4uiG1NtWi3sKTIcAStQH09cepHM+u1asvc3tjwjMalHl9lTnXONEQpMPyxo6vCbWTgF0ny7dTtqPTYCq5YWkWd2WrwnpstaVK8RXlaT1553Jyc4qLvXFPD9suZafQu5G3lTTcZC8Nrc5LWojc7jSB2TnrVavHxKvM0qEWPGhN74DTYGM/zNXXF+yyVOS92WeRDt6WxOaeRFcKyXVzOYBPM55bDYc/zqD4p41hsl6LwulSHHRpenq2URjGlvO4Hc8zVCmTpk1WqVIW7vnBOw+1N8Uztcvu/gW3pfaGSpSitSipStySckmgKAFKCaMkByACligBR8q0kUxQG1GaAoda2jIOdAij6UVWUPhzoZpNDNbMCwcbc6WlXTFcgcmlZqEOmfWjztvvSAcjFHzNQgfPrXJ9vWMY9jXQHejUcjntVNZLTIpxspOCN65lJqTcSlQwRmmzjJSM8x/KhOJtMZ4xS2X3mDll1bR/2KIpSkUgprDj8m08Egxfrux/pXB9HsrFdV8TX1Q81yfJ76jUSU0RFCdUH7BFbNe5Y4XG/FUIERr3Kaz2cNbv8ACWFxHLhNTbtOlTZlwbDiIy1nCWsZGfUggk9AQBzVjzKRsR6GvXUZ6XHYtM9mMn/MQmCgx1YK9TSVaUk7adR3yNhkZG1J6qMYpYQ3p5Sk3lmhFEaywVuBaXpeyTpGyTsNX9qyL4j8ULtNguV7ccT888TDgoByUOEeZR9UgZPqEipq8Xl6PBmNT5DLEMZ8STKQWkhRSEk7nJ07gAZJwNhXnT4j8Ujia7oETxEWuEktxUOfUrJypxX+5R39BgUOitza+Al01BfkqBOSSTk96FDFHiurg5mQsUAKWBSgmrwVkSkUoA0aU0vFawUJFHih1o81aRQMGjzQG9DGNq0UDFEaHWj6VCDs0nPajNEkd62YDBxRpOcnNERRJ2qEOmSKVn1rmVChnfJqEF53oE5osigSMVCA260Z5GixvSgdsVRDgtoHcbGuC0KTzG1PVD8qIpBHLOapo0mR5TSSmnqmUq+k6a4qaI6Z9qxtNZG4GDmrVA+IPGEC2RrZEvkhuLFQW2EbHw0nOUgkZA3O1VrFIxQ5QT7Nxk10d5k6bNVrmS3pKhyLrhVj86a0rG1ERVpJdFNt9hYzR43owKUBVlBAUsAYoCjrWCmFR0eKFaKE0MUrHSiFQoFA0KMCoWJ2xmhRkUDmoQ//2Q=="}
+</script>
+<script>
+// Cálculos que la presentación puede repetir sin conexión al cambiar una celda.
+(() => {
+  // Formas de elegir k personas entre n. Contar las que quedan fuera da lo mismo.
+  function combinaciones(n, k) {
+    k = Math.min(k, n - k);
+    let formas = 1;
+    for (let i = 1; i <= k; i++) formas *= (n - k + i) / i;
+    return formas;
+  }
+
+  function colaChiCuadrado(x2) {
+    // Con un grado de libertad, χ² es el cuadrado de una normal estándar.
+    // Su cola derecha equivale a dos colas normales desde la raíz de χ².
+    if (x2 === 0) return 1;
+    const z = Math.sqrt(x2);
+    const densidad = t => Math.exp(-t * t / 2) / Math.sqrt(2 * Math.PI);
+    // Integramos cada cola por Simpson. Más allá de z + 9 el área es despreciable.
+    const pasos = 4096;
+    const ancho = 9 / pasos;
+    let suma = densidad(z) + densidad(z + 9);
+    for (let i = 1; i < pasos; i++) {
+      suma += (i % 2 === 0 ? 2 : 4) * densidad(z + i * ancho);
+    }
+    return 2 * ancho * suma / 3;
+  }
+
+  function calcular(tabla) {
+    if (!Array.isArray(tabla) || tabla.length !== 2 ||
+        ![tabla[0], tabla[1]].every(fila => Array.isArray(fila) && fila.length === 2)) {
+      throw new RangeError("Se necesitan dos filas y dos columnas.");
+    }
+    const [[a, b], [c, d]] = tabla;
+    if (![a, b, c, d].every(n => Number.isSafeInteger(n) && n >= 0)) {
+      throw new RangeError("Escribe un número entero igual o mayor que cero en cada celda.");
+    }
+    const filas = [a + b, c + d];
+    const columnas = [a + c, b + d];
+    const total = filas[0] + filas[1];
+    if (total > 200) throw new RangeError("Usa un máximo de 200 pacientes en total.");
+    if (filas.includes(0)) throw new RangeError("Incluye al menos un paciente en cada grupo.");
+
+    // Los márgenes fijan el número de pacientes por grupo y el total de reacciones.
+    // La versión bilateral de R suma las tablas tan improbables como la observada.
+    const formas = k => combinaciones(filas[0], k) * combinaciones(filas[1], columnas[0] - k);
+    const observadas = formas(a);
+    const formasTotales = combinaciones(total, columnas[0]);
+    let favorables = 0, bilaterales = 0;
+    const minimo = Math.max(0, columnas[0] - filas[1]);
+    for (let k = minimo; k <= Math.min(filas[0], columnas[0]); k++) {
+      const peso = formas(k);
+      if (k >= a) favorables += peso;
+      // R usa esta tolerancia para no perder tablas de igual probabilidad por redondeo.
+      if (peso <= observadas * (1 + 1e-7)) bilaterales += peso;
+    }
+    const pFisher = Math.min(1, favorables / formasTotales);
+    const pBilateral = Math.min(1, bilaterales / formasTotales);
+
+    // Si los grupos tienen el mismo riesgo, E = fila × columna / total.
+    // Pearson mide la distancia a esos recuentos como suma de (observado − E)² / E.
+    const esperados = filas.map(f => columnas.map(c => f * c / total));
+    // Si todas las respuestas son iguales, solo hay una tabla posible; Pearson no se define.
+    if (columnas.includes(0)) return {pFisher, pBilateral, x2:null, pChi:null, esperados, minEsperado:0};
+    let x2 = 0;
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 2; j++) {
+        const e = esperados[i][j];
+        x2 += (tabla[i][j] - e) ** 2 / e;
+      }
+    }
+    return { pFisher, pBilateral, x2, pChi: colaChiCuadrado(x2), esperados, minEsperado: Math.min(...esperados.flat()) };
+  }
+
+  globalThis.FisherTe = { calcular };
+})();
+</script>
+<script>
+// «puntos» proviene de dchisq(x, df = 1) en R. Ambos ejes son lineales.
+window.dibujarCurva = function (svg, x2, critico, puntos) {
+  const azul = "#075683", oro = "#DCA849", tinta = "#223C4A", gris = "#C5D0D0";
+  const izq = 34, der = 322, techo = 28, base = 105, yMax = 0.8;
+  const numero = n => n.toLocaleString("es-CL", { maximumFractionDigits: 2 });
+  const y = n => base - Math.min(n, yMax) / yMax * (base - techo);
+  svg.replaceChildren();
+  svg.setAttribute("viewBox", "0 0 340 153");
+  svg.setAttribute("role", "img");
+
+  function elemento(tipo, atributos, contenido) {
+    const nodo = document.createElementNS("http://www.w3.org/2000/svg", tipo);
+    for (const [clave, valor] of Object.entries(atributos)) nodo.setAttribute(clave, valor);
+    if (contenido !== undefined) nodo.textContent = contenido;
+    svg.append(nodo);
+  }
+  function linea(x1, y1, x2, y2, stroke, ancho = 1, extra = {}) {
+    elemento("line", { x1, y1, x2, y2, stroke, "stroke-width": ancho, ...extra });
+  }
+  function texto(x, y, contenido, ancla = "start") {
+    elemento("text", { x, y, fill: tinta, "font-size": 15, "text-anchor": ancla }, contenido);
+  }
+
+  // En la cola muy lejana, // marca un intervalo omitido. Los píxeles por
+  // unidad se conservan a ambos lados para no agrandar su área aparente.
+  const corte = x2 >= 18, hueco = corte ? 27 : 0;
+  const fin = Math.min(201, Math.max(12, Math.ceil((x2 + 6) / 2) * 2));
+  const inicioCola = Math.floor(x2) - 2;
+  const tramos = corte ? [[0, 10], [inicioCola, fin]] : [[0, fin]];
+  const escala = (der - izq - hueco) / (corte ? 10 + fin - inicioCola : fin);
+  const x = valor => izq + escala * valor +
+    (corte && valor >= inicioCola ? hueco - escala * (inicioCola - 10) : 0);
+  const descripcion = `Chi-cuadrado con un grado de libertad. Valor observado ${numero(x2)}, crítico ${numero(critico)}. El área dorada va desde el observado hasta el infinito. La densidad supera el límite vertical de 0,8 cerca del cero.` +
+    (corte ? ` Se omite el tramo entre 10 y ${numero(inicioCola)}.` : "");
+  svg.setAttribute("aria-label", descripcion);
+  elemento("title", {}, descripcion);
+  texto(izq, 16, "Densidad");
+  texto(der, 16, "Densidad > 0,8 ↑", "end");
+
+  // Interpolamos en los bordes para que el color comience en el observado,
+  // incluso si ese valor cae entre dos muestras procedentes de R.
+  function densidad(valor) {
+    if (valor <= puntos[0].x) return puntos[0].y;
+    const i = puntos.findIndex(p => p.x >= valor);
+    if (i < 0) return puntos[puntos.length - 1].y;
+    const a = puntos[i - 1], b = puntos[i];
+    return a.y + (b.y - a.y) * (valor - a.x) / (b.x - a.x);
+  }
+  function recorrido(a, b) {
+    const dentro = puntos.filter(p => p.x > a && p.x < b);
+    return [{ x: a, y: densidad(a) }, ...dentro, { x: b, y: densidad(b) }]
+      .map(p => `${x(p.x).toFixed(3)},${y(p.y).toFixed(3)}`).join(" L ");
+  }
+  const primerVisible = puntos.findIndex(p => p.y <= yMax);
+  const alto = puntos[primerVisible - 1], bajo = puntos[primerVisible];
+  const entrada = alto ? alto.x + (bajo.x - alto.x) * (yMax - alto.y) / (bajo.y - alto.y) : 0;
+
+  for (const [a, b] of tramos) {
+    for (const nivel of [0.4, yMax]) linea(x(a), y(nivel), x(b), y(nivel), gris, 1, { "stroke-dasharray": "2 4" });
+    if (x2 < b) {
+      const desde = Math.max(a, x2);
+      elemento("path", { d: `M ${x(desde)},${base} L ${recorrido(desde, b)} L ${x(b)},${base} Z`, fill: oro });
+    }
+    elemento("path", { d: `M ${recorrido(Math.max(a, entrada), b)}`, stroke: tinta, "stroke-width": 1.6, fill: "none" });
+    linea(x(a), base, x(b), base, tinta);
+    // El borde dorado sigue marcando la cola cuando su superficie es menor que un píxel.
+    if (x2 < b) linea(x(Math.max(a, x2)), base, x(b), base, "#A47426", 1.7);
+  }
+  for (const nivel of [0.4, yMax]) texto(izq - 5, y(nivel) + 4, numero(nivel), "end");
+  // Cuatro o cinco marcas siguen siendo legibles cuando el SVG ocupa 270 px.
+  const paso = fin <= 16 ? 4 : 6;
+  const marcas = corte ? [0, 5, 10, inicioCola, fin] :
+    Array.from({ length: Math.floor(fin / paso) + 1 }, (_, i) => i * paso);
+  for (const tick of marcas) {
+    linea(x(tick), base, x(tick), base + 4, tinta);
+    texto(x(tick), base + 19, numero(tick), "middle");
+  }
+  if (corte) {
+    const centro = x(10) + hueco / 2;
+    for (const dx of [-3, 3]) linea(centro + dx - 2, base + 4, centro + dx + 2, base - 4, tinta, 1.5);
+    texto(izq, 148, "// Tramo omitido");
+  }
+  texto(der, 148, "Estadístico χ² →", "end");
+
+  // El círculo en la base y la distinta altura distinguen las marcas
+  // incluso cuando coinciden. Los valores numéricos están en el HTML.
+  linea(x(x2), techo + 11, x(x2), base, azul, 2.4);
+  linea(x(critico), techo, x(critico), base, tinta, 1.7, { "stroke-dasharray": "4 4" });
+  elemento("circle", { cx: x(x2), cy: base, r: 3.2, fill: azul });
+};
+</script>
+<script>
+/* Interacción de la clase. Los cinco resultados del juego y los ejemplos
+   clínicos vienen de R. Solo una tabla escrita a mano requiere recalcular. */
+(() => {
+  const id = nombre => document.getElementById(nombre);
+  // La plantilla de Reveal limita el zoom por defecto. Aquí el alumno puede
+  // ampliar con dos dedos sin cambiar de diapositiva.
+  document.querySelector('meta[name="viewport"]').content = "width=device-width, initial-scale=1, viewport-fit=cover";
+  const datos = JSON.parse(id("datos-r").textContent);
+  const imagenes = JSON.parse(id("imagenes").textContent);
+  id("marca").src = imagenes.marca;
+  id("foto").src = imagenes.taza;
+  const decimal = (n,d) => n.toLocaleString("es-CL", {minimumFractionDigits:d,maximumFractionDigits:d});
+  const porcentaje = n => n < 0.0001 ? "menos de 0,01 %" : decimal(100*n, n === 1 ? 0 : 2) + " %";
+  const prob = n => n < 0.0001 ? "< 0,0001" : decimal(n,4);
+  function boton(etiqueta) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = etiqueta;
+    return b;
+  }
+
+  // «true» representa Coca-Cola. Mezclar sin reemplazo
+  // mantiene cuatro de cada tipo en cada ronda.
+  const bandeja = id("bandeja");
+  const elegidas = new Set();
+  const minimos = [4,6,7,8];
+  let preparacion = [], aciertosPropios = null, apuesta = null, comenzo = false;
+  function mezclar() {
+    elegidas.clear();
+    aciertosPropios = null;
+    apuesta = null;
+    comenzo = false;
+    id("apostar").open = false;
+    id("apostar").querySelector("summary").textContent = "Hacer una apuesta antes de jugar";
+    for (const b of id("apuestas").children) b.setAttribute("aria-pressed","false");
+    preparacion = [true,true,true,true,false,false,false,false];
+    for (let i = 7; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [preparacion[i],preparacion[j]] = [preparacion[j],preparacion[i]];
+    }
+    pintarTazas();
+    mostrarFisher(6);
+  }
+  function pintarTazas() {
+    [...bandeja.children].forEach((b,i) => {
+      const marcada = elegidas.has(i);
+      b.setAttribute("aria-pressed",String(marcada));
+      b.setAttribute("aria-label","Vaso " + (i+1) + (marcada ? ", marcado" : ", sin marcar"));
+      b.disabled = aciertosPropios !== null;
+      b.querySelector(".check").textContent = marcada ? "✓" : "";
+    });
+    id("apostar").hidden = comenzo;
+    id("cuenta").textContent = elegidas.size + "/4";
+    id("ayuda-cata").textContent = aciertosPropios === null
+      ? (elegidas.size ? "Elegiste " + elegidas.size + " de 4." : "Al cuarto toque verás tu resultado.")
+      : "Ronda terminada. Achuntaste " + 2*aciertosPropios + " de 8.";
+    id("remezclar").hidden = aciertosPropios === null;
+  }
+  for (let i = 0; i < 8; i++) {
+    const b = boton("");
+    b.className = "vaso-boton";
+    b.innerHTML = '<span class="vaso" aria-hidden="true"><b>' + (i+1) + '</b></span><span class="check" aria-hidden="true"></span>';
+    b.addEventListener("click", () => {
+      if (aciertosPropios !== null) return;
+      comenzo = true;
+      if (elegidas.has(i)) elegidas.delete(i);
+      else elegidas.add(i);
+      if (elegidas.size === 4) {
+        aciertosPropios = [...elegidas].filter(j => preparacion[j]).length;
+        mostrarFisher(2 * aciertosPropios);
+        pintarTazas();
+        Reveal.slide(1); // El cuarto toque entrega el resultado, sin botón intermedio.
+      } else pintarTazas();
+    });
+    bandeja.append(b);
+  }
+
+  // Cada punto representa una elección completa de cuatro vasos.
+  for (let i=0; i<70; i++) id("mapa").append(document.createElement("i"));
+
+  // Las barras describen frecuencias exactas. Una barra por puntaje posible.
+  // El umbral 7 incluye la barra del 8: aquí es imposible observar exactamente 7.
+  for (const d of datos.fisher) {
+    const fila = document.createElement("div");
+    fila.setAttribute("role","listitem");
+    const b = boton("");
+    b.className = "fila-barra";
+    b.setAttribute("aria-label",d.aciertos + " aciertos: " + d.formas + " de 70 elecciones");
+    b.innerHTML = '<span>' + d.aciertos + '/8</span><span class="carril"><i></i></span><b>' + d.formas + '</b><small>' + decimal(100*d.formas/70,1) + ' %</small>';
+    b.querySelector("i").style.width = (100*d.formas/36) + "%";
+    b.addEventListener("click",() => mostrarFisher(d.aciertos));
+    fila.append(b);
+    id("barras").append(fila);
+  }
+  function mostrarFisher(minimo) {
+    const compatibles = datos.fisher.filter(d => d.aciertos >= minimo);
+    const caso = compatibles[0], k = caso.k;
+    const personal = aciertosPropios !== null && minimo === 2*aciertosPropios;
+    id("puntaje").textContent = personal ? "Achuntaste " + minimo + " de 8" : "¿Al menos " + minimo + " de 8?";
+    id("frecuencia").textContent = caso.cola + " de 70";
+    id("fisher-frase").textContent = minimo === 7
+      ? "Para llegar a 7 o más, tienes que acertar los 8. Si confundes una Coca-Cola, también confundes una Pepsi."
+      : (caso.cola === 1 ? "Solo una elección acierta los ocho vasos." : "elecciones dan " + minimo + " aciertos o más.");
+    const porc = decimal(100*caso.p, caso.p === 1 ? 0 : 1) + " %";
+    id("fisher-p").textContent = (minimo === 7 ? "Probabilidad de alcanzar esa meta ≈ " : "Valor p " + (caso.p === 1 ? "= " : "≈ ")) + porc;
+    [...id("mapa").children].forEach((p,i) => p.classList.toggle("acierto",i < caso.cola));
+    id("suma-fisher").textContent = "Para esta cola, " + compatibles.map(d => d.formas).join(" + ") + (compatibles.length>1 ? " = " + caso.cola : "") + " de 70 (" + decimal(100*caso.p,1) + " %).";
+    [...id("barras").children].forEach((fila,i) => fila.classList.toggle("en-cola",datos.fisher[i].aciertos >= minimo));
+    [...id("grupo-aciertos").children].forEach(b => b.setAttribute("aria-pressed",String(+b.dataset.minimo === minimo)));
+    [k,4-k,4-k,k].forEach((n,i) => { id(["f00","f01","f10","f11"][i]).textContent=n; });
+    id("detalle-fisher").querySelector("caption").textContent = "Tabla para " + caso.aciertos + " aciertos" + (minimo === 7 ? " (único resultado ≥ 7)" : "");
+    id("resultado-apuesta").textContent = apuesta === null || aciertosPropios === null ? "" :
+      "Tu apuesta fue " + apuesta + " o más. En tu ronda achuntaste " + 2*aciertosPropios + ".";
+    const numeros = indices => [...indices].map(i => i+1).sort((a,b) => a-b).join(", ");
+    id("detalle-ronda").textContent = personal ? "Marcaste " + numeros(elegidas) + ". Eran Coca-Cola " + numeros(preparacion.flatMap((coca,i) => coca ? [i] : [])) + "." : "";
+  }
+  for (const minimo of minimos) {
+    const voto = boton(minimo + " de 8");
+    voto.addEventListener("click",() => {
+      if (comenzo) return;
+      apuesta = minimo;
+      id("apostar").querySelector("summary").textContent = "Tu apuesta: al menos " + minimo + " de 8";
+      [...id("apuestas").children].forEach(b => b.setAttribute("aria-pressed",String(b === voto)));
+      id("apostar").open = false;
+      bandeja.firstElementChild.focus({preventScroll:true});
+    });
+    id("apuestas").append(voto);
+    const b = boton(minimo);
+    b.dataset.minimo = minimo;
+    b.setAttribute("aria-label","Al menos " + minimo + " aciertos");
+    b.addEventListener("click", () => mostrarFisher(minimo));
+    id("grupo-aciertos").append(b);
+  }
+  mezclar();
+  for (const b of [...document.querySelectorAll(".volver-jugar"),id("remezclar")]) {
+    b.addEventListener("click", () => {
+      mezclar(); id("detalle-fisher").open = false;
+      for (const opcion of id("pregunta").querySelectorAll("button")) opcion.setAttribute("aria-pressed","false");
+      id("quiz-texto").textContent = "";
+      id("editar").open = false;
+      id("alfa").value = "0.05";
+      cargar(datos.ejemplos[0]);
+      Reveal.slide(0);
+      bandeja.firstElementChild.focus({preventScroll:true});
+    });
+  }
+
+  // Comparamos reacciones en ambos sentidos: A podría tener más o menos que B.
+  // Con esperados pequeños, usamos Fisher bilateral. En las demás tablas,
+  // la cola derecha de Pearson mide discrepancias en ambas direcciones.
+  const entradas = [...id("editar").querySelectorAll("input")];
+  function actualizarSalud() {
+    const valores = entradas.map(celda => celda.valueAsNumber);
+    const tabla = [valores.slice(0, 2), valores.slice(2)];
+    const ejemplo = datos.ejemplos.find(e => e.tabla.flat().every((v,i) => v === valores[i]));
+    datos.ejemplos.forEach((e,i) => id("escenarios").children[i].setAttribute("aria-pressed",String(e === ejemplo)));
+    try {
+      const r = ejemplo ? ejemplo.resultado : FisherTe.calcular(tabla);
+      const exacta = r.minEsperado < 5;
+      const [a, b, c, d] = valores;
+      const nA = a + b, nB = c + d;
+      const brecha = 100 * (a / nA - c / nB);
+      const puntos = brecha.toLocaleString("es-CL", {signDisplay:"exceptZero",maximumFractionDigits:2});
+      id("riesgo-a").textContent = a + "/" + nA;
+      id("riesgo-b").textContent = c + "/" + nB;
+      id("brecha-riesgo").textContent = "Riesgo A menos B: " + puntos + " puntos porcentuales.";
+      id("total").textContent = (nA + nB) + " pacientes · " + (a + c) + " con reacción.";
+      id("chi-p").textContent = prob(exacta ? r.pBilateral : r.pChi);
+      id("panel-pearson").hidden = id("ajuste-alfa").hidden = exacta;
+      if (exacta) {
+        // En la tabla inicial, 34 de 70 repartos son tan improbables como el observado.
+        const detalle = ejemplo === datos.ejemplos[0]
+          ? "Con cuatro reacciones repartidas al azar, 34 de 70 repartos dan una diferencia así de grande o mayor."
+          : "Con estos totales, suma los repartos tan improbables como el observado, en ambos sentidos.";
+        id("chi-frase").textContent = r.minEsperado === 0
+          ? "Todos tuvieron el mismo resultado. Con estos totales solo hay un reparto posible y p = 1."
+          : "Fisher bilateral. El mínimo esperado es " + decimal(r.minEsperado,1) + " (menor que 5). " + detalle;
+      } else {
+        const corte = datos.cortes.find(d => d.alfa === Number(id("alfa").value));
+        id("chi-x").textContent = decimal(r.x2, 2);
+        id("chi-crit").textContent = decimal(corte.critico, 2);
+        dibujarCurva(id("curva"), r.x2, corte.critico, datos.curva);
+        id("chi-frase").textContent = "χ² de Pearson. Todos los esperados son al menos 5. Con riesgos iguales, una diferencia así o mayor aparecería en ≈ " + porcentaje(r.pChi) + " de las pruebas.";
+      }
+    } catch (error) {
+      if (!(error instanceof RangeError)) throw error;
+      for (const campo of ["riesgo-a","riesgo-b","chi-p"]) id(campo).textContent = "—";
+      id("brecha-riesgo").textContent = id("total").textContent = "";
+      id("panel-pearson").hidden = id("ajuste-alfa").hidden = true;
+      id("chi-frase").textContent = error.message;
+    }
+  }
+  function cargar(ejemplo) {
+    ejemplo.tabla.flat().forEach((n,i) => { entradas[i].value = n; });
+    actualizarSalud();
+  }
+  for (const ejemplo of datos.ejemplos) {
+    const b = boton(ejemplo.nombre);
+    b.addEventListener("click", () => cargar(ejemplo));
+    id("escenarios").append(b);
+  }
+  entradas.forEach(celda => celda.addEventListener("input", actualizarSalud));
+  id("alfa").addEventListener("change", actualizarSalud);
+  cargar(datos.ejemplos[0]);
+
+  const feedback = {
+    si:"¿Dónde aparece el 98 %? Para respaldar ese titular hay que medir cuánto cambió la memoria.",
+    correcta:"Exacto. Pide los puntajes de ambos grupos. Con ellos puedes estimar cuánto cambió la memoria."
+  };
+  const respuestas = [...id("pregunta").querySelectorAll("button")];
+  for (const b of respuestas) {
+    b.setAttribute("aria-pressed","false");
+    b.addEventListener("click", () => {
+      respuestas.forEach(r => r.setAttribute("aria-pressed",String(r === b)));
+      id("quiz-texto").textContent = feedback[b.dataset.respuesta];
+    });
+  }
+
+  // Los gestos horizontales cambian de diapositiva. Un gesto vertical normal
+  // recorre el contenido largo. Solo avanza si ya empezó en el borde inferior.
+  function navegar() {
+    const pasos = [...id("pie").querySelectorAll("[data-ir]")];
+    // El mismo guion está en las notas de Reveal y se puede leer localmente,
+    // incluso desde un teléfono o un navegador que bloquee ventanas nuevas.
+    id("abrir-notas").addEventListener("click",() => {
+      const notas = Reveal.getCurrentSlide().querySelector("aside.notes");
+      id("texto-notas").innerHTML = notas.innerHTML;
+      id("notas-docente").showModal();
+      id("notas-docente").scrollTop=0;
+    });
+    id("notas-docente").addEventListener("keydown",e => e.stopPropagation());
+    // Tres pasos para el estudiante. La cuarta sección es una rama optativa.
+    const LAB = 3;
+    let origenLab = 1;
+    const actual = () => Reveal.getIndices().h;
+    function avanzar() {
+      const i = actual();
+      if (i === LAB) Reveal.slide(2);
+      else if (i < 2) Reveal.slide(i+1);
+    }
+    function retroceder() {
+      const i = actual();
+      Reveal.slide(i === LAB ? origenLab : Math.max(0,i-1));
+    }
+    function estado() {
+      const i = actual();
+      pasos.forEach((b,j) => {
+        if (i === j) b.setAttribute("aria-current","step");
+        else b.removeAttribute("aria-current");
+      });
+      id("posicion").textContent = i === LAB ? "Extra" : (i+1) + " / 3";
+      id("anterior").disabled = i === 0;
+      id("siguiente").hidden = i === 2;
+      id("destino").textContent = i === 0 ? "Resultado" : "El titular";
+    }
+    pasos.forEach(b => b.addEventListener("click",() => Reveal.slide(Number(b.dataset.ir))));
+    for (const b of document.querySelectorAll(".abrir-lab")) {
+      b.addEventListener("click",() => { origenLab = actual(); Reveal.slide(LAB); });
+    }
+    id("volver-lab").addEventListener("click",retroceder);
+    id("anterior").addEventListener("click",retroceder);
+    id("siguiente").addEventListener("click",avanzar);
+    // Las teclas siguen el mismo recorrido que los botones y los gestos.
+    document.addEventListener("keydown",e => {
+      if (e.altKey || e.ctrlKey || e.metaKey || id("notas-docente").open ||
+          e.target.closest("input,select,textarea,[contenteditable=true]")) return;
+      if (e.key === " " && e.target.closest("button,a,summary")) return;
+      switch (e.key) {
+        case "ArrowRight": case "PageDown": case " ": avanzar(); break;
+        case "ArrowLeft": case "PageUp": retroceder(); break;
+        case "Home": Reveal.slide(0); break;
+        case "End": Reveal.slide(2); break;
+        case "Escape": if (actual() !== LAB) return; retroceder(); break;
+        case "s": case "S": id("abrir-notas").click(); break;
+        default: return;
+      }
+      e.preventDefault();
+    });
+    Reveal.on("slidechanged", e => {
+      estado(); e.currentSlide.scrollTop = 0;
+        e.currentSlide.querySelector("[tabindex='-1']")?.focus({preventScroll:true});
+    });
+    Reveal.on("ready",estado);
+    if (Reveal.isReady()) estado();
+
+    const slides = document.querySelector(".slides");
+    let inicio = null;
+    document.addEventListener("touchstart", e => {
+      inicio = null;
+      if (e.touches.length !== 1 || e.target.closest("input,select,textarea")) return;
+      const enDiapositiva = slides.contains(e.target);
+      if (!enDiapositiva && !e.target.closest(".barra button,.pie button,#notas-docente button")) return;
+      const slide = Reveal.getCurrentSlide();
+      const t = e.touches[0];
+      inicio = {x:t.clientX,y:t.clientY,slide,enDiapositiva,boton:e.target.closest("button"),
+        arriba:slide.scrollTop <= 2,
+        abajo:slide.scrollTop + slide.clientHeight >= slide.scrollHeight-2};
+    },{passive:true});
+    document.addEventListener("touchcancel",() => {inicio=null;},{passive:true});
+    document.addEventListener("touchend", e => {
+      if (!inicio || e.touches.length || inicio.slide !== Reveal.getCurrentSlide()) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX-inicio.x, dy = t.clientY-inicio.y;
+      const horizontal = Math.abs(dx)>50 && Math.abs(dx)>1.4*Math.abs(dy);
+      const vertical = Math.abs(dy)>70 && Math.abs(dy)>1.5*Math.abs(dx);
+      const fin = inicio; inicio = null;
+      // Tras deslizar, algunos navegadores omiten el clic sintetizado. Un toque
+      // que termina sobre el mismo botón se activa una vez, como con el teclado.
+      if (fin.boton && !fin.boton.disabled && e.cancelable && Math.abs(dx)<8 && Math.abs(dy)<8 &&
+          document.elementFromPoint(t.clientX,t.clientY)?.closest("button") === fin.boton) {
+        e.preventDefault();
+        fin.boton.click();
+        return;
+      }
+      if (!fin.enDiapositiva) return;
+      if (horizontal) {
+        // Consumir solo el deslizamiento evita que el navegador suprima
+        // el primer toque en un control de la diapositiva siguiente.
+        if (e.cancelable) e.preventDefault();
+        dx < 0 ? avanzar() : retroceder();
+      }
+      else if (vertical && dy<0 && fin.abajo) avanzar();
+      else if (vertical && dy>0 && fin.arriba) retroceder();
+    },{passive:false});
+  }
+  window.addEventListener("DOMContentLoaded",navegar);
+})();
+</script>
+```

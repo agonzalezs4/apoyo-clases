@@ -4,325 +4,191 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TDAH: prevalencia e incidencia</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
-  /* Paleta tomada de las diapositivas USS: azul marino, azules de las tarjetas, dorado del pie */
+  /* Estilo USS, como fisher-te/index.html */
   :root{
-    --bg:#ffffff; --fg:#1f2937; --muted:#9aa5b8; --line:#c5cee0;
-    --navy:#17375e; --blue:#2d6fc4; --gold:#c9a961;
-    --case:#d62828; --casebg:#fde4e4;      /* abandono (la "x" roja de las diapos) */
-    --risk:#2d6fc4;                         /* personas / tiempo en riesgo */
-    --prev:#7b4fa0;                         /* ya tenía TDAH al inicio */
-    --panel:#e6ebf3; --hi:#fbf1d5;
+    --azul:#102b42; --gris:#475c69; --oro:#cfb47c; --miel:#86632d;
+    --papel:#faf8f1; --linea:#d2cfc2; --arena:#f0e9d9;
+    --nuevo:#9a3b1b; --previo:#86632d; --marca:#f6e7c1;
+    --sans:Montserrat,"Segoe UI",Arial,sans-serif; --serif:Georgia,"Times New Roman",serif;
+    --margen:clamp(14px,4.4vw,64px);
   }
   *{box-sizing:border-box}
-  body{margin:0;padding:12px;background:var(--bg);color:var(--fg);
-       font-family:Calibri,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;line-height:1.4}
-  .wrap{max-width:760px;margin:0 auto}
-  h1{font-size:1.3rem;margin:0 0 4px;color:var(--navy);font-weight:700}
-  .bar{height:3px;width:64px;background:var(--gold);border-radius:2px;margin:0 0 8px}
-  .sub{margin:0 0 10px;font-size:.95rem}
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-  .tabs button{flex:1 1 0;min-width:140px;padding:9px 10px;border:1.5px solid var(--navy);
-       background:transparent;color:var(--navy);border-radius:8px;font:inherit;font-weight:700;cursor:pointer}
-  .tabs button[aria-pressed="true"]{background:var(--navy);color:#fff}
-  .chk{display:flex;gap:8px;align-items:flex-start;margin:0 0 8px;font-size:.95rem;color:var(--navy)}
-  .chk input{margin-top:3px;accent-color:var(--navy)}
-  .chk.off{opacity:.45}
-  .aviso{color:var(--case);font-weight:700}
-  .tabs button:focus-visible,#tcut:focus-visible,#desc:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-  .sliderrow{display:flex;align-items:center;gap:10px;margin:2px 0 4px}
-  .sliderrow label{white-space:nowrap;font-size:.95rem;color:var(--navy)}
-  .sliderrow input{flex:1;min-width:0;accent-color:var(--navy)}
-  svg{width:100%;height:auto;display:block;touch-action:pan-y}
-  .tick text{fill:var(--fg);font-size:12px}
-  .domain,.tick line{stroke:var(--muted)}
-  .axlab,.gname,.leg{fill:var(--fg);font-size:12px}
-  .gname{font-weight:700;font-size:13px;fill:var(--navy)}
-  .grab{cursor:ew-resize}
-  .cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .card{flex:1 1 300px;background:var(--panel);border-radius:10px;padding:10px 12px}
-  .card h2{font-size:1rem;margin:0 0 6px;color:var(--navy)}
-  .m{padding:3px 6px;border-radius:6px;font-size:.92rem}
-  .m.on{background:var(--hi);font-weight:700;box-shadow:inset 3px 0 0 var(--gold)}
-  .nb{white-space:nowrap}
-  .den{font-weight:400;font-size:.85rem;margin-top:4px}
-  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--risk);margin:2px 2px 0 0}
-  .dot.c{background:var(--case)}
-  .dot.p{background:var(--prev)}
-  .dot.x{background:var(--line)}
-  .nota{font-size:.85rem;margin:8px 2px 0;opacity:.85}
+  body{margin:0;background:var(--papel);color:var(--azul);font:16px/1.45 var(--sans)}
+  .barra{display:flex;align-items:center;gap:14px;padding:10px var(--margen);background:#fff;border-bottom:1px solid var(--linea)}
+  .barra img{width:116px;height:auto;display:block}
+  .barra span{border-left:1px solid var(--linea);padding-left:14px;font-size:14px;font-weight:600}
+  main{max-width:1180px;margin:0 auto;padding:clamp(18px,4vh,44px) var(--margen) 40px}
+  .ceja{font:700 12px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--miel);margin:0 0 10px}
+  h1{font:400 clamp(36px,5vw,64px)/1.02 var(--serif);letter-spacing:-.05em;margin:0}
+  h1 em{color:var(--miel)}
+  .controles{display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;margin:22px 0 6px}
+  .segmentos{display:flex;flex-wrap:wrap;gap:6px}
+  .segmentos button{font:650 15px var(--sans);color:var(--azul);background:#fff;border:1px solid #9caab0;border-radius:5px;min-height:44px;padding:4px 14px;cursor:pointer}
+  .segmentos button[aria-pressed=true]{background:var(--azul);color:#fff;border-color:var(--azul)}
+  .corte{display:flex;align-items:center;gap:10px;flex:1 1 240px;font-weight:650}
+  .corte input{flex:1;min-width:0;accent-color:var(--azul)}
+  :where(button,input):focus-visible{outline:3px solid #28759e;outline-offset:2px}
+  .formula{margin:4px 0 18px;color:var(--gris);font-size:15px}
+  .formula b{color:var(--azul)}
+  .par{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.8fr);gap:clamp(18px,4vw,56px);align-items:start}
+  .leyenda{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;margin:0 0 6px}
+  .leyenda b{font-weight:700}
+  svg{width:100%;height:auto;display:block}
+  .tarjetas{display:grid;gap:14px}
+  .lamina{padding:16px 20px;background:var(--arena);border:1px solid #d9c9a7;border-top:3px solid var(--oro);border-radius:6px}
+  .lamina h2{font:650 15px var(--sans);margin:0}
+  .grande{font:400 clamp(40px,4.4vw,60px)/1.1 var(--serif);letter-spacing:-.045em;margin:2px 0}
+  .grande .u{font:600 14px var(--sans);letter-spacing:0;color:var(--gris)}
+  .frac{font-weight:600;font-variant-numeric:tabular-nums}
+  .frac small{color:var(--gris);font-weight:400;font-size:13px}
+  .puntos{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+  .puntos i{width:13px;height:13px;border-radius:50%;border:1px solid var(--azul);background:#fff}
+  .puntos i.n{background:var(--nuevo);border-color:var(--nuevo)}
+  .puntos i.p{background:var(--previo);border-color:var(--previo);border-radius:2px}
+  .puntos i.x{opacity:.25;border-radius:2px;background:var(--previo);border-color:var(--previo)}
+  @media(max-width:760px){
+    .barra img{width:100px} .barra span{font-size:12px;padding-left:10px}
+    .par{grid-template-columns:minmax(0,1fr)}
+    .segmentos{display:grid;grid-template-columns:repeat(3,1fr);width:100%}
+    .segmentos button{font-size:13px;padding:4px 6px;line-height:1.2}
+    .tarjetas{grid-template-columns:1fr 1fr;gap:10px}
+    .lamina{padding:12px}
+    .grande{font-size:34px}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1 id="titulo"></h1>
-  <div class="bar"></div>
-  <p class="sub" id="subtitulo"></p>
+<header class="barra"><img src="lib/marca-uss.png" alt="Universidad San Sebastián"><span>Epidemiología</span></header>
+<main>
+  <p class="ceja">Datos hipotéticos · 1° básico, un año</p>
+  <h1>TDAH en <em>dos escuelas</em></h1>
 
-  <div class="tabs" role="group" aria-label="Medida">
-    <button data-m="pp" aria-pressed="true">Prevalencia de período</button>
-    <button data-m="ia" aria-pressed="false">Incidencia acumulada</button>
-    <button data-m="tasa" aria-pressed="false">Tasa de incidencia</button>
+  <div class="controles">
+    <div class="segmentos" role="group" aria-label="Medida">
+      <button type="button" data-m="pp" aria-pressed="true">Prevalencia de período</button>
+      <button type="button" data-m="ia" aria-pressed="false">Incidencia acumulada</button>
+      <button type="button" data-m="tasa" aria-pressed="false">Tasa de incidencia</button>
+    </div>
+    <label class="corte"><span id="tval"></span><input type="range" id="tcut" min="1" step="1"></label>
   </div>
-  <label class="chk" id="chkrow"><input type="checkbox" id="desc"> <span>Descartar casos previos (ya tenían TDAH)</span></label>
+  <p class="formula" id="formula"></p>
 
-  <div class="sliderrow">
-    <label for="tcut">Corte t = <b id="tval"></b></label>
-    <input type="range" id="tcut" step="1">
+  <div class="par">
+    <div>
+      <div class="leyenda" id="leyenda"></div>
+      <svg id="grafico" role="img" aria-label="Seguimiento de cada escolar de las dos escuelas hasta el corte t"></svg>
+    </div>
+    <div class="tarjetas" id="tarjetas"></div>
   </div>
-
-  <svg id="chart" role="img" aria-label="Seguimiento de cada escolar por escuela, con línea de corte t que se puede mover"></svg>
-
-  <div class="cards" id="cards"></div>
-  <p class="nota"><b>Prevalencia de período:</b> previos + nuevos / todos.
-     <b>Incidencia acumulada:</b> nuevos / sin TDAH al inicio.
-     <b>Tasa:</b> nuevos / persona-meses en riesgo.</p>
-
-</div>
+</main>
 
 <script>
-/* =====================================================================
-   EDITA AQUÍ (solo esta sección). Datos hipotéticos.
-   Cada escolar se escribe como [meses observados, estado]
-     estado = 2  → ya tenía TDAH diagnosticado al inicio (caso previo)
-     estado = 1  → diagnóstico NUEVO de TDAH a los "meses" indicados
-     estado = 0  → sin TDAH cuando terminó su observación (fin del año o se cambió de colegio)
-   Atajo: rep(8, 12, 0) = 8 escolares observados 12 meses sin TDAH
-   ===================================================================== */
+/* ===================== EDITA AQUÍ =====================
+   Cada escolar: [meses observados, estado]
+     2 = ya tenía TDAH al inicio (caso previo)
+     1 = diagnóstico nuevo a los "meses" indicados
+     0 = sin TDAH al final de su observación (fin de año o se cambió de colegio)
+   rep(8, 12, 0) = 8 escolares observados 12 meses sin TDAH */
 const rep = (n, t, e) => Array.from({length:n}, () => [t, e]);
-
-const TITULO     = "TDAH en dos escuelas: prevalencia e incidencia";
-const SUBTITULO  = "1° básico seguido un año (datos hipotéticos). Mueva la línea t.";
-const UNIDAD     = "meses";   // unidad de tiempo
-const POR        = 100;       // la tasa se muestra "por 100 persona-meses"
-const T_INICIAL  = 12;        // dónde parte la línea t
-
 const GRUPOS = [
-  { nombre: "Escuela A",
-    personas: [ ...rep(4, 12, 2),                 // 4 ya tenían TDAH al inicio
-                [5,1],[9,1],                      // 2 diagnósticos nuevos
-                [4,0],                            // se cambió de colegio a los 4 meses
-                ...rep(8, 12, 0) ] },             // 8 sin TDAH todo el año
-  { nombre: "Escuela B",
-    personas: [ [12,2],                           // 1 ya tenía TDAH al inicio
-                [2,1],[3,1],[6,1],                // 3 diagnósticos nuevos
-                [2,0],[3,0],[3,0],[5,0],          // 4 se cambiaron de colegio
-                ...rep(7, 12, 0) ] }              // 7 sin TDAH todo el año
+  { nombre: "Escuela A", personas: [...rep(4,12,2), [5,1],[9,1], [4,0], ...rep(8,12,0)] },
+  { nombre: "Escuela B", personas: [[12,2], [2,1],[3,1],[6,1], [2,0],[3,0],[3,0],[5,0], ...rep(7,12,0)] }
 ];
-
+const T_MAX = 12, POR = 100;   // tasa por 100 persona-meses
 /* ===================== FIN DE LO EDITABLE ===================== */
 
-/* ---------- Cálculos (solo con lo ocurrido hasta t) ---------- */
-const fmt = (v,d=1) => v.toFixed(d).replace(".",",");
-const POR_TXT = String(POR).replace(/\B(?=(\d{3})+(?!\d))/g,".");   // 1000 → "1.000"
-const fuera = e => descartar && e===2 && mode!=="pp";   // caso previo descartado del denominador
-const calc = T => GRUPOS.map(g=>{
-  const n   = g.personas.length;
-  const pre = g.personas.filter(([,e]) => e===2).length;
-  const ev  = g.personas.filter(([t,e]) => e===1 && t<=T).length;
-  const enR = g.personas.filter(([,e]) => !(descartar && e===2));
-  const pt  = enR.reduce((s,[t]) => s + Math.min(t,T), 0);
-  return {n, pre, ev, nR: enR.length, pt, pp: (pre+ev)/n, ia: ev/enR.length, tasa: pt>0 ? POR*ev/pt : 0};
-});
-const maxT = d3.max(GRUPOS, g=>d3.max(g.personas,p=>p[0]));
-const TMIN = 1;
-let tcut = Math.min(Math.max(T_INICIAL,TMIN),maxT), mode = "pp", descartar = false;
-
-/* ---------- Dibujo ---------- */
-/* En pantallas angostas (celular) el gráfico se dibuja al tamaño real de la pantalla: antes se
-   dibujaba en 720 px y se encogía a la mitad, y el texto quedaba ilegible. Los números del eje no cambian. */
-const ANCHO = { W:720, M:{l:26,r:16,t:32,b:34}, rowH:12, headH:24, gap:12, legH:0, two:false,
-  fsName:13, fs:12, fsAx:12, fsTick:12, ln:1, bar:5, xs:4, xw:2.2, ro:3.6, rd:4, tl:2, th:6.5, grab:20 };
-const paramsPantalla = () => {
-  const cw = svg.node().clientWidth || 720;
-  if (cw >= 560) return ANCHO;
-  return { W:cw, M:{l:32,r:16,t:48,b:36}, rowH:16, headH:42, gap:14, legH:34, two:true,
-    fsName:15, fs:13.5, fsAx:13.5, fsTick:12*cw/720, ln:1.6, bar:8, xs:5.5, xw:3, ro:5, rd:5.5, tl:3, th:11, grab:30 };
+const $ = id => document.getElementById(id);
+const fmt = v => v.toFixed(1).replace(".", ",");
+const FORMULAS = {
+  pp:   "<b>Prevalencia de período</b> = (casos previos + nuevos hasta t) ÷ todos los escolares",
+  ia:   "<b>Incidencia acumulada</b> = nuevos hasta t ÷ escolares sin TDAH al inicio",
+  tasa: "<b>Tasa de incidencia</b> = nuevos hasta t ÷ meses en riesgo hasta t"
 };
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const svg = d3.select("#chart");
-let P = ANCHO, W = 720, M = ANCHO.M, H = 0, x = d3.scaleLinear();
+let modo = "pp", T = T_MAX;
 
-function layout(){
-  P = paramsPantalla(); W = P.W; M = P.M;
-  H = M.t + M.b + P.legH;
-  GRUPOS.forEach(g=>{ H += P.headH + g.personas.length*P.rowH + P.gap; });
-  svg.attr("viewBox",`0 0 ${W} ${H}`);
-  x = d3.scaleLinear().domain([0,maxT]).range([M.l+6, W-M.r]);
-}
+// La incidencia solo mira a quienes podían ser un caso nuevo: los previos quedan fuera
+const calc = g => {
+  const n = g.personas.length;
+  const pre = g.personas.filter(([,e]) => e === 2).length;
+  const nue = g.personas.filter(([t,e]) => e === 1 && t <= T).length;
+  const riesgo = g.personas.filter(([,e]) => e !== 2);
+  const pt = riesgo.reduce((s,[t]) => s + Math.min(t,T), 0);
+  return { n, pre, nue, nR: riesgo.length, pt, pp: (pre+nue)/n, ia: nue/riesgo.length, tasa: POR*nue/pt };
+};
 
-function render(){
-  layout();
-  svg.selectAll("*").remove();
-  const S = calc(tcut);
-  const cCase=css("--case"), cCaseBg=css("--casebg"), cRisk=css("--risk"), cMut=css("--muted"), cFg=css("--navy"), cPrev=css("--prev");
-  const rowH = P.rowH;
-  let yOff = M.t + P.legH;
-  const yTop = P.two ? M.t - 18 : M.t - 8;
-  let legY = P.two ? M.t + 14 : null;
-
-  GRUPOS.forEach((g,gi)=>{
-    const s = S[gi];
-    const stats = `n = ${s.n}  ·  previos: ${s.pre}  ·  nuevos hasta t: ${s.ev}`;
-    if(P.two){
-      svg.append("text").attr("class","gname").style("font-size",P.fsName+"px").attr("x",M.l).attr("y",yOff+17).text(g.nombre);
-      svg.append("text").attr("class","leg").style("font-size",P.fs+"px").attr("x",M.l).attr("y",yOff+17+P.fs+6).text(stats);
-    } else {
-      svg.append("text").attr("class","gname").attr("x",M.l).attr("y",yOff+15).text(`${g.nombre}  ·  ${stats}`);
-      if(gi===0) legY = yOff+15;
-    }
-    yOff += P.headH;
-
-    g.personas.forEach(([t,e],i)=>{
-      const y  = yOff + i*rowH + rowH/2;
-      const te = Math.min(t,tcut);          // tiempo que cuenta
-      const ev = (e===1 && t<=tcut) || (mode==="pp" && e===2);   // va al numerador
-      const fila = svg.append("g").attr("opacity", fuera(e) ? .25 : 1);
-
-      if(mode!=="tasa"){
-        if(ev) fila.append("rect").attr("x",M.l-10).attr("width",Math.max(x(tcut)-M.l+10,0))
-                 .attr("y",y-rowH/2+1).attr("height",rowH-2).attr("rx",3)
-                 .attr("fill",cCaseBg).attr("opacity",.85);
-        fila.append("circle").attr("cx",M.l-4).attr("cy",y).attr("r",P.rd)
-           .attr("fill", ev ? (e===2 ? cPrev : cCase) : cRisk);
-        fila.append("line").attr("x1",x(0)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
-           .attr("stroke",cMut).attr("stroke-width",P.ln);
-      } else {
-        fila.append("line").attr("x1",x(0)).attr("x2",x(te)).attr("y1",y).attr("y2",y)
-           .attr("stroke",cRisk).attr("stroke-width",P.bar).attr("stroke-linecap","round");
-        if(t>tcut)
-          fila.append("line").attr("x1",x(tcut)).attr("x2",x(t)).attr("y1",y).attr("y2",y)
-             .attr("stroke",cMut).attr("stroke-width",P.ln);
-      }
-
-      if(e===2)
-        fila.append("rect").attr("x",x(0)-P.xs).attr("y",y-P.xs).attr("width",2*P.xs).attr("height",2*P.xs).attr("fill",cPrev);
-      if(e===1){
-        const s4=P.xs;
-        fila.append("path").attr("d",`M${x(t)-s4},${y-s4}L${x(t)+s4},${y+s4}M${x(t)+s4},${y-s4}L${x(t)-s4},${y+s4}`)
-           .attr("stroke",cCase).attr("stroke-width",P.xw).attr("fill","none");
-      } else {
-        fila.append("circle").attr("cx",x(t)).attr("cy",y).attr("r",P.ro)
-           .attr("fill","var(--bg)").attr("stroke",cFg).attr("stroke-width",P.two?2:1.5);
-      }
+function grafico(){
+  const svg = $("grafico"), W = svg.clientWidth || 600, movil = W < 520;
+  const fila = movil ? 15 : 13, cab = 26, sep = 14, izq = 10, der = 14, arriba = 22, abajo = 34;
+  const H = arriba + GRUPOS.reduce((s,g) => s + cab + g.personas.length*fila + sep, 0) + abajo;
+  const x = t => izq + 8 + (W - izq - der - 8) * t / T_MAX;
+  const fuera = e => modo !== "pp" && e === 2;
+  let s = "", y = arriba;
+  GRUPOS.forEach(g => {
+    s += `<text x="${izq}" y="${y+16}" font-weight="650" font-size="14" fill="var(--azul)">${g.nombre}</text>`;
+    y += cab;
+    g.personas.forEach(([t,e]) => {
+      const cy = y + fila/2, cuenta = (e === 1 && t <= T) || (modo === "pp" && e === 2);
+      s += `<g opacity="${fuera(e) ? .22 : 1}">`;
+      if (cuenta) s += `<rect x="${izq}" y="${y+1}" width="${x(T)-izq}" height="${fila-2}" rx="3" fill="var(--marca)"/>`;
+      if (modo === "tasa" && !fuera(e))
+        s += `<line x1="${x(0)}" x2="${x(Math.min(t,T))}" y1="${cy}" y2="${cy}" stroke="var(--azul)" stroke-width="${movil?6:5}" stroke-linecap="round"/>`;
+      s += `<line x1="${x(0)}" x2="${x(t)}" y1="${cy}" y2="${cy}" stroke="var(--azul)" stroke-opacity=".35"/>`;
+      if (e === 2) s += `<rect x="${x(0)-5}" y="${cy-5}" width="10" height="10" fill="var(--previo)"/>`;
+      if (e === 1) s += `<path d="M${x(t)-4.5},${cy-4.5}l9,9m0,-9l-9,9" stroke="var(--nuevo)" stroke-width="2.6"/>`;
+      else s += `<circle cx="${x(t)}" cy="${cy}" r="3.8" fill="#fff" stroke="var(--azul)" stroke-width="1.6"/>`;
+      s += `</g>`;
+      y += fila;
     });
-    yOff += g.personas.length*rowH + P.gap;
+    y += sep;
   });
-  const yBottom = yOff - P.gap;
-
-  // Lo posterior a t queda atenuado (no cuenta)
-  if(tcut < maxT){
-    svg.append("rect").attr("x",x(tcut)).attr("width",x(maxT)-x(tcut)+8)
-       .attr("y",yTop).attr("height",yBottom-yTop+2).attr("fill","var(--bg)").attr("opacity",.7);
-  }
-
-  // Línea t + asa
-  svg.append("line").attr("class","grab").attr("x1",x(tcut)).attr("x2",x(tcut)).attr("y1",yTop).attr("y2",yBottom+2)
-     .attr("stroke",cFg).attr("stroke-width",P.tl);
-  svg.append("circle").attr("class","grab").attr("cx",x(tcut)).attr("cy",yTop).attr("r",P.th)
-     .attr("fill",cFg).attr("stroke","var(--bg)").attr("stroke-width",2);
-  svg.append("text").attr("class","axlab").style("font-size",P.fsAx+"px").attr("x",Math.min(Math.max(x(tcut),P.two?56:40),W-(P.two?56:40))).attr("y",yTop-P.th-5)
-     .attr("text-anchor","middle").attr("font-weight",700).text(`t = ${tcut} ${UNIDAD}`);
-
-  // Leyenda: en el celular va en su propia fila arriba; en pantalla ancha, en la esquina superior derecha
-  const leg = svg.append("g");
-  const lt = leg.append("text").attr("class","leg").style("font-size",P.fs+"px")
-     .attr("x", P.two ? M.l : W-M.r-4).attr("y",legY).attr("text-anchor", P.two ? "start" : "end");
-  lt.append("tspan").attr("fill",cPrev).attr("font-weight",700).text("■");
-  lt.append("tspan").text(" TDAH previo   ");
-  lt.append("tspan").attr("fill",cCase).attr("font-weight",700).text("✕");
-  lt.append("tspan").text(" caso nuevo   ");
-  lt.append("tspan").attr("font-weight",700).text("○");
-  lt.append("tspan").text(" fin de observación");
-  const bb = lt.node().getBBox();
-  leg.insert("rect","text").attr("x",bb.x-6).attr("y",bb.y-3).attr("width",bb.width+12).attr("height",bb.height+6)
-     .attr("rx",4).attr("fill","var(--bg)").attr("stroke",cMut).attr("stroke-width",P.two?1.2:.8);
-
-  const eje = svg.append("g").attr("transform",`translate(0,${yBottom+4})`)
-     .call(d3.axisBottom(x).ticks(Math.min(maxT,12)).tickFormat(d=>d));
-  eje.selectAll("text").style("font-size",P.fsTick+"px");   // los números del eje conservan su tamaño de siempre
-  svg.append("text").attr("class","axlab").style("font-size",P.fsAx+"px").attr("x",(M.l+W-M.r)/2).attr("y",H-4)
-     .attr("text-anchor","middle").text(`${UNIDAD[0].toUpperCase()+UNIDAD.slice(1)} desde el inicio del año escolar`);
-
-  renderCards(S);
-  avisarAlto();
+  const fin = y - sep;
+  // Lo posterior a t no cuenta
+  if (T < T_MAX) s += `<rect x="${x(T)}" y="${arriba-4}" width="${x(T_MAX)-x(T)+6}" height="${fin-arriba+6}" fill="var(--papel)" opacity=".75"/>`;
+  s += `<line x1="${x(T)}" x2="${x(T)}" y1="${arriba-10}" y2="${fin+2}" stroke="var(--oro)" stroke-width="3"/>`;
+  s += `<text x="${Math.min(Math.max(x(T),40),W-40)}" y="${arriba-12}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--azul)">t = ${T}</text>`;
+  for (let m = 0; m <= T_MAX; m += movil ? 2 : 1)
+    s += `<line x1="${x(m)}" x2="${x(m)}" y1="${fin+4}" y2="${fin+8}" stroke="var(--gris)"/><text x="${x(m)}" y="${fin+21}" text-anchor="middle" font-size="12" fill="var(--gris)">${m}</text>`;
+  s += `<text x="${W/2}" y="${H-2}" text-anchor="middle" font-size="12" fill="var(--gris)">meses desde el inicio del año escolar</text>`;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = s;
 }
 
-function renderCards(S){
-  const box = document.getElementById("cards"); box.innerHTML = "";
-  document.getElementById("chkrow").classList.toggle("off", mode==="pp");
-  document.getElementById("desc").disabled = mode==="pp";
-  GRUPOS.forEach((g,gi)=>{
-    const s = S[gi];
-    const pts = (k,n) => `<span class="dot ${k}"></span>`.repeat(n);
-    const malPre = !descartar && s.pre>0
-      ? `<br><span class="aviso">⚠ Incluye ${s.pre} caso${s.pre===1 ? "" : "s"} previo${s.pre===1 ? "" : "s"}</span>` : "";
-
-    // De qué está hecho el denominador de la tasa
-    const cuenta = {};
-    g.personas.forEach(([t,e]) => { if(descartar && e===2) return; const m = Math.min(t,tcut); cuenta[m] = (cuenta[m]||0)+1; });
-    const suma = Object.keys(cuenta).map(Number).sort((a,b)=>a-b)
-                   .map(m => cuenta[m]>1 ? `${m}×${cuenta[m]}` : `${m}`).join(" + ");
-
-    const c = document.createElement("div"); c.className="card";
-    c.innerHTML = `<h2>${g.nombre}</h2>
-      <div class="m ${mode==="pp"?"on":""}">Prevalencia de período (0 a ${tcut} ${UNIDAD}) = <span class="nb">(${s.pre} + ${s.ev})/${s.n}</span> = <span class="nb">${fmt(100*s.pp)} %</span>
-        ${mode==="pp" ? `<div class="den">${pts("p",s.pre)}${pts("c",s.ev)}${pts("",s.n-s.pre-s.ev)}</div>` : ""}</div>
-      <div class="m ${mode==="ia"?"on":""}">Incidencia acumulada = <span class="nb">${s.ev}/${s.nR}</span> = <span class="nb">${fmt(100*s.ia)} %</span>
-        ${mode==="ia" ? `<div class="den">${malPre ? malPre.slice(4) + "<br>" : ""}${pts("c",s.ev)}${pts("",s.nR-s.ev-(descartar?0:s.pre))}${descartar?pts("x",s.pre):pts("p",s.pre)}</div>` : ""}</div>
-      <div class="m ${mode==="tasa"?"on":""}">Tasa de incidencia = <span class="nb">${s.ev}/${s.pt} persona-${UNIDAD}</span> = <span class="nb">${fmt(s.tasa)} por ${POR_TXT}</span>
-        ${mode==="tasa" ? `<div class="den">${malPre ? malPre.slice(4) + "<br>" : ""}${suma} = ${s.pt} persona-${UNIDAD}</div>` : ""}</div>`;
-    box.appendChild(c);
-  });
+function tarjetas(){
+  $("tarjetas").innerHTML = GRUPOS.map(g => {
+    const c = calc(g), pts = (k,n) => `<i class="${k}"></i>`.repeat(n);
+    const v = modo === "pp"
+      ? [`${fmt(100*c.pp)} %`, `(${c.pre} + ${c.nue}) / ${c.n}`, pts("p",c.pre) + pts("n",c.nue) + pts("",c.n-c.pre-c.nue)]
+      : modo === "ia"
+      ? [`${fmt(100*c.ia)} %`, `${c.nue} / ${c.nR} <small>(sin ${c.pre} previo${c.pre===1?"":"s"})</small>`, pts("n",c.nue) + pts("",c.nR-c.nue) + pts("x",c.pre)]
+      : [`${fmt(c.tasa)}<span class="u"> por ${POR}</span>`, `${c.nue} / ${c.pt} persona-meses`, ""];
+    return `<div class="lamina"><h2>${g.nombre}</h2><div class="grande">${v[0]}</div>
+      <div class="frac">${v[1]}</div>${v[2] ? `<div class="puntos" aria-hidden="true">${v[2]}</div>` : ""}</div>`;
+  }).join("");
 }
 
-/* ---------- Control de t: arrastrar la línea o usar el deslizador ---------- */
-const slider = document.getElementById("tcut");
-slider.min = TMIN; slider.max = maxT; slider.value = tcut;
-function setT(v){
-  v = Math.min(Math.max(Math.round(v),TMIN),maxT);
-  if(v===tcut) return;
-  tcut = v; slider.value = v;
-  document.getElementById("tval").textContent = `${v} ${UNIDAD}`;
-  render();
+function leyenda(){
+  $("leyenda").innerHTML = `<span><b style="color:var(--previo)">■</b> caso previo${modo==="pp" ? "" : " (fuera)"}</span>
+    <span><b style="color:var(--nuevo)">✕</b> caso nuevo</span><span><b>○</b> fin de la observación</span>`;
 }
-slider.addEventListener("input", e=>setT(+e.target.value));
-document.getElementById("tval").textContent = `${tcut} ${UNIDAD}`;
 
-const drag = d3.drag()
-  .container(() => svg.node())
-  .filter(ev => {                                   // solo se arrastra si se toca cerca de la línea
-    if(ev.button) return false;
-    const pt = ev.touches ? ev.touches[0] : ev;
-    const [px] = d3.pointer(pt, svg.node());
-    return Math.abs(px - x(tcut)) < P.grab;
-  })
-  .on("start drag", ev => setT(x.invert(ev.x)));
-svg.call(drag).style("touch-action","pan-y");
+function dibujar(){
+  $("tval").textContent = `t = ${T} ${T===1 ? "mes" : "meses"}`;
+  $("formula").innerHTML = FORMULAS[modo];
+  leyenda(); grafico(); tarjetas();
+}
 
-document.getElementById("titulo").textContent = TITULO;
-document.getElementById("subtitulo").textContent = SUBTITULO;
-document.getElementById("desc").addEventListener("change", e=>{ descartar = e.target.checked; render(); });
-document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
-  mode = b.dataset.m;
-  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed", x===b));
-  render();
+const deslizador = $("tcut");
+deslizador.max = T_MAX; deslizador.value = T;
+deslizador.addEventListener("input", e => { T = +e.target.value; dibujar(); });
+document.querySelectorAll(".segmentos button").forEach(b => b.addEventListener("click", () => {
+  modo = b.dataset.m;
+  document.querySelectorAll(".segmentos button").forEach(o => o.setAttribute("aria-pressed", o === b));
+  dibujar();
 }));
-
-/* Si va dentro de un iframe, avisa su alto a la página que lo contiene (opcional) */
-function avisarAlto(){
-  try{
-    const h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height) + 24; // + margen del body
-    parent.postMessage({tipo:"alto-widget", alto:h},"*");
-  }catch(e){}
-}
-render();
-let anchoPrev = svg.node().clientWidth;
-addEventListener("resize", () => {              // girar el celular o cambiar el tamaño de la ventana
-  const w = svg.node().clientWidth;
-  if (Math.abs(w - anchoPrev) > 20) { anchoPrev = w; render(); }
-});
+let ancho = innerWidth;
+addEventListener("resize", () => { if (Math.abs(innerWidth - ancho) > 20) { ancho = innerWidth; grafico(); } });
+dibujar();
 </script>
 </body>
 </html>
