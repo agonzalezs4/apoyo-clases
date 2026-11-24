@@ -3,12 +3,11 @@
 // este archivo no hace ninguna llamada de red.
 // Uso desde repasar.html:
 //   Recopilar.aviso(nombre, clase, contenedor, seguir) -> true si quedó preguntando; al elegir llama a seguir()
-//   Recopilar.registrar(idPregunta, tema, textoElegido, correcta)   (después de mostrar la retroalimentación o antes: no espera)
+//   Recopilar.registrar(idPregunta, tema, textoElegido, correcta)   (cada intento; después de mostrar la retroalimentación o antes: no espera)
 //   Recopilar.terminar()                                            (al llegar al final)
 const Recopilar = (() => {
   const CLAVE = "repaso_enviar", GRUPO = 5, REINTENTO_MS = 20000;
   let clase = "", activo = false, cola = [];
-  const vistas = new Set(); // solo cuenta el primer intento de cada pregunta
   const azar = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, "0")).join("");
   const sesion = azar(); // nueva en cada carga de la página y nunca se guarda: no identifica a la persona
   const leer = () => { try { return localStorage.getItem(CLAVE); } catch (e) { return null; } };
@@ -43,8 +42,7 @@ const Recopilar = (() => {
   }
 
   function registrar(id, tema, texto, correcta) {
-    if (!activo || vistas.has(id)) return;
-    vistas.add(id);
+    if (!activo) return;
     cola.push([String(id), String(tema || "").slice(0, 100), String(texto || "").slice(0, 300), correcta ? 1 : 0]);
     if (cola.length >= GRUPO) terminar();
   }

@@ -417,3 +417,15 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
      Enlace «Repasar» en la lista de clases publicadas (index.html)
      - Aparece antes de «Presentar» solo en las clases con preguntas de repaso
        («correcta» y «retro»); abre repasar.html?clase=nombre.
+
+[65] 2026-11-24 · Claude
+     repasar.html: menú al volver, razones de todas las alternativas y registro de cada intento
+     - Si había una vuelta a medias, ya no se retoma sola saltándose el menú: el
+       inicio (aviso de envío y temas) aparece siempre y ofrece «Seguir donde
+       quedé (n de m respondidas)». Se mantiene al recargar hasta empezar otra.
+     - Al acertar, además de la retro de la correcta se muestran las de las otras
+       alternativas («✗ «alternativa»: razón»), en el orden en que aparecen.
+     - Recopilación: se envía cada intento, no solo el primero (una fila por
+       clic). Las filas con correcta = 0 de una pregunta son sus fallos. El
+       puntaje del final sigue contando el primer intento. Sin cambios en el
+       Apps Script publicado (solo se corrigió un comentario en el repositorio).
