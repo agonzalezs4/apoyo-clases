@@ -1,0 +1,226 @@
+{
+  "nombre": "refuerzo-examen3",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-23",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Dos estudios de cohorte encuentran el mismo RR = 1,5. Estudio A, con 200 personas: IC 95% de 0,8 a 2,8. Estudio B, con 5.000 personas: IC 95% de 1,3 a 1,7. ¿Qué explica la diferencia entre los dos intervalos?",
+      "opciones": [
+        "El estudio B es más preciso porque tiene más personas",
+        "El estudio B tiene un efecto más grande que el A",
+        "El estudio A tiene más sesgo porque es más pequeño",
+        "El estudio A está mal calculado, porque su IC incluye el 1"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Más personas, intervalo más angosto. El efecto estimado es el mismo (1,5). Solo B es estadísticamente significativo, porque su intervalo no incluye el 1.",
+        "El efecto es el mismo: RR = 1,5 en los dos.",
+        "El tamaño afecta la precisión (error por azar), no el sesgo (error sistemático).",
+        "Un IC que incluye el 1 no es un error de cálculo. Indica que el resultado no es estadísticamente significativo."
+      ]
+    },
+    {
+      "id": "rp-24",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Una cohorte sigue durante un año a personas con insuficiencia cardíaca. Se hospitalizó el 6% de quienes tuvieron seguimiento farmacéutico y el 12% de quienes no lo tuvieron. ¿Qué frase interpreta bien el riesgo relativo?",
+      "opciones": [
+        "El grupo con seguimiento tuvo 6 veces menos riesgo que el grupo sin seguimiento",
+        "El grupo con seguimiento tuvo 50 puntos porcentuales menos de riesgo",
+        "El grupo con seguimiento tuvo el doble de riesgo que el grupo sin seguimiento",
+        "El grupo con seguimiento tuvo la mitad del riesgo que el grupo sin seguimiento"
+      ],
+      "correcta": 3,
+      "retro": [
+        "6 es la diferencia en puntos porcentuales (12 menos 6), no una razón.",
+        "La reducción relativa es 50%, pero en puntos porcentuales la diferencia es 6 (de 12% a 6%).",
+        "Está invertido. 2 sale de dividir 12% por 6%, que compara al grupo sin seguimiento con el grupo con seguimiento.",
+        "RR = 6% dividido por 12% = 0,5. Un RR menor que 1 indica menor riesgo en el grupo expuesto, aquí quienes tuvieron seguimiento."
+      ]
+    },
+    {
+      "id": "rp-25",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "En una cohorte de un año, tuvo una caída el 12% de las personas mayores que usan benzodiazepinas y el 7% de las que no las usan. ¿Cuál es el riesgo atribuible en expuestos y qué significa?",
+      "opciones": [
+        "1,7 por 100. De cada 100 personas expuestas, 1,7 caídas se atribuyen al fármaco",
+        "5 por 100. De cada 100 personas expuestas, 5 caídas se atribuyen al fármaco",
+        "12 por 100. De cada 100 personas expuestas, 12 caídas se atribuyen al fármaco",
+        "20 por 100. De cada 100 personas expuestas, 20 caídas se atribuyen al fármaco"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Dividiste en vez de restar. 12 dividido por 7 es el RR (1,7 veces), no el riesgo atribuible.",
+        "Riesgo atribuible = 12% menos 7% = 5 puntos porcentuales. Son las caídas de más por cada 100 personas expuestas, si la asociación es causal.",
+        "Ese es el riesgo total en quienes usan benzodiazepinas. Parte de esas caídas habría ocurrido igual sin el fármaco (7 de cada 100).",
+        "20 sale de 1 dividido por 0,05. Es cuántas personas tienen que usar el fármaco para que ocurra una caída de más. Es otra medida."
+      ]
+    },
+    {
+      "id": "rp-26",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "Un CESFAM sigue durante un año a 1.000 personas con diabetes. Al inicio, 200 ya tenían daño renal. Durante el año, 40 de las demás lo desarrollan. No hubo pérdidas. ¿Cuál es la incidencia acumulada de daño renal en un año?",
+      "opciones": [
+        "4%",
+        "5%",
+        "20%",
+        "24%"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Dejaste en el denominador a las 200 personas que ya tenían daño renal. Ellas no pueden ser casos nuevos.",
+        "Casos nuevos (40) entre personas en riesgo al inicio (1.000 menos 200 = 800). 40 dividido por 800 = 5%.",
+        "Esa es la prevalencia al inicio (200 de 1.000): casos que ya existían.",
+        "Esa es la prevalencia de período. Suma los casos que ya existían y los nuevos (240 de 1.000)."
+      ]
+    },
+    {
+      "id": "rp-27",
+      "tipo": "alt",
+      "tema": "Morbilidad y mortalidad",
+      "multi": false,
+      "texto": "La comuna A tiene una tasa cruda de mortalidad de 10 por 1.000 habitantes y la comuna B, de 6 por 1.000. En A, el 30% de la población tiene 65 años o más. En B, el 10%. ¿Qué conviene usar para comparar el riesgo de morir entre las dos comunas?",
+      "opciones": [
+        "Las tasas crudas, porque ya incluyen a toda la población de cada comuna",
+        "La letalidad, porque mide la gravedad de las enfermedades en cada comuna",
+        "Las tasas ajustadas por edad, porque la estructura de edad es distinta",
+        "La mortalidad proporcional, porque no depende del tamaño de la población"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La tasa cruda sirve para describir cuánto se muere en cada comuna. Pero A tiene muchas más personas mayores, y eso solo ya sube su tasa.",
+        "La letalidad mide muertes entre los enfermos de una enfermedad. No compara el riesgo de morir de toda la población.",
+        "El ajuste responde qué pasaría si las dos comunas tuvieran la misma estructura de edad. Así, la diferencia que quede no se debe a que una es más envejecida.",
+        "La mortalidad proporcional dice qué parte de las muertes se debe a cada causa. No mide el riesgo de morir."
+      ]
+    },
+    {
+      "id": "rp-28",
+      "tipo": "alt",
+      "tema": "Diseños observacionales",
+      "multi": false,
+      "texto": "Un hospital revisa fichas de los últimos 5 años. Selecciona a 60 pacientes que tuvieron hemorragia digestiva y a 120 que no la tuvieron, y luego busca en las fichas quiénes usaban antiinflamatorios antes. ¿Qué diseño es y qué medida corresponde?",
+      "opciones": [
+        "Casos y controles, porque se eligió según el evento o desenlace. Se calcula OR",
+        "Cohorte retrospectiva, porque usa fichas de años anteriores. Se calcula RR",
+        "Transversal, porque los datos se revisan en un solo momento. Se calcula RP",
+        "Cohorte retrospectiva, porque se eligió según la exposición previa. Se calcula OR"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Se parte del evento o desenlace (con y sin hemorragia) y se mira hacia atrás la exposición. Como el investigador fijó cuántos casos y controles hay, no se puede calcular riesgo. Se comparan las odds de exposición.",
+        "Mirar al pasado no define el diseño. Importa cómo se eligió a las personas: aquí, por tener o no la hemorragia.",
+        "En un estudio transversal se mide exposición y desenlace a la vez en una muestra. Aquí se eligió a las personas por el desenlace.",
+        "No se eligió por exposición. Si se hubiera partido de usuarios y no usuarios de antiinflamatorios, sería una cohorte."
+      ]
+    },
+    {
+      "id": "rp-29",
+      "tipo": "alt",
+      "tema": "Ámbitos y bases",
+      "multi": false,
+      "texto": "Una campaña busca bajar la hipertensión con tres acciones a la vez: educar a cada paciente, mejorar la oferta de alimentos en los barrios y regular la sal de los alimentos envasados. ¿Qué paradigma está detrás de esa estrategia?",
+      "opciones": [
+        "Miasma",
+        "Germen",
+        "Caja negra",
+        "Caja china"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Ese paradigma propone sanear el ambiente: agua, basura, aire.",
+        "Ese paradigma busca un agente específico para cortar su transmisión.",
+        "La caja negra mira factores de riesgo de cada persona, como los estilos de vida. Aquí se interviene también en el barrio y en la regulación.",
+        "Interviene a la vez en varios niveles, uno dentro de otro: la persona, su entorno y la sociedad."
+      ]
+    },
+    {
+      "id": "rp-30",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Para seguir la influenza, el Ministerio de Salud recibe cada semana los datos de un grupo de centros de salud elegidos de antemano, que informan cuántas consultas por enfermedad tipo influenza atendieron. ¿Qué tipo de vigilancia es?",
+      "opciones": [
+        "Pasiva",
+        "Activa",
+        "Centinela",
+        "De laboratorio"
+      ],
+      "correcta": 2,
+      "retro": [
+        "En la pasiva notifican todos los establecimientos, de rutina. Aquí informa solo un grupo elegido de antemano.",
+        "En la activa el equipo sale a buscar los casos. Aquí los centros informan lo que atienden.",
+        "Vigila un evento de forma permanente en algunos establecimientos elegidos, que representan lo que pasa en el resto.",
+        "Esa se basa en laboratorios que informan los agentes que identifican. Aquí se informan consultas."
+      ]
+    },
+    {
+      "id": "rp-31",
+      "tipo": "alt",
+      "tema": "Vigilancia",
+      "multi": false,
+      "texto": "Una farmacia comunitaria nota que en diez días se duplicó la venta de antipiréticos infantiles y de jarabes para la tos en su barrio. ¿Qué corresponde hacer desde el punto de vista de la vigilancia?",
+      "opciones": [
+        "Avisar a la SEREMI de Salud, porque puede ser la señal de un brote",
+        "Registrarlo como un dato de ventas, porque no es información de salud",
+        "Esperar a que un hospital confirme casos, porque la farmacia no notifica",
+        "Avisar al Ministerio de Salud, porque es quien investiga brotes en terreno"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Un aumento sostenido de la dispensación es una señal. La farmacia detecta y avisa, y la SEREMI analiza y coordina el control en la región.",
+        "La dispensación sí sirve para la vigilancia. Muchas veces el alza se ve primero en la farmacia.",
+        "Esperar retrasa el control. Detectar y avisar a tiempo es parte del rol de los establecimientos y farmacias.",
+        "El Ministerio norma y consolida los datos del país. El análisis y el control en la región los coordina la SEREMI."
+      ]
+    },
+    {
+      "id": "rp-32",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "En una ficha se registra cuántos medicamentos distintos toma cada persona al día (por ejemplo 0, 1, 2 o 7). ¿Qué tipo de variable es?",
+      "opciones": [
+        "Cualitativa nominal",
+        "Cualitativa ordinal",
+        "Cuantitativa continua",
+        "Cuantitativa discreta"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Una nominal solo nombra categorías sin orden, como el tipo de previsión.",
+        "Tiene orden, pero además son cantidades que se pueden sumar y restar. Eso la hace cuantitativa.",
+        "Una continua admite valores intermedios, como 2,5. Nadie toma 2,5 medicamentos.",
+        "Es un conteo: toma valores enteros y no admite valores intermedios."
+      ]
+    },
+    {
+      "id": "rp-33",
+      "tipo": "alt",
+      "tema": "Operacionalización",
+      "multi": false,
+      "texto": "Un estudio quiere saber si la cantidad de horas de sueño influye en la presión arterial sistólica de personas adultas. ¿Cuál es la variable dependiente y por qué?",
+      "opciones": [
+        "Las horas de sueño, porque son la causa que se propone",
+        "Las horas de sueño, porque se miden antes que la presión",
+        "La presión sistólica, porque es el efecto que se quiere explicar",
+        "La presión sistólica, porque se puede modificar con tratamiento"
+      ],
+      "correcta": 2,
+      "retro": [
+        "La causa que se propone es la variable independiente.",
+        "El orden en que se mide no define el rol. Las horas de sueño son la variable independiente.",
+        "La dependiente es el efecto o resultado. Depende de la otra variable, que aquí son las horas de sueño.",
+        "Es la dependiente, pero no por eso. Lo es porque es el resultado que el estudio quiere explicar."
+      ]
+    }
+  ]
+}
