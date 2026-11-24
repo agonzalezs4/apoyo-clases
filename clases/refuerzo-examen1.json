@@ -1,0 +1,226 @@
+{
+  "nombre": "refuerzo-examen1",
+  "recopilar": true,
+  "p": [
+    {
+      "id": "rp-01",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Estudio A: se sortean 500 personas del padrón de un CESFAM para encuestarlas sobre automedicación. Estudio B: 500 voluntarios con insomnio se sortean para recibir melatonina o placebo. ¿Qué gana cada estudio con su sorteo?",
+      "opciones": [
+        "A: grupos comparables (validez interna). B: muestra representativa (validez externa)",
+        "A: muestra representativa (validez externa). B: grupos comparables (validez interna)",
+        "En ambos, muestra representativa (validez externa)",
+        "En ambos, grupos comparables (validez interna)"
+      ],
+      "correcta": 1,
+      "retro": [
+        "Está al revés. En A se sortea quién entra. En B, qué recibe cada uno.",
+        "Sortear quién entra hace que la muestra se parezca al padrón, y eso permite generalizar. Sortear qué recibe cada persona deja dos grupos parecidos, y eso permite comparar.",
+        "Los voluntarios de B no representan a todas las personas con insomnio, porque nadie sorteó quién entraba.",
+        "En A no hay grupos de tratamiento que comparar. Solo se eligió a quién encuestar."
+      ]
+    },
+    {
+      "id": "rp-02",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un hospital, cada médico decide a qué pacientes con neumonía darles un antibiótico nuevo, y suele reservarlo para los más graves. Al mes, la mortalidad fue mayor entre quienes lo recibieron. ¿Cuál es la lectura más razonable?",
+      "opciones": [
+        "El antibiótico nuevo aumenta la mortalidad",
+        "Faltó cegamiento al registrar las muertes",
+        "Los grupos partieron distintos en gravedad",
+        "El resultado se debe al tamaño de la muestra"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Puede ser, pero estos datos no lo muestran. Los grupos no eran comparables al partir.",
+        "Sin cegamiento puede cambiar cómo se cuida a cada paciente, pero una muerte se registra igual. La explicación principal está antes: en quién recibió qué.",
+        "Los más graves recibieron el fármaco nuevo, y los más graves también mueren más. Esto se llama confusión por indicación: el motivo para indicar el fármaco (la gravedad) también afecta el resultado. Un sorteo habría repartido la gravedad entre los dos grupos.",
+        "El tamaño afecta la precisión. No explica una diferencia entre grupos que partieron distintos."
+      ]
+    },
+    {
+      "id": "rp-03",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "Una cadena de farmacias quiere saber si un recordatorio por WhatsApp mejora el retiro mensual de antihipertensivos. ¿Cuál de estos planes es un estudio experimental?",
+      "opciones": [
+        "Comparar el retiro de quienes ya usaban una app de recordatorios con el de quienes no",
+        "Encuestar hoy a los pacientes sobre recordatorios y retiro del último mes",
+        "Comparar el retiro promedio de comunas con y sin programa de recordatorios",
+        "Sortear qué pacientes reciben el recordatorio y comparar el retiro a 6 meses"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Cada persona eligió usar la app y el equipo solo observa. Es una cohorte.",
+        "Exposición y resultado se miden en un mismo momento, sin intervenir. Es un estudio transversal.",
+        "Son datos agregados por comuna y nadie asigna nada. Es un estudio ecológico.",
+        "El equipo asigna la intervención (además, por sorteo), sigue a las personas y compara. Eso es un estudio experimental."
+      ]
+    },
+    {
+      "id": "rp-04",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un ensayo de un analgésico, el sorteo dejó dos grupos parecidos. El ensayo es doble ciego y el dolor se mide preguntando al paciente, de 0 a 10. ¿Qué problema evita el doble ciego?",
+      "opciones": [
+        "Que saber qué se recibe cambie cómo se informa el dolor",
+        "Que los grupos partan distintos en edad o en gravedad del dolor",
+        "Que los voluntarios difieran del resto de personas con dolor",
+        "Que una parte de los pacientes abandone antes del final"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Quien sabe que toma el fármaco nuevo tiende a informar menos dolor, y quien evalúa también se inclina. El cegamiento protege la medición.",
+        "Eso ya lo resolvió el sorteo. El cegamiento actúa después, durante el seguimiento y la medición.",
+        "Eso es validez externa. Depende de a quién se reclutó.",
+        "Los abandonos se manejan con el seguimiento y con el análisis por intención de tratar."
+      ]
+    },
+    {
+      "id": "rp-05",
+      "tipo": "alt",
+      "tema": "Estudios experimentales",
+      "multi": false,
+      "texto": "En un ensayo, 150 de las 500 personas asignadas al fármaco nuevo lo dejan por náuseas. El equipo propone analizar solo a las 350 que lo completaron (análisis por protocolo). ¿Qué se gana y qué se pierde con esa decisión?",
+      "opciones": [
+        "Se gana representatividad de la población y se pierde precisión por tener menos personas",
+        "Se gana ver el efecto en quienes sí lo tomaron y se pierde la comparabilidad del sorteo",
+        "Se gana comparabilidad entre los grupos y se pierde información de quienes abandonaron",
+        "Se gana precisión en la estimación y se pierde el cegamiento de quienes dejaron el fármaco"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El ensayo no buscaba representar a la población. Y lo que se pierde es más grave que la precisión.",
+        "Quienes abandonan suelen ser distintos (aquí, quienes tuvieron náuseas), y los grupos dejan de parecerse. Por intención de tratar es al revés: conserva lo que logró el sorteo y muestra el efecto en condiciones reales, con abandonos incluidos.",
+        "La comparabilidad es justo lo que se pierde al sacar a 150 personas de un solo grupo.",
+        "Con menos personas hay menos precisión. Y saber quién abandonó no revela qué fármaco tenía."
+      ]
+    },
+    {
+      "id": "rp-06",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "Un folleto dice que un fármaco reduce el riesgo de infarto en 25%. En el ensayo, a 2 años, tuvo un infarto el 8% del grupo control y el 6% del grupo tratado. ¿A cuántas personas hay que tratar durante 2 años para evitar un infarto?",
+      "opciones": [
+        "4 personas",
+        "13 personas",
+        "17 personas",
+        "50 personas"
+      ],
+      "correcta": 3,
+      "retro": [
+        "Usaste la reducción relativa (1 dividido por 0,25). El NNT se calcula con la reducción absoluta.",
+        "Usaste el riesgo del grupo control (1 dividido por 0,08).",
+        "Usaste el riesgo del grupo tratado (1 dividido por 0,06).",
+        "La reducción absoluta es 8% menos 6% = 2 puntos porcentuales. NNT = 1 dividido por 0,02 = 50. El 25% del folleto es relativo (2 de 8)."
+      ]
+    },
+    {
+      "id": "rp-07",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Dos ensayos informan su resultado de forma distinta. Ensayo 1: RR = 0,80 (IC 95%: 0,62 a 1,03). Ensayo 2: diferencia de riesgos = −4 puntos porcentuales (IC 95%: −7 a −1). ¿Cuál es estadísticamente significativo?",
+      "opciones": [
+        "Solo el ensayo 1, porque su IC excluye el 0",
+        "Solo el ensayo 2, porque su IC excluye el 0",
+        "Ambos, porque ninguno de los IC incluye el 0",
+        "Ninguno, porque ambos IC incluyen valores bajo 1"
+      ],
+      "correcta": 1,
+      "retro": [
+        "El 0 es el valor nulo de una diferencia. El RR es una razón: su valor nulo es 1, y este IC lo incluye.",
+        "Una razón (RR, OR, RP) se compara con 1. Una diferencia se compara con 0. El IC del ensayo 1 incluye el 1 y el del ensayo 2 excluye el 0. Ojo: que un resultado no sea significativo no prueba que no haya efecto.",
+        "Es cierto que ninguno incluye el 0, pero para el RR el valor que importa es el 1.",
+        "Estar bajo 1 no es el criterio. Importa si el IC contiene el valor nulo de esa medida."
+      ]
+    },
+    {
+      "id": "rp-08",
+      "tipo": "alt",
+      "tema": "Valor p e IC",
+      "multi": false,
+      "texto": "Un ensayo compara dos antihipertensivos, con 60 personas por grupo. A los 3 meses, la presión sistólica bajó en promedio 12 mmHg con el fármaco A y 10 mmHg con el B. La hipótesis nula (H0) dice que los dos bajan la presión lo mismo. La prueba entrega p = 0,20 y el equipo había fijado α = 0,05. ¿Cuál conclusión es correcta?",
+      "opciones": [
+        "Se acepta H0: ambos fármacos tienen el mismo efecto",
+        "Hay 20% de probabilidad de que H0 sea verdadera",
+        "No se rechaza H0: falta evidencia de una diferencia",
+        "Hay 80% de probabilidad de que los fármacos difieran"
+      ],
+      "correcta": 2,
+      "retro": [
+        "H0 no se acepta. No encontrar diferencia no demuestra que los fármacos sean iguales. Si en una prueba aparece la palabra aceptar, léela como no rechazar.",
+        "El valor p se calcula suponiendo que H0 es cierta. No es la probabilidad de que lo sea.",
+        "Como p es mayor que α, no se rechaza H0. Los 2 mmHg de diferencia son compatibles con el azar, y también con una diferencia real que este estudio no alcanzó a detectar.",
+        "1 menos p no es la probabilidad de que exista una diferencia."
+      ]
+    },
+    {
+      "id": "rp-09",
+      "tipo": "alt",
+      "tema": "Prueba bivariada",
+      "multi": false,
+      "texto": "En un ensayo se compara la presión arterial sistólica (mmHg) a 3 meses entre el grupo intervenido y el grupo control. Hay 12 personas por grupo y la presión no distribuye normal. ¿Qué prueba corresponde?",
+      "opciones": [
+        "U de Mann-Whitney",
+        "t de Student",
+        "Chi-cuadrado",
+        "Correlación de Spearman"
+      ],
+      "correcta": 0,
+      "retro": [
+        "Una variable dicotómica (el grupo) y una cuantitativa sin normalidad, en dos grupos independientes y pequeños.",
+        "Responde la misma pregunta, pero supone normalidad o muestras grandes.",
+        "Es para dos variables categóricas. Que falte normalidad no vuelve categórica a la presión.",
+        "Relaciona dos variables cuantitativas u ordinales. Aquí una de las dos es el grupo."
+      ]
+    },
+    {
+      "id": "rp-10",
+      "tipo": "alt",
+      "tema": "Asociación y efecto",
+      "multi": false,
+      "texto": "En un solo día se encuesta a 800 universitarios. Informa insomnio el 30% de quienes toman bebidas energéticas a diario y el 15% de quienes no. ¿Qué frase interpreta bien el resultado?",
+      "opciones": [
+        "El riesgo de desarrollar insomnio es el doble con consumo diario",
+        "La prevalencia de insomnio es 15 veces mayor con consumo diario",
+        "La prevalencia de insomnio es el doble con consumo diario",
+        "El consumo diario de bebidas energéticas duplica el insomnio"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Hablar de riesgo de desarrollar exige seguimiento y casos nuevos. Aquí todo se midió el mismo día.",
+        "15 es la diferencia en puntos porcentuales (30 menos 15), no la razón (30 dividido por 15).",
+        "Es un estudio transversal, así que corresponde la razón de prevalencias: 30 dividido por 15 = 2. No dice qué vino primero.",
+        "Es lenguaje causal. Un estudio transversal no muestra qué ocurrió primero, y pudo ser al revés."
+      ]
+    },
+    {
+      "id": "rp-11",
+      "tipo": "alt",
+      "tema": "Causalidad",
+      "multi": false,
+      "texto": "Supón que el virus papiloma humano (VPH) está presente en todos los casos de cáncer de cuello uterino, pero que la mayoría de las mujeres infectadas no llega a desarrollarlo. Según el modelo de Rothman, ¿qué tipo de causa es el VPH?",
+      "opciones": [
+        "Ni necesaria ni suficiente",
+        "Suficiente, pero no necesaria",
+        "Necesaria, pero no suficiente",
+        "Necesaria y suficiente"
+      ],
+      "correcta": 2,
+      "retro": [
+        "Si está en todos los casos, sin VPH no hay enfermedad. Eso la hace necesaria.",
+        "Está al revés. No basta por sí sola (la mayoría de las infectadas no enferma) y sí está en todos los casos.",
+        "Está en todas las tortas causales (necesaria), pero requiere otras causas componentes para completar una (no suficiente). Igual que el bacilo de Koch en la tuberculosis.",
+        "Si fuera suficiente, toda mujer infectada desarrollaría el cáncer."
+      ]
+    }
+  ]
+}
