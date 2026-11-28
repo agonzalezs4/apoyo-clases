@@ -450,3 +450,9 @@ la descripción de las 56 versiones colapsadas, de la más antigua a la más rec
      - La incidencia (acumulada y tasa) descarta siempre los casos previos.
      - Sin d3: SVG propio. Logo en lib/marca-uss.png.
      - fisher-te/: index.html e index.qmd de la presentación del valor p.
+
+[69] 2026-11-28 · agonzalezs4
+     Conteo anónimo de uso en repasar.html (visitas.js, acción "visita" en Codigo.gs)
+     - Una fila por apertura en la hoja «Visitas»: entrada, clase, sesión al azar,
+       minutos de uso (página visible y tocada en los últimos 2 min) y última actividad.
+     - No envía respuestas ni identifica a nadie; corre en todos los repasos.

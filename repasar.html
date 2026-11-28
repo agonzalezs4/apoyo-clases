@@ -8,6 +8,7 @@
 <script src="config.js"></script>
 <script src="repo.js"></script>
 <script src="recopilar.js"></script>
+<script src="visitas.js"></script>
 <style>
   main { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
   h1 { font-size: 19px; font-weight: 600; line-height: 1.35; margin: 0 0 20px; }
@@ -39,7 +40,8 @@
 // Repaso individual antes del examen, con retroalimentación al responder. No lleva nota.
 // repasar.html?clase=repaso-demo  ->  clases/repaso-demo.json
 // Usa las preguntas "alt" que traen "correcta" (índice desde 0) y "retro" (un texto por alternativa);
-// "tema" y "explicacion" son opcionales. No llama al servidor, salvo el modo opcional de recopilar.js.
+// "tema" y "explicacion" son opcionales. No llama al servidor, salvo el modo opcional de recopilar.js
+// y el conteo anónimo de visitas y minutos de uso de visitas.js.
 const nombre = new URLSearchParams(location.search).get("clase") || "";
 const CLAVE = "repaso_" + nombre;
 const mem = {}; // respaldo si el navegador no deja usar localStorage
