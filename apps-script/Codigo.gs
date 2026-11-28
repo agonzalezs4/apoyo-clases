@@ -57,11 +57,18 @@
  *  - Solo acepta las clases anotadas en REPASOS_CON_REGISTRO (parte vacía: no se guarda nada de ningún repaso).
  *    Además el archivo de la clase debe traer "recopilar": true y el estudiante debe elegir «Practicar y enviar».
  *  - No depende de la votación (ni abierta ni ronda) y no toca la hoja «Respuestas».
+ *
+ * Uso de repasar.html (nuevo):
+ *  - "visita" guarda en la hoja «log_repaso» una fila por cada vez que alguien abre un repaso: fecha de entrada,
+ *    clase, sesión al azar, minutos de uso (página visible y tocada en los últimos 2 min) y última actividad.
+ *    Sin respuestas, nombre ni nada que identifique. Vale para todos los repasos, envíen o no sus respuestas.
+ *  - Una tabla dinámica sobre «log_repaso» (filas: clase; valores: COUNTA de sesion y SUM de minutos_uso) da el resumen.
  */
 
 // Repasos cuyas respuestas se guardan (nombre del archivo de clases/, sin .json). Ej.: ["refuerzo-solemne-2"]
 const REPASOS_CON_REGISTRO = [];
 const HOJA_REPASO = "Repaso";
+const HOJA_VISITAS = "log_repaso";
 const FILAS_REPASO = 10; // máximo de respuestas por llamada (repasar.html envía de a 5)
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la del acceso del profesor. Mejor larga (12 o más caracteres) y que no uses en otro sitio
@@ -99,6 +106,8 @@ function doGet(e) {
       out = lote_(p.d, p.v, p.n); // todas las respuestas de la tanda en una consulta
     } else if (p.accion === "repaso") {
       out = repaso_(p.clase, p.d, p.s, p.v);
+    } else if (p.accion === "visita") {
+      out = visita_(p.clase, p.s, p.t);
     } else if (p.accion === "estados") {
       out = estados_(p.qs);
     } else {
@@ -269,6 +278,33 @@ function hojaRepaso_() {
   if (!h) {
     h = ss.insertSheet(HOJA_REPASO);
     h.appendRow(["fecha", "clase", "id_pregunta", "tema", "respuesta", "correcta", "sesion"]);
+    h.setFrozenRows(1);
+  }
+  return h;
+}
+
+/* Uso anónimo de repasar.html. s = sesión al azar de esa carga; t = segundos de uso acumulados.
+   La primera llamada de una sesión agrega su fila; las siguientes actualizan los minutos de esa misma fila. */
+function visita_(clase, s, t) {
+  const limpio = x => String(x || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 60);
+  clase = limpio(clase); s = limpio(s).slice(0, 24);
+  if (!clase || !s) throw new Error("Visita inválida");
+  const min = Math.round(Math.min(Math.max(Number(t) || 0, 0), 86400) / 6) / 10, h = hojaVisitas_(), ahora = new Date();
+  const celda = min ? h.getRange("C:C").createTextFinder(s).matchEntireCell(true).findNext() : null;
+  if (celda) {
+    const r = h.getRange(celda.getRow(), 4, 1, 2);
+    r.setValues([[Math.max(min, Number(r.getValue()) || 0), ahora]]); // max: un aviso atrasado no baja los minutos
+  } else {
+    h.appendRow([ahora, "'" + clase, "'" + s, min, ahora]);
+  }
+  return { ok: true };
+}
+
+function hojaVisitas_() {
+  const ss = SpreadsheetApp.getActive();
+  const h = ss.getSheetByName(HOJA_VISITAS) || ss.insertSheet(HOJA_VISITAS);
+  if (!h.getLastRow()) { // recién creada o vacía: pone los encabezados
+    h.appendRow(["entrada", "clase", "sesion", "minutos_uso", "ultima_actividad"]);
     h.setFrozenRows(1);
   }
   return h;
