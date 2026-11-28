@@ -59,16 +59,16 @@
  *  - No depende de la votación (ni abierta ni ronda) y no toca la hoja «Respuestas».
  *
  * Uso de repasar.html (nuevo):
- *  - "visita" guarda en la hoja «Visitas» una fila por cada vez que alguien abre un repaso: fecha de entrada,
+ *  - "visita" guarda en la hoja «log_repaso» una fila por cada vez que alguien abre un repaso: fecha de entrada,
  *    clase, sesión al azar, minutos de uso (página visible y tocada en los últimos 2 min) y última actividad.
  *    Sin respuestas, nombre ni nada que identifique. Vale para todos los repasos, envíen o no sus respuestas.
- *  - Una tabla dinámica sobre «Visitas» (filas: clase; valores: COUNTA de sesion y SUM de minutos_uso) da el resumen.
+ *  - Una tabla dinámica sobre «log_repaso» (filas: clase; valores: COUNTA de sesion y SUM de minutos_uso) da el resumen.
  */
 
 // Repasos cuyas respuestas se guardan (nombre del archivo de clases/, sin .json). Ej.: ["refuerzo-solemne-2"]
 const REPASOS_CON_REGISTRO = [];
 const HOJA_REPASO = "Repaso";
-const HOJA_VISITAS = "Visitas";
+const HOJA_VISITAS = "log_repaso";
 const FILAS_REPASO = 10; // máximo de respuestas por llamada (repasar.html envía de a 5)
 
 const CLAVE = "PON_AQUI_TU_CLAVE"; // la del acceso del profesor. Mejor larga (12 o más caracteres) y que no uses en otro sitio
@@ -302,9 +302,8 @@ function visita_(clase, s, t) {
 
 function hojaVisitas_() {
   const ss = SpreadsheetApp.getActive();
-  let h = ss.getSheetByName(HOJA_VISITAS);
-  if (!h) {
-    h = ss.insertSheet(HOJA_VISITAS);
+  const h = ss.getSheetByName(HOJA_VISITAS) || ss.insertSheet(HOJA_VISITAS);
+  if (!h.getLastRow()) { // recién creada o vacía: pone los encabezados
     h.appendRow(["entrada", "clase", "sesion", "minutos_uso", "ultima_actividad"]);
     h.setFrozenRows(1);
   }
